@@ -2,37 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:lmlb/models/clients.dart';
 import 'package:provider/provider.dart';
 
-class ClientScreenArguments {
+class ClientInfoScreenArguments {
   final Client? client;
-  ClientScreenArguments(this.client);
+
+  ClientInfoScreenArguments(this.client);
 }
 
-class ClientScreen extends StatelessWidget {
+class ClientInfoScreen extends StatelessWidget {
   static const routeName = '/client';
 
   @override
   Widget build(BuildContext context) {
     final args =
-        ModalRoute.of(context)!.settings.arguments as ClientScreenArguments;
-    return ClientForm(args.client);
+        ModalRoute.of(context)!.settings.arguments as ClientInfoScreenArguments;
+    return ClientInfoForm(args.client);
   }
 }
 
-class ClientForm extends StatefulWidget {
+class ClientInfoForm extends StatefulWidget {
   final Client? _client;
 
-  ClientForm(this._client);
+  ClientInfoForm(this._client);
 
   @override
   State<StatefulWidget> createState() {
-    return ClientFormState(_client);
+    return ClientInfoFormState(_client);
   }
 }
 
-class ClientFormState extends State<ClientForm> {
+class ClientInfoFormState extends State<ClientInfoForm> {
   final Client? _client;
 
-  ClientFormState(this._client);
+  ClientInfoFormState(this._client);
 
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
@@ -68,6 +69,7 @@ class ClientFormState extends State<ClientForm> {
             children: [
               _buildFirstName(),
               _buildLastName(),
+              if (_client != null) _buildClientNum(),
             ],
           ),
         ),
@@ -77,22 +79,40 @@ class ClientFormState extends State<ClientForm> {
 
   void _onSave() {
     if (_formKey.currentState!.validate()) {
-      Provider.of<Clients>(context, listen: false).add(
-          _firstNameController.value.text,
-          _lastNameController.value.text);
+      Provider.of<Clients>(context, listen: false)
+          .add(_firstNameController.value.text, _lastNameController.value.text);
       Navigator.of(context).pop();
     }
   }
 
+  Widget _buildClientNum() {
+    var clientNum = _client?.displayNum().toString();
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        children: [
+          Container(
+            child: Text("Client Num:"),
+            margin: EdgeInsets.only(right: 10.0),
+          ),
+          Text(clientNum == null ? "NULL" : clientNum),
+        ]
+      ),
+    );
+  }
+
   Widget _buildFirstName() {
-    return _textInput("First Name:", _client?.firstName, _firstNameController, true);
+    return _textInput(
+        "First Name:", _client?.firstName, _firstNameController, true);
   }
 
   Widget _buildLastName() {
-    return _textInput("Last Name:", _client?.lastName, _lastNameController, false);
+    return _textInput(
+        "Last Name:", _client?.lastName, _lastNameController, false);
   }
 
-  static Widget _textInput(String title, String? value, TextEditingController controller, bool autoFocus) {
+  static Widget _textInput(String title, String? value,
+      TextEditingController controller, bool autoFocus) {
     if (value != null) {
       controller.text = value;
     }

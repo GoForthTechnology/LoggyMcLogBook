@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lmlb/models/clients.dart';
-import 'package:lmlb/screens/client.dart';
+import 'package:lmlb/screens/client_info.dart';
 
 class ClientsScreen extends StatelessWidget {
   static const routeName = '/clients';
@@ -25,7 +25,7 @@ class ClientsScreen extends StatelessWidget {
         child: Icon(Icons.add),
         backgroundColor: Colors.green,
         onPressed: () {
-          Navigator.of(context).pushNamed(ClientScreen.routeName, arguments: ClientScreenArguments(null));
+          Navigator.of(context).pushNamed(ClientInfoScreen.routeName, arguments: ClientInfoScreenArguments(null));
         },
       ),
     );
@@ -66,7 +66,7 @@ class ClientTile extends StatelessWidget {
         ),
         onTap: () {
           Navigator.of(context).pushNamed(
-              ClientScreen.routeName, arguments: ClientScreenArguments(client));
+              ClientInfoScreen.routeName, arguments: ClientInfoScreenArguments(client));
         },
       ),
     );
