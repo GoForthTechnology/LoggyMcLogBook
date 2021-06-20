@@ -14,10 +14,10 @@ class ClientsScreen extends StatelessWidget {
         title: const Text('Clients'),
       ),
       body: Consumer<Clients>(
-        builder: (context, value, child) => ListView.builder(
-          itemCount: value.clients.length,
+        builder: (context, model, child) => ListView.builder(
+          itemCount: model.clients.length,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          itemBuilder: (context, index) => ClientTile(value.clients[index]),
+          itemBuilder: (context, index) => ClientTile(model.clients[index]),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -64,6 +64,10 @@ class ClientTile extends StatelessWidget {
             );
           },
         ),
+        onTap: () {
+          Navigator.of(context).pushNamed(
+              ClientScreen.routeName, arguments: ClientScreenArguments(client));
+        },
       ),
     );
   }

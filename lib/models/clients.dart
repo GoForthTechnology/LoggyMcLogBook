@@ -2,26 +2,26 @@
 import 'package:flutter/cupertino.dart';
 
 class Clients extends ChangeNotifier {
-  List<Client> _clients = [];
+  Map<int, Client> _clients = {};
 
-  List<Client> get clients => _clients;
+  List<Client> get clients => _clients.values.toList();
 
-  void add(Client client) {
-    _clients.add(client);
+  void add(String firstName, String lastName) {
+    final int id = _clients.length + 1;
+    _clients[id] = Client(id, firstName, lastName);
     notifyListeners();
   }
 
   void remove(Client client) {
-    _clients.remove(client);
+    _clients.remove(client.num);
     notifyListeners();
   }
 }
 
 class Client {
-  int num;
-  int firstName;
-  int lastName;
-
+  final int num;
+  final String firstName;
+  final String lastName;
   Client(
       this.num,
       this.firstName,
