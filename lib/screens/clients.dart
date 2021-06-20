@@ -55,13 +55,7 @@ class ClientTile extends StatelessWidget {
           key: Key('remove_icon_${client.num}'),
           icon: const Icon(Icons.close),
           onPressed: () {
-            Provider.of<Clients>(context, listen: false).remove(client);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Removed client.'),
-                duration: Duration(seconds: 1),
-              ),
-            );
+            confirmDeletion(context, client);
           },
         ),
         onTap: () {
@@ -69,6 +63,45 @@ class ClientTile extends StatelessWidget {
               ClientInfoScreen.routeName, arguments: ClientInfoScreenArguments(client));
         },
       ),
+    );
+  }
+
+  void confirmDeletion(BuildContext context, Client client) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: Text("Cancel"),
+      onPressed:  () {
+        Navigator.of(context).pop(); // dismiss dialog
+      },
+    );
+    Widget continueButton = TextButton(
+      child: Text("Continue"),
+      onPressed:  () {
+        Navigator.of(context).pop(); // dismiss dialog
+        Provider.of<Clients>(context, listen: false).remove(client);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Removed client.'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Confirm Deletion"),
+      content: Text("Would you like to remove ${client.fullName()}?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

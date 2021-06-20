@@ -28,6 +28,10 @@ class Client {
       this.lastName,
   );
 
+  String fullName() {
+    return "$firstName $lastName";
+  }
+
   int displayNum() {
     return 010000 + num;
   }
