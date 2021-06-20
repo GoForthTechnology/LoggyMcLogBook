@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/screens/client_info.dart';
 import 'package:lmlb/screens/clients.dart';
+import 'package:lmlb/screens/overview.dart';
 import 'package:lmlb/models/clients.dart';
 import 'package:provider/provider.dart';
 
@@ -26,10 +27,11 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: ClientsScreen(),
+      home: OverviewScreen(),
       routes: {
         ClientInfoScreen.routeName: (context) => ClientInfoScreen(),
         ClientsScreen.routeName: (context) => ClientsScreen(),
+        OverviewScreen.routeName: (context) => OverviewScreen(),
       },
     );
   }
