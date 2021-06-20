@@ -14,7 +14,10 @@ class ClientInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args =
-        ModalRoute.of(context)!.settings.arguments as ClientInfoScreenArguments;
+    ModalRoute
+        .of(context)!
+        .settings
+        .arguments as ClientInfoScreenArguments;
     return ClientInfoForm(args.client);
   }
 }
@@ -79,9 +82,15 @@ class ClientInfoFormState extends State<ClientInfoForm> {
 
   void _onSave() {
     if (_formKey.currentState!.validate()) {
-      Provider.of<Clients>(context, listen: false)
-          .add(_firstNameController.value.text, _lastNameController.value.text);
-      Navigator.of(context).pop();
+      final clients = Provider.of<Clients>(context, listen: false);
+      var clientNum = _client?.num;
+      if (clientNum == null) {
+        clients.add(_firstNameController.value.text, _lastNameController.value.text);
+      } else {
+        clients.update(
+            Client(clientNum, _firstNameController.value.text, _lastNameController.value.text));
+      }
+      Navigator.of(context).pop(true);
     }
   }
 

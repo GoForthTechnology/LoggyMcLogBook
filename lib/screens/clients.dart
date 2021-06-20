@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lmlb/models/clients.dart';
@@ -24,11 +23,22 @@ class ClientsScreen extends StatelessWidget {
         // isExtended: true,
         child: Icon(Icons.add),
         backgroundColor: Colors.green,
-        onPressed: () {
-          Navigator.of(context).pushNamed(ClientInfoScreen.routeName, arguments: ClientInfoScreenArguments(null));
-        },
+        onPressed: () => addClient(context),
       ),
     );
+  }
+
+  void addClient(BuildContext context) {
+    Navigator.of(context)
+        .pushNamed(ClientInfoScreen.routeName,
+            arguments: ClientInfoScreenArguments(null))
+        .then((updated) {
+      if (updated as bool) {
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text('Client added')));
+      }
+    });
   }
 }
 
@@ -36,7 +46,7 @@ class ClientTile extends StatelessWidget {
   Client client;
 
   ClientTile(
-      this.client,
+    this.client,
   );
 
   @override
@@ -45,7 +55,8 @@ class ClientTile extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.primaries[client.num % Colors.primaries.length],
+          backgroundColor:
+              Colors.primaries[client.num % Colors.primaries.length],
         ),
         title: Text(
           '${client.firstName} ${client.lastName}',
@@ -59,8 +70,16 @@ class ClientTile extends StatelessWidget {
           },
         ),
         onTap: () {
-          Navigator.of(context).pushNamed(
-              ClientInfoScreen.routeName, arguments: ClientInfoScreenArguments(client));
+          Navigator.of(context)
+              .pushNamed(ClientInfoScreen.routeName,
+                  arguments: ClientInfoScreenArguments(client))
+              .then((result) {
+            if (result as bool) {
+              ScaffoldMessenger.of(context)
+                ..removeCurrentSnackBar()
+                ..showSnackBar(SnackBar(content: Text('Client updated')));
+            }
+          });
         },
       ),
     );
@@ -70,13 +89,13 @@ class ClientTile extends StatelessWidget {
     // set up the buttons
     Widget cancelButton = TextButton(
       child: Text("Cancel"),
-      onPressed:  () {
+      onPressed: () {
         Navigator.of(context).pop(); // dismiss dialog
       },
     );
     Widget continueButton = TextButton(
       child: Text("Continue"),
-      onPressed:  () {
+      onPressed: () {
         Navigator.of(context).pop(); // dismiss dialog
         Provider.of<Clients>(context, listen: false).remove(client);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -105,4 +124,3 @@ class ClientTile extends StatelessWidget {
     );
   }
 }
-

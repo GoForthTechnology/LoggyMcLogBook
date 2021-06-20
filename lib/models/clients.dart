@@ -12,6 +12,11 @@ class Clients extends ChangeNotifier {
     notifyListeners();
   }
 
+  void update(Client client) {
+    _clients[client.num] = client;
+    notifyListeners();
+  }
+
   void remove(Client client) {
     _clients.remove(client.num);
     notifyListeners();
