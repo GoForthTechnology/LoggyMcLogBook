@@ -1,5 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
+import 'package:lmlb/entities/client.dart';
 
 class Clients extends ChangeNotifier {
   Map<int, Client> _clients = {};
@@ -24,24 +25,5 @@ class Clients extends ChangeNotifier {
   void remove(Client client) {
     _clients.remove(client.num);
     notifyListeners();
-  }
-}
-
-class Client {
-  final int num;
-  final String firstName;
-  final String lastName;
-  Client(
-      this.num,
-      this.firstName,
-      this.lastName,
-  );
-
-  String fullName() {
-    return "$firstName $lastName";
-  }
-
-  int displayNum() {
-    return 010000 + num;
   }
 }

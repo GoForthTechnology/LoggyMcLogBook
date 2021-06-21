@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lmlb/entities/client.dart';
 import 'package:provider/provider.dart';
 import 'package:lmlb/models/clients.dart';
 import 'package:lmlb/screens/client_info.dart';
