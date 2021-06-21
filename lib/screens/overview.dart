@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lmlb/screens/clients.dart';
 import 'package:provider/provider.dart';
+import 'package:lmlb/models/appointments.dart';
 import 'package:lmlb/models/clients.dart';
+import 'package:lmlb/screens/appointments.dart';
+import 'package:lmlb/screens/clients.dart';
 
 class OverviewScreen extends StatelessWidget {
   static const routeName = '/overview';
@@ -18,18 +20,10 @@ class OverviewScreen extends StatelessWidget {
               flex: 1,
               child: Column(
                 children: [
-                  clientOverview(context, height: 150),
                   clientOverview(context),
+                  appointmentOverview(context),
                 ],
               )),
-          Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  clientOverview(context),
-                  clientOverview(context),
-                ],
-              ))
         ],
       ),
     );
@@ -43,6 +37,16 @@ class OverviewScreen extends StatelessWidget {
         Consumer<Clients>(
             builder: (context, model, child) =>
                 Text("Num Clients: ${model.clients.length}")));
+  }
+
+  Widget appointmentOverview(BuildContext context) {
+    return overviewContainer(
+        context,
+        "Appointment Overview",
+        AppointmentsScreen.routeName,
+        Consumer<Appointments>(
+            builder: (context, model, child) =>
+                Text("Num Upcoming: ${model.get(timeFilter: DateTime.now()).length}")));
   }
 
   Widget overviewContainer(

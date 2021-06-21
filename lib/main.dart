@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:lmlb/screens/appointment_info.dart';
+import 'package:lmlb/screens/appointments.dart';
 import 'package:lmlb/screens/client_info.dart';
 import 'package:lmlb/screens/clients.dart';
 import 'package:lmlb/screens/overview.dart';
+import 'package:lmlb/models/appointments.dart';
 import 'package:lmlb/models/clients.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(create: (context) => Clients(), child: MyApp()));
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => Clients()),
+        ChangeNotifierProvider(create: (context) => Appointments()),
+      ],
+      child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -29,6 +37,8 @@ class MyApp extends StatelessWidget {
       ),
       home: OverviewScreen(),
       routes: {
+        AppointmentsScreen.routeName: (context) => AppointmentsScreen(),
+        AppointmentInfoScreen.routeName: (context) => AppointmentInfoScreen(),
         ClientInfoScreen.routeName: (context) => ClientInfoScreen(),
         ClientsScreen.routeName: (context) => ClientsScreen(),
         OverviewScreen.routeName: (context) => OverviewScreen(),

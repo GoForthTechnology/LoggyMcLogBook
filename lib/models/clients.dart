@@ -6,6 +6,10 @@ class Clients extends ChangeNotifier {
 
   List<Client> get clients => _clients.values.toList();
 
+  Client? get(int id) {
+    return _clients[id];
+  }
+
   void add(String firstName, String lastName) {
     final int id = _clients.length + 1;
     _clients[id] = Client(id, firstName, lastName);
