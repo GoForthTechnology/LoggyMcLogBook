@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:lmlb/database/database.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:lmlb/screens/client_info.dart';
 import 'package:lmlb/screens/clients.dart';
 import 'package:lmlb/screens/overview.dart';
-import 'package:lmlb/models/appointments.dart';
-import 'package:lmlb/models/clients.dart';
+import 'package:lmlb/repos/appointments.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:provider/provider.dart';
 
-void main() {
-  runApp(MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => Clients()),
-        ChangeNotifierProvider(create: (context) => Appointments()),
-      ],
-      child: MyApp()));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await $FloorAppDatabase
+      .databaseBuilder('app_database.db')
+      .addMigrations(migrations)
+      .build()
+      .then((database) => initProviders(database, MyApp()))
+      .then(runApp);
+}
+
+Future<Widget> initProviders(AppDatabase database, Widget app) {
+  final clients = Clients(database.clientDao);
+  final appointments = Appointments(database.appointmentDao);
+  final init = Future.wait<Object>([clients.init(), appointments.init()]);
+  return init.then((_) => MultiProvider(providers: [
+        ChangeNotifierProvider.value(value: clients),
+        ChangeNotifierProvider.value(value: appointments),
+      ], child: app));
 }
 
 class MyApp extends StatelessWidget {

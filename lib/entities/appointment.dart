@@ -1,10 +1,16 @@
 
+import 'package:floor/floor.dart';
+
+@entity
 class Appointment {
-  AppointmentType type;
-  DateTime time;
-  Duration duration;
-  int clientId;
+  @PrimaryKey(autoGenerate: true)
+  final int? id;
+  final AppointmentType type;
+  final DateTime time;
+  final Duration duration;
+  final int clientId;
   Appointment(
+      this.id,
       this.type,
       this.time,
       this.duration,

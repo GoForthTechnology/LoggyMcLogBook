@@ -3,7 +3,7 @@ import 'package:floor/floor.dart';
 @entity
 class Client {
   @primaryKey
-  final int num;
+  final int? num;
   final String firstName;
   final String lastName;
   Client(
@@ -16,7 +16,7 @@ class Client {
     return "$firstName $lastName";
   }
 
-  int displayNum() {
-    return 010000 + num;
+  int? displayNum() {
+    return (num == null) ? null : num! + 010000;
   }
 }

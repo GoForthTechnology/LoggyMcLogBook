@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:lmlb/models/appointments.dart';
-import 'package:lmlb/models/clients.dart';
+import 'package:lmlb/repos/appointments.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:lmlb/screens/clients.dart';
 
@@ -36,7 +36,7 @@ class OverviewScreen extends StatelessWidget {
         ClientsScreen.routeName,
         Consumer<Clients>(
             builder: (context, model, child) =>
-                Text("Num Clients: ${model.clients.length}")));
+                Text("Num Clients: ${model.getAll().length}")));
   }
 
   Widget appointmentOverview(BuildContext context) {

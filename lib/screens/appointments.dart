@@ -3,8 +3,8 @@ import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:provider/provider.dart';
-import 'package:lmlb/models/appointments.dart';
-import 'package:lmlb/models/clients.dart';
+import 'package:lmlb/repos/appointments.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/screens/client_info.dart';
 
 class AppointmentsScreen extends StatelessWidget {
@@ -25,7 +25,8 @@ class AppointmentsScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final appointment = appointments[index];
               return AppointmentTile(
-                  appointment, clientsModel.get(appointment.clientId)!,
+                appointment,
+                clientsModel.get(appointment.clientId)!,
               );
             });
       }),
@@ -107,17 +108,16 @@ class AppointmentTile extends StatelessWidget {
       child: Text("Continue"),
       onPressed: () {
         Navigator.of(context).pop(); // dismiss dialog
-        String? error = Provider.of<Appointments>(context, listen: false)
-            .remove(appointment);
-        if (error != null) {
-        } else {
+        Provider.of<Appointments>(context, listen: false)
+            .remove(appointment)
+            .then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Removed client.'),
               duration: Duration(seconds: 1),
             ),
           );
-        }
+        });
       },
     );
     // set up the AlertDialog

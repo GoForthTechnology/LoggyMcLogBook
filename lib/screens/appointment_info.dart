@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
-import 'package:lmlb/models/appointments.dart';
-import 'package:lmlb/models/clients.dart';
+import 'package:lmlb/repos/appointments.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:provider/provider.dart';
 
 class AppointmentInfoScreenArguments {
@@ -56,7 +56,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      if (Provider.of<Clients>(context, listen: false).clients.isEmpty) {
+      if (Provider.of<Clients>(context, listen: false).getAll().isEmpty) {
         Widget continueButton = TextButton(
           child: Text("Ack"),
           onPressed: () {
@@ -124,17 +124,18 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
 
   void _onSave() {
     if (_formKey.currentState!.validate()) {
-      Provider.of<Appointments>(context, listen: false).add(
-          _clientId!,
-          DateTime(
-              _appointmentDate!.year,
-              _appointmentDate!.month,
-              _appointmentDate!.day,
-              _appointmentTime!.hour,
-              _appointmentTime!.minute),
-          Duration(hours: 1),
-          _appointmentType!);
-      Navigator.of(context).pop(true);
+      final appointmentTime = DateTime(
+          _appointmentDate!.year,
+          _appointmentDate!.month,
+          _appointmentDate!.day,
+          _appointmentTime!.hour,
+          _appointmentTime!.minute);
+      Provider.of<Appointments>(context, listen: false)
+          .add(_clientId!, appointmentTime, Duration(hours: 1),
+              _appointmentType!)
+          .then((_) {
+        Navigator.of(context).pop(true);
+      });
     } else {
       print("Validation error");
     }
@@ -245,7 +246,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
                     state,
                     DropdownButton<Client>(
                       hint: Text('Please make a selection'),
-                      items: clientModel.clients.map((client) {
+                      items: clientModel.getAll().map((client) {
                         return DropdownMenuItem<Client>(
                           value: client,
                           child: new Text(client.fullName()),

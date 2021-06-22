@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:provider/provider.dart';
-import 'package:lmlb/models/clients.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/screens/client_info.dart';
 
 class ClientsScreen extends StatelessWidget {
@@ -15,9 +15,9 @@ class ClientsScreen extends StatelessWidget {
       ),
       body: Consumer<Clients>(
         builder: (context, model, child) => ListView.builder(
-          itemCount: model.clients.length,
+          itemCount: model.getAll().length,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          itemBuilder: (context, index) => ClientTile(model.clients[index]),
+          itemBuilder: (context, index) => ClientTile(model.getAll()[index]),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -57,7 +57,9 @@ class ClientTile extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor:
-              Colors.primaries[client.num % Colors.primaries.length],
+              client.num == null
+                  ? Colors.black
+                  : Colors.primaries[client.num! % Colors.primaries.length],
         ),
         title: Text(
           '${client.firstName} ${client.lastName}',

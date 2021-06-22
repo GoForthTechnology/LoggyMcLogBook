@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
-import 'package:lmlb/models/clients.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:provider/provider.dart';
 
 class ClientInfoScreenArguments {
@@ -71,9 +71,9 @@ class ClientInfoFormState extends State<ClientInfoForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (_client != null) _buildClientNum(),
               _buildFirstName(),
               _buildLastName(),
-              if (_client != null) _buildClientNum(),
             ],
           ),
         ),
@@ -85,13 +85,13 @@ class ClientInfoFormState extends State<ClientInfoForm> {
     if (_formKey.currentState!.validate()) {
       final clients = Provider.of<Clients>(context, listen: false);
       var clientNum = _client?.num;
+      Future<void> op;
       if (clientNum == null) {
-        clients.add(_firstNameController.value.text, _lastNameController.value.text);
+        op = clients.add(_firstNameController.value.text, _lastNameController.value.text);
       } else {
-        clients.update(
-            Client(clientNum, _firstNameController.value.text, _lastNameController.value.text));
+        op = clients.update(Client(clientNum, _firstNameController.value.text, _lastNameController.value.text));
       }
-      Navigator.of(context).pop(true);
+      op.then((_) => Navigator.of(context).pop(true));
     }
   }
 
