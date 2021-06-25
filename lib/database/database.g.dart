@@ -64,10 +64,12 @@ class _$AppDatabase extends AppDatabase {
 
   ClientDao? _clientDaoInstance;
 
+  InvoiceDao? _invoiceDaoInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 2,
+      version: 3,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -86,6 +88,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `Appointment` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `type` INTEGER NOT NULL, `time` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `clientId` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Client` (`num` INTEGER, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, PRIMARY KEY (`num`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `Invoice` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `clientId` INTEGER NOT NULL, `currency` INTEGER NOT NULL, `dateCreated` INTEGER NOT NULL, `dateBilled` INTEGER, `datePaid` INTEGER, FOREIGN KEY (`clientId`) REFERENCES `Client` (`num`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -102,6 +106,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   ClientDao get clientDao {
     return _clientDaoInstance ??= _$ClientDao(database, changeListener);
+  }
+
+  @override
+  InvoiceDao get invoiceDao {
+    return _invoiceDaoInstance ??= _$InvoiceDao(database, changeListener);
   }
 }
 
@@ -268,7 +277,102 @@ class _$ClientDao extends ClientDao {
   }
 }
 
+class _$InvoiceDao extends InvoiceDao {
+  _$InvoiceDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database),
+        _invoiceInsertionAdapter = InsertionAdapter(
+            database,
+            'Invoice',
+            (Invoice item) => <String, Object?>{
+                  'id': item.id,
+                  'clientId': item.clientId,
+                  'currency': _currencyConverter.encode(item.currency),
+                  'dateCreated': _dateTimeConverter.encode(item.dateCreated),
+                  'dateBilled':
+                      _dateTimeNullableConverter.encode(item.dateBilled),
+                  'datePaid': _dateTimeNullableConverter.encode(item.datePaid)
+                }),
+        _invoiceUpdateAdapter = UpdateAdapter(
+            database,
+            'Invoice',
+            ['id'],
+            (Invoice item) => <String, Object?>{
+                  'id': item.id,
+                  'clientId': item.clientId,
+                  'currency': _currencyConverter.encode(item.currency),
+                  'dateCreated': _dateTimeConverter.encode(item.dateCreated),
+                  'dateBilled':
+                      _dateTimeNullableConverter.encode(item.dateBilled),
+                  'datePaid': _dateTimeNullableConverter.encode(item.datePaid)
+                }),
+        _invoiceDeletionAdapter = DeletionAdapter(
+            database,
+            'Invoice',
+            ['id'],
+            (Invoice item) => <String, Object?>{
+                  'id': item.id,
+                  'clientId': item.clientId,
+                  'currency': _currencyConverter.encode(item.currency),
+                  'dateCreated': _dateTimeConverter.encode(item.dateCreated),
+                  'dateBilled':
+                      _dateTimeNullableConverter.encode(item.dateBilled),
+                  'datePaid': _dateTimeNullableConverter.encode(item.datePaid)
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Invoice> _invoiceInsertionAdapter;
+
+  final UpdateAdapter<Invoice> _invoiceUpdateAdapter;
+
+  final DeletionAdapter<Invoice> _invoiceDeletionAdapter;
+
+  @override
+  Future<List<Invoice>> getAll() async {
+    return _queryAdapter.queryList('SELECT * FROM Invoice',
+        mapper: (Map<String, Object?> row) => Invoice(
+            row['id'] as int?,
+            row['clientId'] as int,
+            _currencyConverter.decode(row['currency'] as int),
+            _dateTimeConverter.decode(row['dateCreated'] as int)));
+  }
+
+  @override
+  Future<Invoice?> get(int id) async {
+    return _queryAdapter.query('SELECT * FROM Invoice WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => Invoice(
+            row['id'] as int?,
+            row['clientId'] as int,
+            _currencyConverter.decode(row['currency'] as int),
+            _dateTimeConverter.decode(row['dateCreated'] as int)),
+        arguments: [id]);
+  }
+
+  @override
+  Future<int> insert(Invoice appointment) {
+    return _invoiceInsertionAdapter.insertAndReturnId(
+        appointment, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> update(Invoice appointment) {
+    return _invoiceUpdateAdapter.updateAndReturnChangedRows(
+        appointment, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> remove(Invoice appointment) {
+    return _invoiceDeletionAdapter.deleteAndReturnChangedRows(appointment);
+  }
+}
+
 // ignore_for_file: unused_element
 final _appointmentTypeConverter = AppointmentTypeConverter();
+final _currencyConverter = CurrencyConverter();
 final _dateTimeConverter = DateTimeConverter();
+final _dateTimeNullableConverter = DateTimeNullableConverter();
 final _durationConverter = DurationConverter();

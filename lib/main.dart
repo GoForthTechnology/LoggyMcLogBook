@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/database/database.dart';
+import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:lmlb/screens/client_info.dart';
@@ -23,11 +24,13 @@ void main() async {
 Future<Widget> initProviders(AppDatabase database, Widget app) {
   final clients = Clients(database.clientDao);
   final appointments = Appointments(database.appointmentDao);
-  final init = Future.wait<Object>([clients.init(), appointments.init()]);
+  final invoices = Invoices(database.invoiceDao);
+  final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
   return init.then((_) => MultiProvider(providers: [
         ChangeNotifierProvider.value(value: clients),
         ChangeNotifierProvider.value(value: appointments),
-      ], child: app));
+        ChangeNotifierProvider.value(value: invoices),
+  ], child: app));
 }
 
 class MyApp extends StatelessWidget {

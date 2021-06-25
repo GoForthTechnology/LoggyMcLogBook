@@ -4,7 +4,7 @@ import 'package:floor/floor.dart';
 @entity
 class Appointment {
   @PrimaryKey(autoGenerate: true)
-  final int? id;
+  late final int? id;
   final AppointmentType type;
   final DateTime time;
   final Duration duration;
