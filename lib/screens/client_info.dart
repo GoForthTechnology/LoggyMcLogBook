@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/screens/appointment_info.dart';
+import 'package:lmlb/screens/appointments.dart';
 import 'package:provider/provider.dart';
 
 class ClientInfoScreenArguments {
@@ -15,10 +19,7 @@ class ClientInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args =
-    ModalRoute
-        .of(context)!
-        .settings
-        .arguments as ClientInfoScreenArguments;
+        ModalRoute.of(context)!.settings.arguments as ClientInfoScreenArguments;
     return ClientInfoForm(args.client);
   }
 }
@@ -69,11 +70,13 @@ class ClientInfoFormState extends State<ClientInfoForm> {
         child: Container(
           padding: EdgeInsets.all(10.0),
           child: Column(
+            mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (_client != null) _buildClientNum(),
               _buildFirstName(),
               _buildLastName(),
+              _buildAppointmentSummary(),
             ],
           ),
         ),
@@ -87,28 +90,102 @@ class ClientInfoFormState extends State<ClientInfoForm> {
       var clientNum = _client?.num;
       Future<void> op;
       if (clientNum == null) {
-        op = clients.add(_firstNameController.value.text, _lastNameController.value.text);
+        op = clients.add(
+            _firstNameController.value.text, _lastNameController.value.text);
       } else {
-        op = clients.update(Client(clientNum, _firstNameController.value.text, _lastNameController.value.text));
+        op = clients.update(Client(clientNum, _firstNameController.value.text,
+            _lastNameController.value.text));
       }
       op.then((_) => Navigator.of(context).pop(true));
     }
   }
 
-  Widget _buildClientNum() {
-    var clientNum = _client?.displayNum().toString();
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
+  Widget _buildAppointmentSummary() {
+    return Consumer<Appointments>(builder: (context, model, child) {
+      if (_client?.num == null) {
+        return Container();
+      }
+      final nextAppointment = model.getNext(_client!.num!);
+      return Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            child: Text("Client Num:"),
-            margin: EdgeInsets.only(right: 10.0),
+              margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
+              child: Text("Appointment Summary",
+                  style: Theme.of(context).textTheme.subtitle2)),
+          _buildLastAppointment(model.getLast(_client!.num!), context),
+          _buildNextAppointment(model.getNext(_client!.num!), context),
+          Row(
+            children: [
+              ElevatedButton(
+                  child: Text("View All"),
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppointmentsScreen.routeName,
+                        arguments: AppointmentsScreenArguments(_client));
+                  }),
+            ],
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
           ),
-          Text(clientNum == null ? "NULL" : clientNum),
-        ]
-      ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildLastAppointment(
+      Appointment? lastAppointment, BuildContext context) {
+    return Row(
+      children: [
+        Text(
+            "Last Appointment: ${lastAppointment == null ? "None" : lastAppointment.time.toString()}"),
+        lastAppointment == null
+            ? Container()
+            : TextButton(
+                child: Text("View"),
+                onPressed: () {
+                  Navigator.pushNamed(context, AppointmentInfoScreen.routeName,
+                      arguments:
+                          AppointmentInfoScreenArguments(lastAppointment));
+                }),
+      ],
     );
+  }
+
+  Widget _buildNextAppointment(
+      Appointment? nextAppointment, BuildContext context) {
+    return Row(
+      children: [
+        Text(
+            "Next Appointment: ${nextAppointment == null ? "None" : nextAppointment.time.toString()}"),
+        nextAppointment == null
+            ? Container()
+            : TextButton(
+                child: Text("View"),
+                onPressed: () {
+                  Navigator.pushNamed(context, AppointmentInfoScreen.routeName,
+                      arguments:
+                          AppointmentInfoScreenArguments(nextAppointment));
+                }),
+      ],
+    );
+  }
+
+  Widget _paddedItem(Widget child) {
+    return Container(
+        margin: EdgeInsets.symmetric(vertical: 10.0), child: child);
+  }
+
+  Widget _buildClientNum() {
+    var clientNum = _client?.displayNum().toString();
+    return _paddedItem(Row(children: [
+      Container(
+        child: Text("Client Num:"),
+        margin: EdgeInsets.only(right: 10.0),
+      ),
+      Text(clientNum == null ? "NULL" : clientNum),
+    ]));
   }
 
   Widget _buildFirstName() {

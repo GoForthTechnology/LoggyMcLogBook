@@ -23,12 +23,40 @@ class Appointments extends ChangeNotifier {
     });
   }
 
+  Appointment? getLast(int clientId) {
+    final appointments = get(sorted: true, clientId: clientId);
+    var lastAppointment;
+    for (int i=0; i < appointments.length; i++) {
+      if (appointments[i].time.isBefore(DateTime.now())) {
+        lastAppointment = appointments[i];
+      }
+    }
+    return lastAppointment;
+  }
+
+  Appointment? getNext(int clientId) {
+    final appointments = get(sorted: true, clientId: clientId, timeFilter: DateTime.now());
+    if (appointments.isEmpty) {
+      return null;
+    }
+    return appointments[0];
+  }
+
   List<Appointment> get({bool? sorted, int? clientId, DateTime? timeFilter}) {
     List<Appointment> appointments = [];
     if (clientId != null && _appointments.containsKey(clientId)) {
       _appointments[clientId]?.forEach((a) => appointments.add(a));
     } else {
       appointments = _appointments.values.expand((a) => a).toList();
+    }
+    if (timeFilter != null) {
+      final priorAppointments = [];
+      for (int i=0; i < appointments.length; i++) {
+        if (appointments[i].time.isBefore(timeFilter)) {
+          priorAppointments.add(appointments[i]);
+        }
+      }
+      priorAppointments.forEach((a) => appointments.remove(a));
     }
     if (sorted != null && sorted) {
       appointments.sort((a, b) => a.time.compareTo(b.time));

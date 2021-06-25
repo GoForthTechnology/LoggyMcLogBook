@@ -7,18 +7,26 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/screens/client_info.dart';
 
+
+class AppointmentsScreenArguments {
+  final Client? client;
+
+  AppointmentsScreenArguments(this.client);
+}
+
 class AppointmentsScreen extends StatelessWidget {
   static const routeName = '/appointments';
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as AppointmentsScreenArguments;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Appointments'),
+        title: args.client == null ? const Text('Appointments') : Text("${args.client!.fullName()}'s Appointments"),
       ),
       body: Consumer2<Appointments, Clients>(
           builder: (context, appointmentsModel, clientsModel, child) {
-        final appointments = appointmentsModel.get(sorted: true);
+        final appointments = appointmentsModel.get(sorted: true, clientId: args.client?.num);
         return ListView.builder(
             itemCount: appointments.length,
             padding: const EdgeInsets.symmetric(vertical: 16),

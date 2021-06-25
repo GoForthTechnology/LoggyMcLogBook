@@ -34,6 +34,7 @@ class OverviewScreen extends StatelessWidget {
         context,
         "Client Overview",
         ClientsScreen.routeName,
+        null,
         Consumer<Clients>(
             builder: (context, model, child) =>
                 Text("Num Clients: ${model.getAll().length}")));
@@ -44,16 +45,17 @@ class OverviewScreen extends StatelessWidget {
         context,
         "Appointment Overview",
         AppointmentsScreen.routeName,
+        AppointmentsScreenArguments(null),
         Consumer<Appointments>(
             builder: (context, model, child) =>
                 Text("Num Upcoming: ${model.get(timeFilter: DateTime.now()).length}")));
   }
 
   Widget overviewContainer(
-      BuildContext context, String title, String routeName, Widget contents) {
+      BuildContext context, String title, String routeName, Object? args, Widget contents) {
     return Center(
         child: GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(routeName),
+      onTap: () => Navigator.of(context).pushNamed(routeName, arguments: args),
       child: Container(
         margin: EdgeInsets.all(10.0),
         padding: EdgeInsets.all(30.0),
