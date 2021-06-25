@@ -15,8 +15,20 @@ class Invoices extends IndexedRepo<int, Invoice> {
     return initIndex(_invoiceDao.getAll()).then((_) => this);
   }
 
-  List<Invoice> get({bool? sorted, int? clientId}) {
-    return getFromIndex(keyFilter: clientId, sorted: sorted);
+  List<Invoice> get({bool? sorted, int? clientId, bool Function(Invoice)? predicate}) {
+    return getFromIndex(keyFilter: clientId, sorted: sorted, predicate: predicate);
+  }
+
+  List<Invoice> getPending({bool? sorted, int? clientId}) {
+    return get(clientId: clientId, sorted: sorted, predicate: (i) => i.dateBilled == null);
+  }
+
+  List<Invoice> getReceivable({bool? sorted, int? clientId}) {
+    return get(clientId: clientId, sorted: sorted, predicate: (i) => i.dateBilled != null && i.datePaid == null);
+  }
+
+  List<Invoice> getPaid({bool? sorted, int? clientId}) {
+    return get(clientId: clientId, sorted: sorted, predicate: (i) => i.dateBilled != null && i.datePaid != null);
   }
 
   Future<void> add(int clientId, Currency currency) {

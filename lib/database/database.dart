@@ -23,7 +23,7 @@ part 'database.g.dart'; // the generated code will be there
   DateTimeNullableConverter,
   DurationConverter
 ])
-@Database(version: 3, entities: [Appointment, Client, Invoice])
+@Database(version: 4, entities: [Appointment, Client, Invoice])
 abstract class AppDatabase extends FloorDatabase {
   AppointmentDao get appointmentDao;
 
@@ -42,4 +42,8 @@ final migration2to3 = Migration(2, 3, (database) async {
       'CREATE TABLE IF NOT EXISTS `Invoice` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `clientId` INTEGER NOT NULL, `currency` INTEGER NOT NULL, `dateCreated` INTEGER NOT NULL, `dateBilled` INTEGER, `datePaid` INTEGER, FOREIGN KEY (`clientId`) REFERENCES `Client` (`num`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
 });
 
-final migrations = [migration1to2, migration2to3];
+final migration3to4 = Migration(3, 4, (database) async {
+  await database.execute('ALTER TABLE Appointment ADD COLUMN invoiceId INTEGER');
+});
+
+final migrations = [migration1to2, migration2to3, migration3to4];

@@ -24,12 +24,22 @@ abstract class IndexedRepo<K, T> extends ChangeNotifier {
     });
   }
 
-  List<T> getFromIndex({K? keyFilter, bool? sorted}) {
+  List<T> getFromIndex({K? keyFilter, bool? sorted, bool Function(T)? predicate}) {
     final List<T> values = [];
     if (keyFilter != null && _index.containsKey(keyFilter)) {
       values.addAll(_index[keyFilter]!);
     } else {
       values.addAll(_index.values.expand((a) => a).toList());
+    }
+    if (predicate != null) {
+      List<T> filteredValues = [];
+      values.forEach((value) {
+        if (predicate(value)) {
+          filteredValues.add(value);
+        }
+      });
+      values.clear();
+      values.addAll(filteredValues);
     }
     if (sorted != null && sorted) {
       values.sort(_compare);

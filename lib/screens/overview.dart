@@ -48,7 +48,7 @@ class OverviewScreen extends StatelessWidget {
         AppointmentsScreenArguments(null),
         Consumer<Appointments>(
             builder: (context, model, child) =>
-                Text("Num Upcoming: ${model.get(timeFilter: DateTime.now()).length}")));
+                Text("Num Upcoming: ${model.getUpcoming().length}")));
   }
 
   Widget overviewContainer(

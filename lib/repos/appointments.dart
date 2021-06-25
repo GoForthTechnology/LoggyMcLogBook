@@ -26,26 +26,19 @@ class Appointments extends IndexedRepo<int, Appointment> {
   }
 
   Appointment? getNext(int clientId) {
-    final appointments =
-        get(sorted: true, clientId: clientId, timeFilter: DateTime.now());
+    final appointments = getUpcoming(sorted: true, clientId: clientId);
     if (appointments.isEmpty) {
       return null;
     }
     return appointments[0];
   }
 
-  List<Appointment> get({bool? sorted, int? clientId, DateTime? timeFilter}) {
-    List<Appointment> appointments = getFromIndex(keyFilter: clientId, sorted: sorted);
-    if (timeFilter != null) {
-      final priorAppointments = [];
-      for (int i = 0; i < appointments.length; i++) {
-        if (appointments[i].time.isBefore(timeFilter)) {
-          priorAppointments.add(appointments[i]);
-        }
-      }
-      priorAppointments.forEach((a) => appointments.remove(a));
-    }
-    return appointments;
+  List<Appointment> getUpcoming({bool? sorted, int? clientId}) {
+    return get(sorted: sorted, clientId: clientId, predicate: (a) => !a.time.isBefore(DateTime.now()));
+  }
+
+  List<Appointment> get({bool? sorted, int? clientId, bool Function(Appointment)? predicate}) {
+    return getFromIndex(keyFilter: clientId, sorted: sorted, predicate: predicate);
   }
 
   Future<void> add(int clientId, DateTime startTime, Duration duration,
@@ -64,7 +57,7 @@ class Appointments extends IndexedRepo<int, Appointment> {
             "Found overlapping appointment $overlappingAppointment");
       }
     }
-    final appointment = Appointment(null, type, startTime, duration, clientId);
+    final appointment = Appointment(null, type, startTime, duration, clientId, null);
     return addToIndex(appointment, _appointmentDao.insert(appointment));
   }
 

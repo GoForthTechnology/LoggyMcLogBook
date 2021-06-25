@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:provider/provider.dart';
@@ -77,6 +79,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
               _buildFirstName(),
               _buildLastName(),
               _buildAppointmentSummary(),
+              _buildInvoiceSummary(),
             ],
           ),
         ),
@@ -100,12 +103,61 @@ class ClientInfoFormState extends State<ClientInfoForm> {
     }
   }
 
+  Widget _buildInvoiceSummary() {
+    return Consumer<Invoices>(builder: (context, invoices, child) {
+      if (_client?.num == null) {
+        return Container();
+      }
+      return Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+              margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
+              child: Text("Invoice Summary",
+                  style: Theme.of(context).textTheme.subtitle2)),
+          _buildNumInvoices(invoices.getPending(), "Pending", context),
+          _buildNumInvoices(invoices.getReceivable(), "Receivable", context),
+          _buildNumInvoices(invoices.getPaid(), "Paid", context),
+          Row(
+            children: [
+              ElevatedButton(
+                  child: Text("View All"),
+                  onPressed: () {
+                    // TODO: navigate
+                  }),
+            ],
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildNumInvoices(
+      List<Invoice> invoices, String title, BuildContext context) {
+    return Row(
+      children: [
+        _paddedItem(Text(
+            "Num Invoices ${title}: ${invoices.isEmpty ? "None" : invoices.length}")),
+            invoices.isEmpty
+            ? Container()
+            : TextButton(
+            child: Text("View"),
+            onPressed: () {
+              // TODO: navigate
+            }),
+      ],
+    );
+  }
+
   Widget _buildAppointmentSummary() {
     return Consumer<Appointments>(builder: (context, model, child) {
       if (_client?.num == null) {
         return Container();
       }
-      final nextAppointment = model.getNext(_client!.num!);
       return Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,6 +168,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
                   style: Theme.of(context).textTheme.subtitle2)),
           _buildLastAppointment(model.getLast(_client!.num!), context),
           _buildNextAppointment(model.getNext(_client!.num!), context),
+          _buildToBeInvoiced(model.get(clientId: _client!.num, predicate: (a) => a.invoiceId == null), context),
           Row(
             children: [
               ElevatedButton(
@@ -138,8 +191,8 @@ class ClientInfoFormState extends State<ClientInfoForm> {
       Appointment? lastAppointment, BuildContext context) {
     return Row(
       children: [
-        Text(
-            "Last Appointment: ${lastAppointment == null ? "None" : lastAppointment.time.toString()}"),
+        _paddedItem(Text(
+            "Last Appointment: ${lastAppointment == null ? "None" : lastAppointment.time.toString()}")),
         lastAppointment == null
             ? Container()
             : TextButton(
@@ -157,8 +210,8 @@ class ClientInfoFormState extends State<ClientInfoForm> {
       Appointment? nextAppointment, BuildContext context) {
     return Row(
       children: [
-        Text(
-            "Next Appointment: ${nextAppointment == null ? "None" : nextAppointment.time.toString()}"),
+        _paddedItem(Text(
+            "Next Appointment: ${nextAppointment == null ? "None" : nextAppointment.time.toString()}")),
         nextAppointment == null
             ? Container()
             : TextButton(
@@ -168,6 +221,22 @@ class ClientInfoFormState extends State<ClientInfoForm> {
                       arguments:
                           AppointmentInfoScreenArguments(nextAppointment));
                 }),
+      ],
+    );
+  }
+
+  Widget _buildToBeInvoiced(List<Appointment> appointments, BuildContext context) {
+    return Row(
+      children: [
+        _paddedItem(Text(
+            "To Be Invoiced: ${appointments.isEmpty ? "None" : appointments.length}")),
+        appointments.isEmpty == null
+            ? Container()
+            : TextButton(
+            child: Text("View"),
+            onPressed: () {
+              // TODO: navigate
+            }),
       ],
     );
   }

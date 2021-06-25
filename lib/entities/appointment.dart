@@ -1,7 +1,12 @@
 
 import 'package:floor/floor.dart';
+import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/invoice.dart';
 
-@entity
+@Entity(foreignKeys: [
+  ForeignKey(childColumns: ['clientId'], parentColumns: ['num'], entity: Client),
+  ForeignKey(childColumns: ['invoiceId'], parentColumns: ['id'], entity: Invoice),
+],)
 class Appointment {
   @PrimaryKey(autoGenerate: true)
   late final int? id;
@@ -9,16 +14,22 @@ class Appointment {
   final DateTime time;
   final Duration duration;
   final int clientId;
+  final int? invoiceId;
   Appointment(
       this.id,
       this.type,
       this.time,
       this.duration,
       this.clientId,
+      this.invoiceId,
       );
 
   DateTime endTime() {
     return time.add(duration);
+  }
+
+  Appointment bill(Invoice invoice) {
+    return Appointment(this.id, this.type, this.time, this.duration, this.clientId, invoice.id);
   }
 }
 

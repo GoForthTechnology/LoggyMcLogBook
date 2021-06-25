@@ -69,7 +69,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 3,
+      version: 4,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Appointment` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `type` INTEGER NOT NULL, `time` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `clientId` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `Appointment` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `type` INTEGER NOT NULL, `time` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `clientId` INTEGER NOT NULL, `invoiceId` INTEGER, FOREIGN KEY (`clientId`) REFERENCES `Client` (`num`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`invoiceId`) REFERENCES `Invoice` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Client` (`num` INTEGER, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, PRIMARY KEY (`num`))');
         await database.execute(
@@ -125,7 +125,8 @@ class _$AppointmentDao extends AppointmentDao {
                   'type': _appointmentTypeConverter.encode(item.type),
                   'time': _dateTimeConverter.encode(item.time),
                   'duration': _durationConverter.encode(item.duration),
-                  'clientId': item.clientId
+                  'clientId': item.clientId,
+                  'invoiceId': item.invoiceId
                 }),
         _appointmentUpdateAdapter = UpdateAdapter(
             database,
@@ -136,7 +137,8 @@ class _$AppointmentDao extends AppointmentDao {
                   'type': _appointmentTypeConverter.encode(item.type),
                   'time': _dateTimeConverter.encode(item.time),
                   'duration': _durationConverter.encode(item.duration),
-                  'clientId': item.clientId
+                  'clientId': item.clientId,
+                  'invoiceId': item.invoiceId
                 }),
         _appointmentDeletionAdapter = DeletionAdapter(
             database,
@@ -147,7 +149,8 @@ class _$AppointmentDao extends AppointmentDao {
                   'type': _appointmentTypeConverter.encode(item.type),
                   'time': _dateTimeConverter.encode(item.time),
                   'duration': _durationConverter.encode(item.duration),
-                  'clientId': item.clientId
+                  'clientId': item.clientId,
+                  'invoiceId': item.invoiceId
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -170,7 +173,8 @@ class _$AppointmentDao extends AppointmentDao {
             _appointmentTypeConverter.decode(row['type'] as int),
             _dateTimeConverter.decode(row['time'] as int),
             _durationConverter.decode(row['duration'] as int),
-            row['clientId'] as int));
+            row['clientId'] as int,
+            row['invoiceId'] as int?));
   }
 
   @override
@@ -181,7 +185,8 @@ class _$AppointmentDao extends AppointmentDao {
             _appointmentTypeConverter.decode(row['type'] as int),
             _dateTimeConverter.decode(row['time'] as int),
             _durationConverter.decode(row['duration'] as int),
-            row['clientId'] as int),
+            row['clientId'] as int,
+            row['invoiceId'] as int?),
         arguments: [id]);
   }
 
