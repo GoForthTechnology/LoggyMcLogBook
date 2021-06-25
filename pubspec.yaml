@@ -28,6 +28,7 @@ dependencies:
   floor: ^1.1.0
   intl: ^0.16.0
   provider: ^5.0.0
+  sprintf: ^6.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/invoice.dart';
+import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:provider/provider.dart';
 import 'package:lmlb/repos/appointments.dart';
@@ -8,34 +10,34 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/screens/client_info.dart';
 
 
-class AppointmentsScreenArguments {
+class InvoicesScreenArguments {
   final Client? client;
 
-  AppointmentsScreenArguments(this.client);
+  InvoicesScreenArguments(this.client);
 }
 
-class AppointmentsScreen extends StatelessWidget {
-  static const routeName = '/appointments';
+class InvoicesScreen extends StatelessWidget {
+  static const routeName = '/invoices';
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as AppointmentsScreenArguments;
+    final args = ModalRoute.of(context)!.settings.arguments as InvoicesScreenArguments;
     final hasClientFilter = args.client != null;
     return Scaffold(
       appBar: AppBar(
-        title: !hasClientFilter ? const Text('Appointments') : Text("${args.client!.fullName()}'s Appointments"),
+        title: !hasClientFilter ? const Text('Invoices') : Text("${args.client!.fullName()}'s Invoices"),
       ),
-      body: Consumer2<Appointments, Clients>(
-          builder: (context, appointmentsModel, clientsModel, child) {
-        final appointments = appointmentsModel.get(sorted: true, clientId: args.client?.num);
+      body: Consumer2<Invoices, Clients>(
+          builder: (context, invoiceRepo, clientsModel, child) {
+        final invoices = invoiceRepo.get(sorted: true, clientId: args.client?.num);
         return ListView.builder(
-            itemCount: appointments.length,
+            itemCount: invoices.length,
             padding: const EdgeInsets.symmetric(vertical: 16),
             itemBuilder: (context, index) {
-              final appointment = appointments[index];
-              return AppointmentTile(
-                appointment,
-                clientsModel.get(appointment.clientId)!,
+              final invoice = invoices[index];
+              return InvoiceTile(
+                invoice,
+                clientsModel.get(invoice.clientId)!,
                 hasClientFilter,
               );
             });
@@ -63,13 +65,13 @@ class AppointmentsScreen extends StatelessWidget {
   }
 }
 
-class AppointmentTile extends StatelessWidget {
-  Appointment appointment;
-  Client client;
-  bool hasClientFilter;
+class InvoiceTile extends StatelessWidget {
+  final Invoice invoice;
+  final Client client;
+  final bool hasClientFilter;
 
-  AppointmentTile(
-    this.appointment,
+  InvoiceTile(
+    this.invoice,
     this.client,
     this.hasClientFilter,
   );
@@ -81,17 +83,17 @@ class AppointmentTile extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors
-              .primaries[appointment.time.minute % Colors.primaries.length],
+              .primaries[invoice.id! % Colors.primaries.length],
         ),
         title: Text(
           hasClientFilter
-              ? appointment.time.toString()
-              : '${client.fullName()} ${appointment.time}',
+              ? "Invoice #${invoice.invoiceNumStr()}"
+              : '${client.fullName()} "Invoice #${invoice.invoiceNumStr()}',
         ),
         trailing: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
-            confirmDeletion(context, appointment);
+            //confirmDeletion(context, appointment);
           },
         ),
         onTap: () {
@@ -110,7 +112,7 @@ class AppointmentTile extends StatelessWidget {
     );
   }
 
-  void confirmDeletion(BuildContext context, Appointment appointment) {
+  /*void confirmDeletion(BuildContext context, Appointment appointment) {
     // set up the buttons
     Widget cancelButton = TextButton(
       child: Text("Cancel"),
@@ -122,7 +124,7 @@ class AppointmentTile extends StatelessWidget {
       child: Text("Continue"),
       onPressed: () {
         Navigator.of(context).pop(); // dismiss dialog
-        Provider.of<Appointments>(context, listen: false)
+        Provider.of<Invoices>(context, listen: false)
             .remove(appointment)
             .then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -150,5 +152,5 @@ class AppointmentTile extends StatelessWidget {
         return alert;
       },
     );
-  }
+  }*/
 }

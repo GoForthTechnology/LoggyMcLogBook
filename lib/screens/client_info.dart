@@ -7,6 +7,7 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
+import 'package:lmlb/screens/invoices.dart';
 import 'package:provider/provider.dart';
 
 class ClientInfoScreenArguments {
@@ -124,7 +125,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
               ElevatedButton(
                   child: Text("View All"),
                   onPressed: () {
-                    // TODO: navigate
+                    Navigator.pushNamed(context, InvoicesScreen.routeName, arguments: InvoicesScreenArguments(_client));
                   }),
             ],
             mainAxisSize: MainAxisSize.max,

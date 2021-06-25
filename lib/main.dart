@@ -5,6 +5,7 @@ import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:lmlb/screens/client_info.dart';
 import 'package:lmlb/screens/clients.dart';
+import 'package:lmlb/screens/invoices.dart';
 import 'package:lmlb/screens/overview.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         AppointmentInfoScreen.routeName: (context) => AppointmentInfoScreen(),
         ClientInfoScreen.routeName: (context) => ClientInfoScreen(),
         ClientsScreen.routeName: (context) => ClientsScreen(),
+        InvoicesScreen.routeName: (context) => InvoicesScreen(),
         OverviewScreen.routeName: (context) => OverviewScreen(),
       },
     );
