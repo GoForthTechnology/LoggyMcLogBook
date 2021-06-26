@@ -50,7 +50,7 @@ class AppointmentsScreen extends StatelessWidget {
           final appointments = appointmentsModel.get(
               sorted: true,
               clientId: args.client?.num,
-              predicate: args.view.predicate());
+              predicate: args.view.predicate()).reversed.toList();
           return ListView.builder(
               itemCount: appointments.length,
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -111,7 +111,7 @@ class AppointmentsScreen extends StatelessWidget {
         .pushNamed(AppointmentInfoScreen.routeName,
             arguments: AppointmentInfoScreenArguments(null))
         .then((updated) {
-      if (updated as bool) {
+      if (updated != null && updated as bool) {
         ScaffoldMessenger.of(context)
           ..removeCurrentSnackBar()
           ..showSnackBar(SnackBar(content: Text('Appointment added')));
@@ -157,7 +157,7 @@ class AppointmentTile extends StatelessWidget {
               .pushNamed(AppointmentInfoScreen.routeName,
                   arguments: AppointmentInfoScreenArguments(appointment))
               .then((result) {
-            if (result as bool) {
+            if (result != null && result as bool) {
               ScaffoldMessenger.of(context)
                 ..removeCurrentSnackBar()
                 ..showSnackBar(SnackBar(content: Text('Client updated')));

@@ -10,7 +10,7 @@ import 'package:lmlb/entities/invoice.dart';
 ],)
 class Appointment {
   @PrimaryKey(autoGenerate: true)
-  late final int? id;
+  late int? id;
   final AppointmentType type;
   final DateTime time;
   final Duration duration;

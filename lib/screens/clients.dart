@@ -77,7 +77,7 @@ class ClientTile extends StatelessWidget {
               .pushNamed(ClientInfoScreen.routeName,
                   arguments: ClientInfoScreenArguments(client))
               .then((result) {
-            if (result as bool) {
+            if (result != null && result as bool) {
               ScaffoldMessenger.of(context)
                 ..removeCurrentSnackBar()
                 ..showSnackBar(SnackBar(content: Text('Client updated')));

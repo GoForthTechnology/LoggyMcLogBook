@@ -48,13 +48,13 @@ abstract class IndexedRepo<K, T> extends ChangeNotifier {
   }
 
   Future<void> addToIndex(T value, Future<K> insert) {
-    return insert.then((key) {
-      _setPrimaryKey(value, key);
-      var values = getFromIndex(keyFilter: key);
-      if (values == null) {
-        _index[key] = [value];
+    return insert.then((primaryKey) {
+      _setPrimaryKey(value, primaryKey);
+      final indexKey = _keyExtractor(value);
+      if (_index.containsKey(indexKey)) {
+        _index[indexKey]!.add(value);
       } else {
-        _index[key]!.add(value);
+        _index[indexKey] = [value];
       }
       notifyListeners();
     });

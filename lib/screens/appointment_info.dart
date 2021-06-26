@@ -159,7 +159,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
                   final DateTime? picked = await showDatePicker(
                     context: context,
                     initialDate: DateTime.now(), // Refer step 1
-                    firstDate: DateTime.now(),
+                    firstDate: DateTime.now().subtract(Duration(days: 365)),
                     lastDate: DateTime.now().add(Duration(days: 365)),
                   );
                   if (picked != null) {
