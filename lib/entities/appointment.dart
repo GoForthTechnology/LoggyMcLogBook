@@ -1,5 +1,6 @@
 
 import 'package:floor/floor.dart';
+import 'package:intl/intl.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
 
@@ -26,6 +27,10 @@ class Appointment {
 
   DateTime endTime() {
     return time.add(duration);
+  }
+
+  String timeStr() {
+    return DateFormat("d MMM H:m").format(time);
   }
 
   Appointment bill(Invoice invoice) {

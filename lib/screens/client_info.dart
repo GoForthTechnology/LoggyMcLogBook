@@ -125,7 +125,8 @@ class ClientInfoFormState extends State<ClientInfoForm> {
               ElevatedButton(
                   child: Text("View All"),
                   onPressed: () {
-                    Navigator.pushNamed(context, InvoicesScreen.routeName, arguments: InvoicesScreenArguments(_client));
+                    Navigator.pushNamed(context, InvoicesScreen.routeName,
+                        arguments: InvoicesScreenArguments(_client));
                   }),
             ],
             mainAxisSize: MainAxisSize.max,
@@ -143,13 +144,13 @@ class ClientInfoFormState extends State<ClientInfoForm> {
       children: [
         _paddedItem(Text(
             "Num Invoices ${title}: ${invoices.isEmpty ? "None" : invoices.length}")),
-            invoices.isEmpty
+        invoices.isEmpty
             ? Container()
             : TextButton(
-            child: Text("View"),
-            onPressed: () {
-              // TODO: navigate
-            }),
+                child: Text("View"),
+                onPressed: () {
+                  // TODO: navigate
+                }),
       ],
     );
   }
@@ -169,14 +170,18 @@ class ClientInfoFormState extends State<ClientInfoForm> {
                   style: Theme.of(context).textTheme.subtitle2)),
           _buildLastAppointment(model.getLast(_client!.num!), context),
           _buildNextAppointment(model.getNext(_client!.num!), context),
-          _buildToBeInvoiced(model.get(clientId: _client!.num, predicate: (a) => a.invoiceId == null), context),
+          _buildToBeInvoiced(
+              model.get(
+                  clientId: _client!.num,
+                  predicate: (a) => a.invoiceId == null),
+              context),
           Row(
             children: [
               ElevatedButton(
                   child: Text("View All"),
                   onPressed: () {
                     Navigator.pushNamed(context, AppointmentsScreen.routeName,
-                        arguments: AppointmentsScreenArguments(_client));
+                        arguments: AppointmentsScreenArguments(_client, View.ALL));
                   }),
             ],
             mainAxisSize: MainAxisSize.max,
@@ -226,7 +231,8 @@ class ClientInfoFormState extends State<ClientInfoForm> {
     );
   }
 
-  Widget _buildToBeInvoiced(List<Appointment> appointments, BuildContext context) {
+  Widget _buildToBeInvoiced(
+      List<Appointment> appointments, BuildContext context) {
     return Row(
       children: [
         _paddedItem(Text(
@@ -234,10 +240,11 @@ class ClientInfoFormState extends State<ClientInfoForm> {
         appointments.isEmpty == null
             ? Container()
             : TextButton(
-            child: Text("View"),
-            onPressed: () {
-              // TODO: navigate
-            }),
+                child: Text("View"),
+                onPressed: () {
+                  Navigator.pushNamed(context, AppointmentsScreen.routeName,
+                      arguments: AppointmentsScreenArguments(_client, View.PENDING));
+                }),
       ],
     );
   }

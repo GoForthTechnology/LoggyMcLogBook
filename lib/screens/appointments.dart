@@ -7,11 +7,26 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/screens/client_info.dart';
 
+enum View { ALL, PENDING }
+
+extension ViewExt on View {
+  bool Function(Appointment) predicate() {
+    switch (this) {
+      case View.ALL:
+        return (v) => true;
+      case View.PENDING:
+        return (v) => v.invoiceId == null;
+      default:
+        throw Exception("Unsupported View typel");
+    }
+  }
+}
 
 class AppointmentsScreenArguments {
   final Client? client;
+  final View view;
 
-  AppointmentsScreenArguments(this.client);
+  AppointmentsScreenArguments(this.client, this.view);
 }
 
 class AppointmentsScreen extends StatelessWidget {
@@ -19,34 +34,76 @@ class AppointmentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as AppointmentsScreenArguments;
+    final args = ModalRoute.of(context)!.settings.arguments
+        as AppointmentsScreenArguments;
     final hasClientFilter = args.client != null;
     return Scaffold(
       appBar: AppBar(
-        title: !hasClientFilter ? const Text('Appointments') : Text("${args.client!.fullName()}'s Appointments"),
+        title: !hasClientFilter
+            ? const Text('Appointments')
+            : Text("${args.client!.fullName()}'s Appointments"),
       ),
-      body: Consumer2<Appointments, Clients>(
-          builder: (context, appointmentsModel, clientsModel, child) {
-        final appointments = appointmentsModel.get(sorted: true, clientId: args.client?.num);
-        return ListView.builder(
-            itemCount: appointments.length,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            itemBuilder: (context, index) {
-              final appointment = appointments[index];
-              return AppointmentTile(
-                appointment,
-                clientsModel.get(appointment.clientId)!,
-                hasClientFilter,
-              );
-            });
-      }),
-      floatingActionButton: FloatingActionButton(
+      body: Column(children: [
+        buildHeader(context, args.view),
+        Flexible(child: Consumer2<Appointments, Clients>(
+            builder: (context, appointmentsModel, clientsModel, child) {
+          final appointments = appointmentsModel.get(
+              sorted: true,
+              clientId: args.client?.num,
+              predicate: args.view.predicate());
+          return ListView.builder(
+              itemCount: appointments.length,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemBuilder: (context, index) {
+                final appointment = appointments[index];
+                return AppointmentTile(
+                  appointment,
+                  clientsModel.get(appointment.clientId)!,
+                  hasClientFilter,
+                );
+              });
+        })),
+        buildFooter(context, args.view),
+      ]),
+      floatingActionButton: buildFab(context, args.view),
+    );
+  }
+
+  Widget? buildFab(BuildContext context, View view) {
+    if (view == View.ALL) {
+      return FloatingActionButton(
         // isExtended: true,
         child: Icon(Icons.add),
         backgroundColor: Colors.green,
         onPressed: () => addAppointment(context),
-      ),
-    );
+      );
+    }
+    return null;
+  }
+
+  Widget buildHeader(BuildContext context, View view) {
+    if (view == View.PENDING) {
+      return Container(
+          margin: EdgeInsets.only(top: 20.0),
+          child: Text(
+            "Pending invoice",
+            style: TextStyle(fontStyle: FontStyle.italic),
+          ));
+    }
+    return Container();
+  }
+
+  Widget buildFooter(BuildContext context, View view) {
+    if (view == View.PENDING) {
+      return Container(
+        margin: EdgeInsets.only(bottom: 40.0),
+        child: ElevatedButton(
+          child: Text("Add to New Invoice"),
+          onPressed: () {},
+        ),
+      );
+    }
+    return Container();
   }
 
   void addAppointment(BuildContext context) {
@@ -76,6 +133,11 @@ class AppointmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var title = "${appointment.type.name()} ${appointment.timeStr()}";
+    if (!hasClientFilter) {
+      title = "${client.fullName()} - $title";
+    }
+    final showDeleteButton = !hasClientFilter;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
@@ -83,21 +145,17 @@ class AppointmentTile extends StatelessWidget {
           backgroundColor: Colors
               .primaries[appointment.time.minute % Colors.primaries.length],
         ),
-        title: Text(
-          hasClientFilter
-              ? appointment.time.toString()
-              : '${client.fullName()} ${appointment.time}',
-        ),
-        trailing: IconButton(
+        title: Text(title),
+        trailing: showDeleteButton ? IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
             confirmDeletion(context, appointment);
           },
-        ),
+        ) : null,
         onTap: () {
           Navigator.of(context)
-              .pushNamed(ClientInfoScreen.routeName,
-                  arguments: ClientInfoScreenArguments(client))
+              .pushNamed(AppointmentInfoScreen.routeName,
+                  arguments: AppointmentInfoScreenArguments(appointment))
               .then((result) {
             if (result as bool) {
               ScaffoldMessenger.of(context)

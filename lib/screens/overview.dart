@@ -45,7 +45,7 @@ class OverviewScreen extends StatelessWidget {
         context,
         "Appointment Overview",
         AppointmentsScreen.routeName,
-        AppointmentsScreenArguments(null),
+        AppointmentsScreenArguments(null, View.ALL),
         Consumer<Appointments>(
             builder: (context, model, child) =>
                 Text("Num Upcoming: ${model.getUpcoming().length}")));
