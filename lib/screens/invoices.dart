@@ -4,6 +4,7 @@ import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/screens/appointment_info.dart';
+import 'package:lmlb/screens/invoice_info.dart';
 import 'package:provider/provider.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
@@ -46,20 +47,20 @@ class InvoicesScreen extends StatelessWidget {
         // isExtended: true,
         child: Icon(Icons.add),
         backgroundColor: Colors.green,
-        onPressed: () => addAppointment(context),
+        onPressed: () => addInvoice(context),
       ),
     );
   }
 
-  void addAppointment(BuildContext context) {
+  void addInvoice(BuildContext context) {
     Navigator.of(context)
-        .pushNamed(AppointmentInfoScreen.routeName,
-            arguments: AppointmentInfoScreenArguments(null))
+        .pushNamed(InvoiceInfoScreen.routeName,
+            arguments: InvoiceInfoScreenArguments(null))
         .then((updated) {
-      if (updated as bool) {
+      if (updated != null && updated as bool) {
         ScaffoldMessenger.of(context)
           ..removeCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text('Appointment added')));
+          ..showSnackBar(SnackBar(content: Text('Invoice added')));
       }
     });
   }
@@ -88,20 +89,20 @@ class InvoiceTile extends StatelessWidget {
         title: Text(
           hasClientFilter
               ? "Invoice #${invoice.invoiceNumStr()}"
-              : '${client.fullName()} "Invoice #${invoice.invoiceNumStr()}',
+              : "${client.fullName()} Invoice #${invoice.invoiceNumStr()}",
         ),
         trailing: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
-            //confirmDeletion(context, appointment);
+            confirmDeletion(context, invoice);
           },
         ),
         onTap: () {
           Navigator.of(context)
-              .pushNamed(ClientInfoScreen.routeName,
-                  arguments: ClientInfoScreenArguments(client))
+              .pushNamed(InvoiceInfoScreen.routeName,
+                  arguments: InvoiceInfoScreenArguments(invoice))
               .then((result) {
-            if (result as bool) {
+            if (result != null && result as bool) {
               ScaffoldMessenger.of(context)
                 ..removeCurrentSnackBar()
                 ..showSnackBar(SnackBar(content: Text('Client updated')));
@@ -112,7 +113,7 @@ class InvoiceTile extends StatelessWidget {
     );
   }
 
-  /*void confirmDeletion(BuildContext context, Appointment appointment) {
+  void confirmDeletion(BuildContext context, Invoice invoice) {
     // set up the buttons
     Widget cancelButton = TextButton(
       child: Text("Cancel"),
@@ -125,7 +126,7 @@ class InvoiceTile extends StatelessWidget {
       onPressed: () {
         Navigator.of(context).pop(); // dismiss dialog
         Provider.of<Invoices>(context, listen: false)
-            .remove(appointment)
+            .remove(invoice)
             .then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -152,5 +153,5 @@ class InvoiceTile extends StatelessWidget {
         return alert;
       },
     );
-  }*/
+  }
 }

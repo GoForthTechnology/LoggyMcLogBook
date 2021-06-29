@@ -47,7 +47,7 @@ abstract class IndexedRepo<K, T> extends ChangeNotifier {
     return values;
   }
 
-  Future<void> addToIndex(T value, Future<K> insert) {
+  Future<T> addToIndex(T value, Future<K> insert) {
     return insert.then((primaryKey) {
       _setPrimaryKey(value, primaryKey);
       final indexKey = _keyExtractor(value);
@@ -57,6 +57,7 @@ abstract class IndexedRepo<K, T> extends ChangeNotifier {
         _index[indexKey] = [value];
       }
       notifyListeners();
+      return value;
     });
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lmlb/repos/invoices.dart';
+import 'package:lmlb/screens/invoices.dart';
 import 'package:provider/provider.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
@@ -22,6 +24,7 @@ class OverviewScreen extends StatelessWidget {
                 children: [
                   clientOverview(context),
                   appointmentOverview(context),
+                  invoiceOverview(context),
                 ],
               )),
         ],
@@ -29,7 +32,29 @@ class OverviewScreen extends StatelessWidget {
     );
   }
 
-  Widget clientOverview(BuildContext context, {height: 100}) {
+  Widget invoiceOverview(BuildContext context) {
+    return overviewContainer(context, "Invoice Overview",
+        InvoicesScreen.routeName, InvoicesScreenArguments(null),
+        Consumer<Invoices>(builder: (context, model, child) {
+      final numPending = model.getPending().length;
+      final numReceivable = model.getReceivable().length;
+      final numPaid = model.getPaid().length;
+      return Column(
+        children: [
+          Text("Num Drafts: $numPending", style: redIfPositive(numPending)),
+          Text("Num Receivable: $numReceivable",
+              style: redIfPositive(numReceivable)),
+          Text("Num Paid: $numPaid", style: redIfPositive(numPaid)),
+        ],
+      );
+    }));
+  }
+
+  TextStyle redIfPositive(int num) {
+    return TextStyle(color: num > 0 ? Colors.red : Colors.black);
+  }
+
+  Widget clientOverview(BuildContext context) {
     return overviewContainer(
         context,
         "Client Overview",
@@ -46,13 +71,21 @@ class OverviewScreen extends StatelessWidget {
         "Appointment Overview",
         AppointmentsScreen.routeName,
         AppointmentsScreenArguments(null, View.ALL),
-        Consumer<Appointments>(
-            builder: (context, model, child) =>
-                Text("Num Upcoming: ${model.getUpcoming().length}")));
+        Consumer<Appointments>(builder: (context, model, child) {
+      final numPending = model.getPending().length;
+      return Column(
+        children: [
+          Text("Num Upcoming: ${model.getUpcoming().length}"),
+          Text("Num to Bill: $numPending",
+              style:
+                  TextStyle(color: numPending > 0 ? Colors.red : Colors.black)),
+        ],
+      );
+    }));
   }
 
-  Widget overviewContainer(
-      BuildContext context, String title, String routeName, Object? args, Widget contents) {
+  Widget overviewContainer(BuildContext context, String title, String routeName,
+      Object? args, Widget contents) {
     return Center(
         child: GestureDetector(
       onTap: () => Navigator.of(context).pushNamed(routeName, arguments: args),
@@ -65,8 +98,7 @@ class OverviewScreen extends StatelessWidget {
             BoxShadow(
                 color: Colors.black54,
                 blurRadius: 5.0,
-                offset: Offset(0.0, 0.75)
-            )
+                offset: Offset(0.0, 0.75))
           ],
         ),
         child: Column(children: [

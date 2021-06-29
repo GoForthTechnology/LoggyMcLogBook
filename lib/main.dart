@@ -5,6 +5,7 @@ import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:lmlb/screens/client_info.dart';
 import 'package:lmlb/screens/clients.dart';
+import 'package:lmlb/screens/invoice_info.dart';
 import 'package:lmlb/screens/invoices.dart';
 import 'package:lmlb/screens/overview.dart';
 import 'package:lmlb/repos/appointments.dart';
@@ -25,7 +26,7 @@ void main() async {
 Future<Widget> initProviders(AppDatabase database, Widget app) {
   final clients = Clients(database.clientDao);
   final appointments = Appointments(database.appointmentDao);
-  final invoices = Invoices(database.invoiceDao);
+  final invoices = Invoices(database.invoiceDao, appointments);
   final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
   return init.then((_) => MultiProvider(providers: [
         ChangeNotifierProvider.value(value: clients),
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
         AppointmentInfoScreen.routeName: (context) => AppointmentInfoScreen(),
         ClientInfoScreen.routeName: (context) => ClientInfoScreen(),
         ClientsScreen.routeName: (context) => ClientsScreen(),
+        InvoiceInfoScreen.routeName: (context) => InvoiceInfoScreen(),
         InvoicesScreen.routeName: (context) => InvoicesScreen(),
         OverviewScreen.routeName: (context) => OverviewScreen(),
       },

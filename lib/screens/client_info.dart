@@ -171,9 +171,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
           _buildLastAppointment(model.getLast(_client!.num!), context),
           _buildNextAppointment(model.getNext(_client!.num!), context),
           _buildToBeInvoiced(
-              model.get(
-                  clientId: _client!.num,
-                  predicate: (a) => a.invoiceId == null),
+              model.getPending(clientId: _client!.num),
               context),
           Row(
             children: [

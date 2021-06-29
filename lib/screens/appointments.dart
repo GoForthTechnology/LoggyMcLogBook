@@ -138,6 +138,7 @@ class AppointmentTile extends StatelessWidget {
       title = "${client.fullName()} - $title";
     }
     final showDeleteButton = !hasClientFilter;
+    final isInPast = appointment.time.isBefore(DateTime.now());
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
@@ -145,7 +146,7 @@ class AppointmentTile extends StatelessWidget {
           backgroundColor: Colors
               .primaries[appointment.time.minute % Colors.primaries.length],
         ),
-        title: Text(title),
+        title: Text(title, style: TextStyle(color: isInPast ? Colors.grey : Colors.black)),
         trailing: showDeleteButton ? IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {

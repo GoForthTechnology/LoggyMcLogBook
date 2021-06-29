@@ -37,6 +37,14 @@ class Appointments extends IndexedRepo<int, Appointment> {
     return get(sorted: sorted, clientId: clientId, predicate: (a) => !a.time.isBefore(DateTime.now()));
   }
 
+  List<Appointment> getPending({bool? sorted, int? clientId}) {
+    return get(sorted: sorted, clientId: clientId, predicate: (a) => a.invoiceId == null);
+  }
+
+  List<Appointment> getInvoiced(int invoiceId) {
+    return get(predicate: (a) => a.invoiceId == invoiceId);
+  }
+
   List<Appointment> get({bool? sorted, int? clientId, bool Function(Appointment)? predicate}) {
     return getFromIndex(keyFilter: clientId, sorted: sorted, predicate: predicate);
   }

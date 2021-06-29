@@ -33,8 +33,8 @@ class Appointment {
     return DateFormat("d MMM H:m").format(time);
   }
 
-  Appointment bill(Invoice invoice) {
-    return Appointment(this.id, this.type, this.time, this.duration, this.clientId, invoice.id);
+  Appointment bill(Invoice? invoice) {
+    return Appointment(this.id, this.type, this.time, this.duration, this.clientId, invoice?.id);
   }
 }
 
@@ -91,5 +91,19 @@ extension AppointmentTypeExt on AppointmentType {
 
   String name() {
     return toString().split(".")[1];
+  }
+
+  int price(Currency currency) {
+    switch(currency) {
+      default:
+        switch(this) {
+          case AppointmentType.GENERIC:
+          case AppointmentType.INFO:
+          case AppointmentType.INTRO:
+            return 0;
+          default:
+            return 75;
+        }
+    }
   }
 }

@@ -24,7 +24,7 @@ class Invoice {
   }
 
   String invoiceNumStr() {
-    return sprintf("%000d", invoiceNum());
+    return sprintf("%06d", [invoiceNum()]);
   }
 }
 

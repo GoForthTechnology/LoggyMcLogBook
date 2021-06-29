@@ -29,6 +29,9 @@ dependencies:
   intl: ^0.17.0
   provider: ^5.0.0
   sprintf: ^6.0.0
+  multiselect_formfield:
+    git:
+      url: https://github.com/hitshydev/multiselect_formfield
 
 dev_dependencies:
   flutter_test:
