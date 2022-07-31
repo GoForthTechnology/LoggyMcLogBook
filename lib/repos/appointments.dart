@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:lmlb/database/daos/appointment_dao.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/repos/internal/indexed_repo.dart';
@@ -52,18 +51,16 @@ class Appointments extends IndexedRepo<int, Appointment> {
   Future<void> add(int clientId, DateTime startTime, Duration duration,
       AppointmentType type) {
     var appointments = getFromIndex(keyFilter: clientId);
-    if (appointments != null) {
-      var overlappingAppointment;
-      appointments.forEach((appointment) {
-        if (appointment.time.isBefore(startTime) &&
-            appointment.endTime().isAfter(startTime)) {
-          overlappingAppointment = appointment;
-        }
-      });
-      if (overlappingAppointment != null) {
-        return Future.error(
-            "Found overlapping appointment $overlappingAppointment");
+    var overlappingAppointment;
+    appointments.forEach((appointment) {
+      if (appointment.time.isBefore(startTime) &&
+          appointment.endTime().isAfter(startTime)) {
+        overlappingAppointment = appointment;
       }
+    });
+    if (overlappingAppointment != null) {
+      return Future.error(
+          "Found overlapping appointment $overlappingAppointment");
     }
     final appointment = Appointment(null, type, startTime, duration, clientId, null);
     return addToIndex(appointment, _appointmentDao.insert(appointment));

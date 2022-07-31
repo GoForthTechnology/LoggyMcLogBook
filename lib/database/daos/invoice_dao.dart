@@ -1,6 +1,5 @@
 
 import 'package:floor/floor.dart' as floor;
-import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/invoice.dart';
 
 @floor.dao

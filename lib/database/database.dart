@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:floor/floor.dart';
 import 'package:lmlb/database/converters/appointment_type_converter.dart';
 import 'package:lmlb/database/converters/currency_converter.dart';

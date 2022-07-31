@@ -55,7 +55,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (Provider.of<Clients>(context, listen: false).getAll().isEmpty) {
         Widget continueButton = TextButton(
           child: Text("Ack"),
@@ -153,6 +153,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
               if (value == null) {
                 return "Date required";
               }
+              return null;
             },
             builder: (state) => GestureDetector(
                 onTap: () async {
@@ -184,6 +185,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
               if (value == null) {
                 return "Value required";
               }
+              return null;
             },
             builder: (state) => GestureDetector(
                 onTap: () async {
@@ -210,6 +212,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
               if (value == null) {
                 return "Select a value";
               }
+              return null;
             },
             builder: (state) => _showErrorOrDisplay(
                 state,
@@ -240,6 +243,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
               if (value == null) {
                 return "Select a value";
               }
+              return null;
             },
             builder: (state) => Consumer<Clients>(
                 builder: (context, clientModel, child) => _showErrorOrDisplay(

@@ -143,7 +143,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
     return Row(
       children: [
         _paddedItem(Text(
-            "Num Invoices ${title}: ${invoices.isEmpty ? "None" : invoices.length}")),
+            "Num Invoices $title: ${invoices.isEmpty ? "None" : invoices.length}")),
         invoices.isEmpty
             ? Container()
             : TextButton(
@@ -235,7 +235,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
       children: [
         _paddedItem(Text(
             "To Be Invoiced: ${appointments.isEmpty ? "None" : appointments.length}")),
-        appointments.isEmpty == null
+        appointments.isEmpty
             ? Container()
             : TextButton(
                 child: Text("View"),

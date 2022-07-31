@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
-import 'package:provider/provider.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/screens/client_info.dart';
+import 'package:provider/provider.dart';
 
 class ClientsScreen extends StatelessWidget {
   static const routeName = '/clients';
@@ -44,7 +44,7 @@ class ClientsScreen extends StatelessWidget {
 }
 
 class ClientTile extends StatelessWidget {
-  Client client;
+  final Client client;
 
   ClientTile(
     this.client,

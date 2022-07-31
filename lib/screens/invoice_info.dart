@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lmlb/entities/appointment.dart';
-import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
-import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/invoices.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:provider/provider.dart';
 
@@ -59,7 +58,7 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
     this._appointments =
         _invoice == null ? [] : appointmentsRepo.getInvoiced(_invoice!.id!);
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (Provider.of<Clients>(context, listen: false).getAll().isEmpty) {
         Widget continueButton = TextButton(
           child: Text("Ack"),
@@ -209,6 +208,7 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
               if (value == null) {
                 return "Select a value";
               }
+              return null;
             },
             builder: (state) => _showErrorOrDisplay(
                 state,
@@ -239,6 +239,7 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
               if (value == null) {
                 return "Select a value";
               }
+              return null;
             },
             builder: (state) => Consumer<Clients>(
                 builder: (context, clientModel, child) => _showErrorOrDisplay(

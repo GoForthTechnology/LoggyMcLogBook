@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
-import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/invoice_info.dart';
 import 'package:provider/provider.dart';
-import 'package:lmlb/repos/appointments.dart';
-import 'package:lmlb/repos/clients.dart';
-import 'package:lmlb/screens/client_info.dart';
 
 
 class InvoicesScreenArguments {

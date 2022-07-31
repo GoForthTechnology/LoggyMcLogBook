@@ -1,6 +1,5 @@
 
 import 'package:floor/floor.dart';
-import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/invoice.dart';
 
 class CurrencyConverter extends TypeConverter<Currency, int> {

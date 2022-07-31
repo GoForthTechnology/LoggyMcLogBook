@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/database/database.dart';
 import 'package:lmlb/database/fake_database.dart';
+import 'package:lmlb/repos/appointments.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
@@ -10,8 +12,6 @@ import 'package:lmlb/screens/clients.dart';
 import 'package:lmlb/screens/invoice_info.dart';
 import 'package:lmlb/screens/invoices.dart';
 import 'package:lmlb/screens/overview.dart';
-import 'package:lmlb/repos/appointments.dart';
-import 'package:lmlb/repos/clients.dart';
 import 'package:provider/provider.dart';
 
 void main() async {

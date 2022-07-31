@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
-import 'package:lmlb/screens/appointment_info.dart';
-import 'package:provider/provider.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
-import 'package:lmlb/screens/client_info.dart';
+import 'package:lmlb/screens/appointment_info.dart';
+import 'package:provider/provider.dart';
 
 enum View { ALL, PENDING }
 
@@ -121,9 +120,9 @@ class AppointmentsScreen extends StatelessWidget {
 }
 
 class AppointmentTile extends StatelessWidget {
-  Appointment appointment;
-  Client client;
-  bool hasClientFilter;
+  final Appointment appointment;
+  final Client client;
+  final bool hasClientFilter;
 
   AppointmentTile(
     this.appointment,
