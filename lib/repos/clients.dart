@@ -1,7 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:lmlb/database/daos/client_dao.dart';
-import 'package:lmlb/database/database.dart';
 import 'package:lmlb/entities/client.dart';
 
 class Clients extends ChangeNotifier {

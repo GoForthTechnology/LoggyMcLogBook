@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/database/database.dart';
+import 'package:lmlb/database/fake_database.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
@@ -15,10 +17,12 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await $FloorAppDatabase
+  Future<AppDatabase> database = kIsWeb ? Future.value(FakeDatabase()) : $FloorAppDatabase
       .databaseBuilder('app_database.db')
       .addMigrations(migrations)
-      .build()
+      .build();
+
+  await database
       .then((database) => initProviders(database, MyApp()))
       .then(runApp);
 }
