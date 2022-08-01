@@ -1,15 +1,10 @@
 
-import 'package:floor/floor.dart';
 import 'package:intl/intl.dart';
-import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
 
-@Entity(foreignKeys: [
-  ForeignKey(childColumns: ['clientId'], parentColumns: ['num'], entity: Client),
-  ForeignKey(childColumns: ['invoiceId'], parentColumns: ['id'], entity: Invoice),
-],)
-class Appointment {
-  @PrimaryKey(autoGenerate: true)
+import '../persistence/local/Indexable.dart';
+
+class Appointment extends Indexable<Appointment>{
   late int? id;
   final AppointmentType type;
   final DateTime time;
@@ -35,6 +30,16 @@ class Appointment {
 
   Appointment bill(Invoice? invoice) {
     return Appointment(this.id, this.type, this.time, this.duration, this.clientId, invoice?.id);
+  }
+
+  @override
+  int? getId() {
+    return id;
+  }
+
+  @override
+  Appointment setId(int id) {
+    return new Appointment(id, type, time, duration, clientId, invoiceId);
   }
 }
 

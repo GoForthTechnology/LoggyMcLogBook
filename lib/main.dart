@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:lmlb/database/database.dart';
-import 'package:lmlb/database/fake_database.dart';
+import 'package:lmlb/persistence/local/LocalCrud.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
@@ -16,26 +15,18 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  Future<AppDatabase> database = kIsWeb ? Future.value(FakeDatabase()) : $FloorAppDatabase
-      .databaseBuilder('app_database.db')
-      .addMigrations(migrations)
-      .build();
-
-  await database
-      .then((database) => initProviders(database, MyApp()))
-      .then(runApp);
+  await init(MyApp(), kIsWeb).then(runApp);
 }
 
-Future<Widget> initProviders(AppDatabase database, Widget app) {
-  final clients = Clients(database.clientDao);
-  final appointments = Appointments(database.appointmentDao);
-  final invoices = Invoices(database.invoiceDao, appointments);
+Future<Widget> init(Widget app, bool isWeb) {
+  final clients = Clients(new LocalCrud());
+  final appointments = Appointments(new LocalCrud());
+  final invoices = Invoices(new LocalCrud(), appointments);
   final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
   return init.then((_) => MultiProvider(providers: [
-        ChangeNotifierProvider.value(value: clients),
-        ChangeNotifierProvider.value(value: appointments),
-        ChangeNotifierProvider.value(value: invoices),
+    ChangeNotifierProvider.value(value: clients),
+    ChangeNotifierProvider.value(value: appointments),
+    ChangeNotifierProvider.value(value: invoices),
   ], child: app));
 }
 

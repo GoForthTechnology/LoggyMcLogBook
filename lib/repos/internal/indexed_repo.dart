@@ -61,11 +61,8 @@ abstract class IndexedRepo<K, T> extends ChangeNotifier {
     });
   }
 
-  Future<void> updateIndex(T value, Future<int> update) {
-    return update.then((numUpdated) {
-      if (numUpdated == 0) {
-        return Future.error("No appointment updated in DB");
-      }
+  Future<void> updateIndex(T value, Future<void> update) {
+    return update.then((unused) {
       var values = _index[_keyExtractor(value)];
       if (values != null) {
         for (int i=0; i<values.length; i++) {
@@ -81,11 +78,8 @@ abstract class IndexedRepo<K, T> extends ChangeNotifier {
     });
   }
 
-  Future<void> removeFromIndex(T value, Future<int> removal) {
+  Future<void> removeFromIndex(T value, Future<void> removal) {
     return removal.then((numRemoved) {
-      if (numRemoved == 0) {
-        return Future.error("Removal op failed");
-      }
       if (!_index[_keyExtractor(value)]!.remove(value)) {
         return Future.error("Index removal failed");
       }

@@ -1,8 +1,6 @@
-import 'package:floor/floor.dart';
+import 'package:lmlb/persistence/local/Indexable.dart';
 
-@entity
-class Client {
-  @primaryKey
+class Client extends Indexable<Client> {
   final int? num;
   final String firstName;
   final String lastName;
@@ -11,6 +9,14 @@ class Client {
       this.firstName,
       this.lastName,
       );
+
+  int? getId() {
+    return num;
+  }
+
+  Client setId(int id) {
+    return new Client(id, firstName, lastName);
+  }
 
   String fullName() {
     return "$firstName $lastName";

@@ -1,19 +1,19 @@
-import 'package:lmlb/database/daos/invoice_dao.dart';
+import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/internal/indexed_repo.dart';
 
 class Invoices extends IndexedRepo<int, Invoice> {
-  final InvoiceDao _invoiceDao;
+  final CrudInterface<Invoice> _persistence;
   final Appointments _appointmentRepo;
 
-  Invoices(this._invoiceDao, this._appointmentRepo)
+  Invoices(this._persistence, this._appointmentRepo)
       : super((a) => a.clientId, (v, k) => v.id = k, (a, b) => a.id == b.id,
             (a, b) => a.dateCreated.compareTo(b.dateCreated));
 
   Future<Invoices> init() {
-    return initIndex(_invoiceDao.getAll()).then((_) => this);
+    return initIndex(_persistence.getAll()).then((_) => this);
   }
 
   List<Invoice> get(
@@ -46,7 +46,7 @@ class Invoices extends IndexedRepo<int, Invoice> {
   Future<Invoice> add(
       int clientId, Currency currency, List<Appointment> appointments) {
     final invoice = Invoice(null, clientId, currency, DateTime.now());
-    return addToIndex(invoice, _invoiceDao.insert(invoice))
+    return addToIndex(invoice, _persistence.insert(invoice))
         .then((savedInvoice) {
       final List<Future<void>> updateOps = [];
       appointments.forEach((appointment) => updateOps
@@ -61,10 +61,10 @@ class Invoices extends IndexedRepo<int, Invoice> {
       updateOps.add(_appointmentRepo.update(appointment.bill(null)));
     });
     return Future.wait(updateOps)
-        .then((_) => removeFromIndex(invoice, _invoiceDao.remove(invoice)));
+        .then((_) => removeFromIndex(invoice, _persistence.remove(invoice)));
   }
 
   Future<void> update(Invoice appointment) {
-    return updateIndex(appointment, _invoiceDao.update(appointment));
+    return updateIndex(appointment, _persistence.update(appointment));
   }
 }

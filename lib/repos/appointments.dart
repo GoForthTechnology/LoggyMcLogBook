@@ -1,16 +1,16 @@
-import 'package:lmlb/database/daos/appointment_dao.dart';
+import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/repos/internal/indexed_repo.dart';
 
 class Appointments extends IndexedRepo<int, Appointment> {
-  final AppointmentDao _appointmentDao;
+  final CrudInterface<Appointment> _persistence;
 
-  Appointments(this._appointmentDao)
+  Appointments(this._persistence)
       : super((a) => a.clientId, (v, k) => v.id = k, (a, b) => a.id == b.id,
             (a, b) => a.time.compareTo(b.time));
 
   Future<Appointments> init() {
-    return initIndex(_appointmentDao.getAll()).then((_) => this);
+    return initIndex(_persistence.getAll()).then((_) => this);
   }
 
   Appointment? getLast(int clientId) {
@@ -63,14 +63,14 @@ class Appointments extends IndexedRepo<int, Appointment> {
           "Found overlapping appointment $overlappingAppointment");
     }
     final appointment = Appointment(null, type, startTime, duration, clientId, null);
-    return addToIndex(appointment, _appointmentDao.insert(appointment));
+    return addToIndex(appointment, _persistence.insert(appointment));
   }
 
   Future<void> update(Appointment appointment) {
-    return updateIndex(appointment, _appointmentDao.update(appointment));
+    return updateIndex(appointment, _persistence.update(appointment));
   }
 
   Future<void> remove(Appointment appointment) {
-    return removeFromIndex(appointment, _appointmentDao.remove(appointment));
+    return removeFromIndex(appointment, _persistence.remove(appointment));
   }
 }

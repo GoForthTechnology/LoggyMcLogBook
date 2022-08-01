@@ -1,16 +1,16 @@
 
 import 'package:flutter/cupertino.dart';
-import 'package:lmlb/database/daos/client_dao.dart';
+import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/client.dart';
 
 class Clients extends ChangeNotifier {
-  ClientDao _clientDao;
+  CrudInterface<Client> _persistence;
   Map<int, Client> _clients = {};
 
-  Clients(this._clientDao);
+  Clients(this._persistence);
 
   Future<Clients> init() {
-    return _clientDao.getAll().then((clients) {
+    return _persistence.getAll().then((clients) {
       clients.forEach((client) => _clients[client.num!] = client);
       notifyListeners();
       return this;
@@ -26,7 +26,7 @@ class Clients extends ChangeNotifier {
   }
 
   Future<void> add(String firstName, String lastName) {
-    return _clientDao.insert(Client(null, firstName, lastName)).then((id) {
+    return _persistence.insert(Client(null, firstName, lastName)).then((id) {
       _clients[id] = Client(id, firstName, lastName);
       notifyListeners();
     });
@@ -36,14 +36,14 @@ class Clients extends ChangeNotifier {
     if (client.num == null) {
       return Future.error("Client missing id");
     }
-    return _clientDao.update(client).then((_) {
+    return _persistence.update(client).then((_) {
       _clients[client.num!] = client;
       notifyListeners();
     });
   }
 
   Future<void> remove(Client client) {
-    return _clientDao.remove(client).then((_) {
+    return _persistence.remove(client).then((_) {
       _clients.remove(client.num);
       notifyListeners();
     });
