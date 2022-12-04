@@ -12,9 +12,14 @@ import 'package:lmlb/screens/invoice_info.dart';
 import 'package:lmlb/screens/invoices.dart';
 import 'package:lmlb/screens/overview.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await init(MyApp(), kIsWeb).then(runApp);
 }
 
@@ -34,8 +39,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'FCP Log Book',
       theme: ThemeData(
         // This is the theme of your application.
         //
