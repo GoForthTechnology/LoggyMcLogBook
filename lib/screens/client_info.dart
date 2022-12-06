@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
@@ -5,25 +6,18 @@ import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
-import 'package:lmlb/screens/appointment_info.dart';
+import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/screens/appointments.dart';
-import 'package:lmlb/screens/invoices.dart';
 import 'package:provider/provider.dart';
 
-class ClientInfoScreenArguments {
+class ClientInfoScreen extends StatelessWidget {
   final Client? client;
 
-  ClientInfoScreenArguments(this.client);
-}
-
-class ClientInfoScreen extends StatelessWidget {
-  static const routeName = '/client';
+  const ClientInfoScreen({Key? key, this.client}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)!.settings.arguments as ClientInfoScreenArguments;
-    return ClientInfoForm(args.client);
+    return ClientInfoForm(client);
   }
 }
 
@@ -61,7 +55,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
         title: Text(_client == null ? 'New Client' : 'Client Info'),
         actions: [
           TextButton.icon(
-            style: TextButton.styleFrom(primary: Colors.white),
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
             icon: const Icon(Icons.save),
             label: const Text('Save'),
             onPressed: _onSave,
@@ -125,8 +119,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
               ElevatedButton(
                   child: Text("View All"),
                   onPressed: () {
-                    Navigator.pushNamed(context, InvoicesScreen.routeName,
-                        arguments: InvoicesScreenArguments(_client));
+                    AutoRouter.of(context).push(InvoicesScreenRoute(client: _client));
                   }),
             ],
             mainAxisSize: MainAxisSize.max,
@@ -178,8 +171,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
               ElevatedButton(
                   child: Text("View All"),
                   onPressed: () {
-                    Navigator.pushNamed(context, AppointmentsScreen.routeName,
-                        arguments: AppointmentsScreenArguments(_client, View.ALL));
+                    AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.ALL, client: _client));
                   }),
             ],
             mainAxisSize: MainAxisSize.max,
@@ -202,9 +194,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
             : TextButton(
                 child: Text("View"),
                 onPressed: () {
-                  Navigator.pushNamed(context, AppointmentInfoScreen.routeName,
-                      arguments:
-                          AppointmentInfoScreenArguments(lastAppointment));
+                  AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointment: lastAppointment));
                 }),
       ],
     );
@@ -221,9 +211,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
             : TextButton(
                 child: Text("View"),
                 onPressed: () {
-                  Navigator.pushNamed(context, AppointmentInfoScreen.routeName,
-                      arguments:
-                          AppointmentInfoScreenArguments(nextAppointment));
+                  AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointment: nextAppointment));
                 }),
       ],
     );
@@ -240,8 +228,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
             : TextButton(
                 child: Text("View"),
                 onPressed: () {
-                  Navigator.pushNamed(context, AppointmentsScreen.routeName,
-                      arguments: AppointmentsScreenArguments(_client, View.PENDING));
+                  AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.PENDING, client: _client));
                 }),
       ],
     );

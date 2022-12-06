@@ -1,32 +1,28 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
-import 'package:lmlb/screens/invoice_info.dart';
+import 'package:lmlb/routes.gr.dart';
 import 'package:provider/provider.dart';
 
 
-class InvoicesScreenArguments {
+class InvoicesScreen extends StatelessWidget {
   final Client? client;
 
-  InvoicesScreenArguments(this.client);
-}
-
-class InvoicesScreen extends StatelessWidget {
-  static const routeName = '/invoices';
+  const InvoicesScreen({Key? key, this.client}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as InvoicesScreenArguments;
-    final hasClientFilter = args.client != null;
+    final hasClientFilter = client != null;
     return Scaffold(
       appBar: AppBar(
-        title: !hasClientFilter ? const Text('Invoices') : Text("${args.client!.fullName()}'s Invoices"),
+        title: !hasClientFilter ? const Text('Invoices') : Text("${client!.fullName()}'s Invoices"),
       ),
       body: Consumer2<Invoices, Clients>(
           builder: (context, invoiceRepo, clientsModel, child) {
-        final invoices = invoiceRepo.get(sorted: true, clientId: args.client?.num);
+        final invoices = invoiceRepo.get(sorted: true, clientId: client?.num);
         return ListView.builder(
             itemCount: invoices.length,
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -49,10 +45,7 @@ class InvoicesScreen extends StatelessWidget {
   }
 
   void addInvoice(BuildContext context) {
-    Navigator.of(context)
-        .pushNamed(InvoiceInfoScreen.routeName,
-            arguments: InvoiceInfoScreenArguments(null))
-        .then((updated) {
+    AutoRouter.of(context).push(InvoiceInfoScreenRoute()).then((updated) {
       if (updated != null && updated as bool) {
         ScaffoldMessenger.of(context)
           ..removeCurrentSnackBar()
@@ -94,10 +87,7 @@ class InvoiceTile extends StatelessWidget {
           },
         ),
         onTap: () {
-          Navigator.of(context)
-              .pushNamed(InvoiceInfoScreen.routeName,
-                  arguments: InvoiceInfoScreenArguments(invoice))
-              .then((result) {
+          AutoRouter.of(context).push(InvoiceInfoScreenRoute(invoice:  invoice)).then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)
                 ..removeCurrentSnackBar()

@@ -9,20 +9,14 @@ import 'package:lmlb/repos/invoices.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:provider/provider.dart';
 
-class InvoiceInfoScreenArguments {
+class InvoiceInfoScreen extends StatelessWidget {
   final Invoice? invoice;
 
-  InvoiceInfoScreenArguments(this.invoice);
-}
-
-class InvoiceInfoScreen extends StatelessWidget {
-  static const routeName = '/invoice';
+  const InvoiceInfoScreen({Key? key, this.invoice}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments
-        as InvoiceInfoScreenArguments;
-    return InvoiceInfoForm(args.invoice);
+    return InvoiceInfoForm(invoice);
   }
 }
 
@@ -100,7 +94,7 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
             : 'Invoice #${_invoice!.invoiceNumStr()}'),
         actions: [
           TextButton.icon(
-            style: TextButton.styleFrom(primary: Colors.white),
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
             icon: const Icon(Icons.save),
             label: const Text('Save'),
             onPressed: _onSave,
@@ -156,10 +150,10 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
                     style: TextStyle(fontStyle: FontStyle.italic))
                 : Expanded(
                     child: MultiSelectFormField(
-                        chipBackGroundColor: ThemeData.light().buttonColor,
+                        chipBackGroundColor: ThemeData.light().dialogBackgroundColor,
                         chipLabelStyle: TextStyle(fontWeight: FontWeight.bold),
                         dialogTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                        checkBoxActiveColor: ThemeData.light().buttonColor,
+                        checkBoxActiveColor: ThemeData.light().colorScheme.secondary,
                         checkBoxCheckColor: Colors.black,
                         dialogShapeBorder: RoundedRectangleBorder(
                             borderRadius:

@@ -1,12 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/clients.dart';
-import 'package:lmlb/screens/client_info.dart';
+import 'package:lmlb/routes.gr.dart';
 import 'package:provider/provider.dart';
 
 class ClientsScreen extends StatelessWidget {
-  static const routeName = '/clients';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,9 +29,7 @@ class ClientsScreen extends StatelessWidget {
   }
 
   void addClient(BuildContext context) {
-    Navigator.of(context)
-        .pushNamed(ClientInfoScreen.routeName,
-            arguments: ClientInfoScreenArguments(null))
+    AutoRouter.of(context).push(ClientInfoScreenRoute())
         .then((updated) {
       if (updated as bool) {
         ScaffoldMessenger.of(context)
@@ -73,9 +70,7 @@ class ClientTile extends StatelessWidget {
           },
         ),
         onTap: () {
-          Navigator.of(context)
-              .pushNamed(ClientInfoScreen.routeName,
-                  arguments: ClientInfoScreenArguments(client))
+          AutoRouter.of(context).push(ClientInfoScreenRoute(client: client))
               .then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)

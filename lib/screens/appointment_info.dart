@@ -5,20 +5,14 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:provider/provider.dart';
 
-class AppointmentInfoScreenArguments {
+class AppointmentInfoScreen extends StatelessWidget {
   final Appointment? appointment;
 
-  AppointmentInfoScreenArguments(this.appointment);
-}
-
-class AppointmentInfoScreen extends StatelessWidget {
-  static const routeName = '/appointment';
+  const AppointmentInfoScreen({Key? key, this.appointment}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments
-        as AppointmentInfoScreenArguments;
-    return AppointmentInfoForm(args.appointment);
+    return AppointmentInfoForm(appointment);
   }
 }
 
@@ -97,7 +91,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
             Text(_appointment == null ? 'New Appointment' : 'Appointment Info'),
         actions: [
           TextButton.icon(
-            style: TextButton.styleFrom(primary: Colors.white),
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
             icon: const Icon(Icons.save),
             label: const Text('Save'),
             onPressed: _onSave,

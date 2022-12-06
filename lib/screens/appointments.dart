@@ -1,9 +1,10 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
-import 'package:lmlb/screens/appointment_info.dart';
+import 'package:lmlb/routes.gr.dart';
 import 'package:provider/provider.dart';
 
 enum View { ALL, PENDING }
@@ -21,35 +22,29 @@ extension ViewExt on View {
   }
 }
 
-class AppointmentsScreenArguments {
+class AppointmentsScreen extends StatelessWidget {
   final Client? client;
   final View view;
 
-  AppointmentsScreenArguments(this.client, this.view);
-}
-
-class AppointmentsScreen extends StatelessWidget {
-  static const routeName = '/appointments';
+  const AppointmentsScreen({Key? key, this.client, required this.view}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments
-        as AppointmentsScreenArguments;
-    final hasClientFilter = args.client != null;
+    final hasClientFilter = client != null;
     return Scaffold(
       appBar: AppBar(
         title: !hasClientFilter
             ? const Text('Appointments')
-            : Text("${args.client!.fullName()}'s Appointments"),
+            : Text("${client!.fullName()}'s Appointments"),
       ),
       body: Column(children: [
-        buildHeader(context, args.view),
+        buildHeader(context, view),
         Flexible(child: Consumer2<Appointments, Clients>(
             builder: (context, appointmentsModel, clientsModel, child) {
           final appointments = appointmentsModel.get(
               sorted: true,
-              clientId: args.client?.num,
-              predicate: args.view.predicate()).reversed.toList();
+              clientId: client?.num,
+              predicate: view.predicate()).reversed.toList();
           return ListView.builder(
               itemCount: appointments.length,
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -62,9 +57,9 @@ class AppointmentsScreen extends StatelessWidget {
                 );
               });
         })),
-        buildFooter(context, args.view),
+        buildFooter(context, view),
       ]),
-      floatingActionButton: buildFab(context, args.view),
+      floatingActionButton: buildFab(context, view),
     );
   }
 
@@ -106,9 +101,7 @@ class AppointmentsScreen extends StatelessWidget {
   }
 
   void addAppointment(BuildContext context) {
-    Navigator.of(context)
-        .pushNamed(AppointmentInfoScreen.routeName,
-            arguments: AppointmentInfoScreenArguments(null))
+    AutoRouter.of(context).push(AppointmentInfoScreenRoute())
         .then((updated) {
       if (updated != null && updated as bool) {
         ScaffoldMessenger.of(context)
@@ -153,9 +146,7 @@ class AppointmentTile extends StatelessWidget {
           },
         ) : null,
         onTap: () {
-          Navigator.of(context)
-              .pushNamed(AppointmentInfoScreen.routeName,
-                  arguments: AppointmentInfoScreenArguments(appointment))
+          AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointment: appointment))
               .then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)

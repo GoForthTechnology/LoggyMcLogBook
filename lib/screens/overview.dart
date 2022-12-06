@@ -1,15 +1,13 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
+import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/screens/appointments.dart';
-import 'package:lmlb/screens/clients.dart';
-import 'package:lmlb/screens/invoices.dart';
 import 'package:provider/provider.dart';
 
 class OverviewScreen extends StatelessWidget {
-  static const routeName = '/overview';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,8 +31,7 @@ class OverviewScreen extends StatelessWidget {
   }
 
   Widget invoiceOverview(BuildContext context) {
-    return overviewContainer(context, "Invoice Overview",
-        InvoicesScreen.routeName, InvoicesScreenArguments(null),
+    return overviewContainer(context, "Invoice Overview", InvoicesScreenRoute(),
         Consumer<Invoices>(builder: (context, model, child) {
       final numPending = model.getPending().length;
       final numReceivable = model.getReceivable().length;
@@ -58,8 +55,7 @@ class OverviewScreen extends StatelessWidget {
     return overviewContainer(
         context,
         "Client Overview",
-        ClientsScreen.routeName,
-        null,
+        ClientsScreenRoute(),
         Consumer<Clients>(
             builder: (context, model, child) =>
                 Text("Num Clients: ${model.getAll().length}")));
@@ -69,8 +65,7 @@ class OverviewScreen extends StatelessWidget {
     return overviewContainer(
         context,
         "Appointment Overview",
-        AppointmentsScreen.routeName,
-        AppointmentsScreenArguments(null, View.ALL),
+        AppointmentsScreenRoute(view: View.ALL),
         Consumer<Appointments>(builder: (context, model, child) {
       final numPending = model.getPending().length;
       return Column(
@@ -84,11 +79,10 @@ class OverviewScreen extends StatelessWidget {
     }));
   }
 
-  Widget overviewContainer(BuildContext context, String title, String routeName,
-      Object? args, Widget contents) {
+  Widget overviewContainer(BuildContext context, String title, PageRouteInfo route, Widget contents) {
     return Center(
         child: GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(routeName, arguments: args),
+          onTap: () => AutoRouter.of(context).push(route),
       child: Container(
         margin: EdgeInsets.all(10.0),
         padding: EdgeInsets.all(30.0),
