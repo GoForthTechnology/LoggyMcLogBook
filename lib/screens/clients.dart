@@ -54,16 +54,17 @@ class ClientTile extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor:
-              client.num == null
+              client.id == null
                   ? Colors.black
-                  : Colors.primaries[client.num! % Colors.primaries.length],
+                  : Colors.blue,
+                  //: Colors.primaries[client.id! % Colors.primaries.length],
         ),
         title: Text(
           '${client.firstName} ${client.lastName}',
-          key: Key('client_text_${client.num}'),
+          key: Key('client_text_${client.id}'),
         ),
         trailing: IconButton(
-          key: Key('remove_icon_${client.num}'),
+          key: Key('remove_icon_${client.id}'),
           icon: const Icon(Icons.close),
           onPressed: () {
             confirmDeletion(context, client);

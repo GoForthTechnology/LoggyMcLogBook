@@ -2,7 +2,7 @@ import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/repos/internal/indexed_repo.dart';
 
-class Appointments extends IndexedRepo<int, Appointment> {
+class Appointments extends IndexedRepo<String, Appointment> {
   final CrudInterface<Appointment> _persistence;
 
   Appointments(this._persistence)
@@ -13,7 +13,7 @@ class Appointments extends IndexedRepo<int, Appointment> {
     return initIndex(_persistence.getAll()).then((_) => this);
   }
 
-  Appointment? getLast(int clientId) {
+  Appointment? getLast(String clientId) {
     final appointments = get(sorted: true, clientId: clientId);
     var lastAppointment;
     for (int i = 0; i < appointments.length; i++) {
@@ -24,7 +24,7 @@ class Appointments extends IndexedRepo<int, Appointment> {
     return lastAppointment;
   }
 
-  Appointment? getNext(int clientId) {
+  Appointment? getNext(String clientId) {
     final appointments = getUpcoming(sorted: true, clientId: clientId);
     if (appointments.isEmpty) {
       return null;
@@ -32,23 +32,23 @@ class Appointments extends IndexedRepo<int, Appointment> {
     return appointments[0];
   }
 
-  List<Appointment> getUpcoming({bool? sorted, int? clientId}) {
+  List<Appointment> getUpcoming({bool? sorted, String? clientId}) {
     return get(sorted: sorted, clientId: clientId, predicate: (a) => !a.time.isBefore(DateTime.now()));
   }
 
-  List<Appointment> getPending({bool? sorted, int? clientId}) {
+  List<Appointment> getPending({bool? sorted, String? clientId}) {
     return get(sorted: sorted, clientId: clientId, predicate: (a) => a.invoiceId == null);
   }
 
-  List<Appointment> getInvoiced(int invoiceId) {
+  List<Appointment> getInvoiced(String invoiceId) {
     return get(predicate: (a) => a.invoiceId == invoiceId);
   }
 
-  List<Appointment> get({bool? sorted, int? clientId, bool Function(Appointment)? predicate}) {
+  List<Appointment> get({bool? sorted, String? clientId, bool Function(Appointment)? predicate}) {
     return getFromIndex(keyFilter: clientId, sorted: sorted, predicate: predicate);
   }
 
-  Future<void> add(int clientId, DateTime startTime, Duration duration,
+  Future<void> add(String clientId, DateTime startTime, Duration duration,
       AppointmentType type) {
     var appointments = getFromIndex(keyFilter: clientId);
     var overlappingAppointment;

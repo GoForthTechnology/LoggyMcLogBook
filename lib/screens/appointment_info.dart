@@ -31,7 +31,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
   final _formKey = GlobalKey<FormState>();
 
   late final Appointment? _appointment;
-  int? _clientId;
+  String? _clientId;
   DateTime? _appointmentDate;
   TimeOfDay? _appointmentTime;
   AppointmentType? _appointmentType;
@@ -253,7 +253,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
                       onChanged: (selection) {
                         state.didChange(selection);
                         setState(() {
-                          _clientId = selection!.num;
+                          _clientId = selection!.id;
                         });
                       },
                       value: _clientId == null

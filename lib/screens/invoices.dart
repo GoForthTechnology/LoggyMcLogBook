@@ -22,7 +22,7 @@ class InvoicesScreen extends StatelessWidget {
       ),
       body: Consumer2<Invoices, Clients>(
           builder: (context, invoiceRepo, clientsModel, child) {
-        final invoices = invoiceRepo.get(sorted: true, clientId: client?.num);
+        final invoices = invoiceRepo.get(sorted: true, clientId: client?.id);
         return ListView.builder(
             itemCount: invoices.length,
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -72,8 +72,9 @@ class InvoiceTile extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors
-              .primaries[invoice.id! % Colors.primaries.length],
+          backgroundColor: Colors.blue,
+          /*backgroundColor: Colors
+              .primaries[invoice.id! % Colors.primaries.length],*/
         ),
         title: Text(
           hasClientFilter

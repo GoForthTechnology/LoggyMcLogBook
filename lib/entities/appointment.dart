@@ -5,12 +5,12 @@ import 'package:lmlb/entities/invoice.dart';
 import '../persistence/local/Indexable.dart';
 
 class Appointment extends Indexable<Appointment>{
-  late int? id;
+  late String? id;
   final AppointmentType type;
   final DateTime time;
   final Duration duration;
-  final int clientId;
-  final int? invoiceId;
+  final String clientId;
+  final String? invoiceId;
   Appointment(
       this.id,
       this.type,
@@ -33,12 +33,12 @@ class Appointment extends Indexable<Appointment>{
   }
 
   @override
-  int? getId() {
+  String? getId() {
     return id;
   }
 
   @override
-  Appointment setId(int id) {
+  Appointment setId(String id) {
     return new Appointment(id, type, time, duration, clientId, invoiceId);
   }
 }

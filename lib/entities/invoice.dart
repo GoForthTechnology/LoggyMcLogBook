@@ -1,11 +1,11 @@
 
+import 'package:lmlb/persistence/local/Indexable.dart';
 import 'package:sprintf/sprintf.dart';
 
-const startingId = 100;
 
-class Invoice {
-  late int? id;
-  final int clientId;
+class Invoice extends Indexable<Invoice> {
+  late String? id;
+  final String clientId;
   final Currency currency;
   final DateTime dateCreated;
   DateTime? dateBilled;
@@ -14,11 +14,23 @@ class Invoice {
   Invoice(this.id, this.clientId, this.currency, this.dateCreated);
 
   int invoiceNum() {
-    return startingId + id!;
+    // TODO: do this properly;
+    return 1001;
   }
 
   String invoiceNumStr() {
     return sprintf("%06d", [invoiceNum()]);
+  }
+
+  @override
+  String? getId() {
+    return id;
+  }
+
+  @override
+  Invoice setId(String id) {
+    this.id = id;
+    return this;
   }
 }
 

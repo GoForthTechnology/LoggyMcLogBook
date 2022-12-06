@@ -37,7 +37,7 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
   late final Invoice? _invoice;
   late List<Appointment> _appointments;
   Currency? _currency;
-  int? _clientId;
+  String? _clientId;
 
   InvoiceInfoFormState(Invoice? invoice) {
     this._invoice = invoice;
@@ -249,7 +249,7 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
                       onChanged: (selection) {
                         state.didChange(selection);
                         setState(() {
-                          _clientId = selection!.num;
+                          _clientId = selection!.id;
                         });
                       },
                       value: _clientId == null

@@ -43,7 +43,7 @@ class AppointmentsScreen extends StatelessWidget {
             builder: (context, appointmentsModel, clientsModel, child) {
           final appointments = appointmentsModel.get(
               sorted: true,
-              clientId: client?.num,
+              clientId: client?.id,
               predicate: view.predicate()).reversed.toList();
           return ListView.builder(
               itemCount: appointments.length,

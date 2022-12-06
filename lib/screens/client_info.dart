@@ -85,13 +85,13 @@ class ClientInfoFormState extends State<ClientInfoForm> {
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       final clients = Provider.of<Clients>(context, listen: false);
-      var clientNum = _client?.num;
+      var clientNum = _client?.displayNum();
       Future<void> op;
       if (clientNum == null) {
         op = clients.add(
             _firstNameController.value.text, _lastNameController.value.text);
       } else {
-        op = clients.update(Client(clientNum, _firstNameController.value.text,
+        op = clients.update(Client(_client?.id, _firstNameController.value.text,
             _lastNameController.value.text));
       }
       op.then((_) => Navigator.of(context).pop(true));
@@ -100,7 +100,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
 
   Widget _buildInvoiceSummary() {
     return Consumer<Invoices>(builder: (context, invoices, child) {
-      if (_client?.num == null) {
+      if (_client?.id == null) {
         return Container();
       }
       return Column(
@@ -150,7 +150,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
 
   Widget _buildAppointmentSummary() {
     return Consumer<Appointments>(builder: (context, model, child) {
-      if (_client?.num == null) {
+      if (_client?.id == null) {
         return Container();
       }
       return Column(
@@ -161,10 +161,10 @@ class ClientInfoFormState extends State<ClientInfoForm> {
               margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
               child: Text("Appointment Summary",
                   style: Theme.of(context).textTheme.subtitle2)),
-          _buildLastAppointment(model.getLast(_client!.num!), context),
-          _buildNextAppointment(model.getNext(_client!.num!), context),
+          _buildLastAppointment(model.getLast(_client!.id!), context),
+          _buildNextAppointment(model.getNext(_client!.id!), context),
           _buildToBeInvoiced(
-              model.getPending(clientId: _client!.num),
+              model.getPending(clientId: _client!.id),
               context),
           Row(
             children: [

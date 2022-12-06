@@ -1,11 +1,13 @@
+import 'package:uuid/uuid.dart';
 import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
 
 class LocalCrud<T extends Indexable> implements CrudInterface<T> {
-  final Map<int, T> _items = {};
+  final uuid = Uuid();
+  final Map<String, T> _items = {};
 
   @override
-  Future<T?> get(int id) {
+  Future<T?> get(String id) {
     return Future.value(_items[id]);
   }
 
@@ -15,13 +17,8 @@ class LocalCrud<T extends Indexable> implements CrudInterface<T> {
   }
 
   @override
-  Future<int> insert(T item) {
-    int id = 1;
-    if (_items.isNotEmpty) {
-      List<int> keys = List.of(_items.keys);
-      keys.sort((a,b) => a.compareTo(b));
-      id = keys.last++;
-    }
+  Future<String> insert(T item) {
+    String id = uuid.v4();
     T updatedItem = item.setId(id);
     _items[id] = updatedItem;
     return Future.value(id);
@@ -35,7 +32,7 @@ class LocalCrud<T extends Indexable> implements CrudInterface<T> {
 
   @override
   Future<void> update(T item) {
-    int? id = item.getId();
+    String? id = item.getId();
     if (id == null) {
       return insert(item);
     }

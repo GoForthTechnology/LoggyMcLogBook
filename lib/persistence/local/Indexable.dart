@@ -1,4 +1,4 @@
 abstract class Indexable<T> {
-  int? getId();
-  T setId(int id);
+  String? getId();
+  T setId(String id);
 }

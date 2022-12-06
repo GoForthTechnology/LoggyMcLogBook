@@ -37,6 +37,7 @@ dependencies:
   auto_route: ^5.0.4
   firebase_ui_auth: ^1.1.1
   firebase_ui_oauth_google: ^1.0.8
+  uuid: ^3.0.7
 
 dev_dependencies:
   flutter_test:

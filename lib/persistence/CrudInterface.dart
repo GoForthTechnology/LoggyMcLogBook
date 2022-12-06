@@ -1,9 +1,9 @@
 abstract class CrudInterface<T> {
   Future<List<T>> getAll();
 
-  Future<T?> get(int id);
+  Future<T?> get(String id);
 
-  Future<int> insert(T appointment);
+  Future<String> insert(T appointment);
 
   Future<void> update(T appointment);
 

@@ -1,20 +1,22 @@
 import 'package:lmlb/persistence/local/Indexable.dart';
 
 class Client extends Indexable<Client> {
-  final int? num;
+  final String? id;
   final String firstName;
   final String lastName;
   Client(
-      this.num,
+      this.id,
       this.firstName,
       this.lastName,
       );
 
-  int? getId() {
-    return num;
+  @override
+  String? getId() {
+    return id;
   }
 
-  Client setId(int id) {
+  @override
+  Client setId(String id) {
     return new Client(id, firstName, lastName);
   }
 
@@ -23,6 +25,7 @@ class Client extends Indexable<Client> {
   }
 
   int? displayNum() {
-    return (num == null) ? null : num! + 010000;
+    // TODO: fix
+    return 0;
   }
 }
