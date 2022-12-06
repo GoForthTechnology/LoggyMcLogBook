@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:lmlb/auth.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:lmlb/screens/client_info.dart';
@@ -14,6 +15,7 @@ import 'package:lmlb/screens/overview.dart';
       initial: true,
       path: '/dashboard',
       page: OverviewScreen,
+      guards: [AuthGuard],
     ),
     AutoRoute(
       path: '/appointment',
@@ -39,6 +41,7 @@ import 'package:lmlb/screens/overview.dart';
       path: '/invoice',
       page: InvoiceInfoScreen,
     ),
+    ...authRoutes,
     // redirect all other paths
     RedirectRoute(path: '*', redirectTo: '/'),
     //Home

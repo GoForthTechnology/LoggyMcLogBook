@@ -1,5 +1,7 @@
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:lmlb/auth.dart';
 import 'package:lmlb/persistence/local/LocalCrud.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
@@ -31,11 +33,12 @@ Future<Widget> init(Widget app, bool isWeb) {
 
 class MyApp extends StatelessWidget {
 
-  final _appRouter = AppRouter();
+  final _appRouter = AppRouter(authGuard: AuthGuard());
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    FirebaseUIAuth.configureProviders(authProviders);
 
     return MaterialApp.router(
       title: 'FCP Log Book',
