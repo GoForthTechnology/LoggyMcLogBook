@@ -2,7 +2,7 @@ import 'package:uuid/uuid.dart';
 import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
 
-class LocalCrud<T extends Indexable> implements CrudInterface<T> {
+class LocalCrud<T extends Indexable> extends CrudInterface<T> {
   final uuid = Uuid();
   final Map<String, T> _items = {};
 
@@ -38,5 +38,10 @@ class LocalCrud<T extends Indexable> implements CrudInterface<T> {
     }
     _items[id] = item;
     return Future.value(null);
+  }
+
+  @override
+  Future<int> count() async {
+    return _items.length;
   }
 }

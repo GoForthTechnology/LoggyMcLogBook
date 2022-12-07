@@ -7,7 +7,9 @@ class Clients extends ChangeNotifier {
   CrudInterface<Client> _persistence;
   Map<String, Client> _clients = {};
 
-  Clients(this._persistence);
+  Clients(this._persistence) {
+    _persistence.addListener(() => init());
+  }
 
   Future<Clients> init() {
     return _persistence.getAll().then((clients) {
@@ -25,9 +27,12 @@ class Clients extends ChangeNotifier {
     return _clients[id];
   }
 
-  Future<void> add(String firstName, String lastName) {
-    return _persistence.insert(Client(null, firstName, lastName)).then((id) {
-      _clients[id] = Client(id, firstName, lastName);
+  Future<void> add(String firstName, String lastName) async {
+    var numClients = await _persistence.getAll().then((clients) => clients.length);
+    var newClientNum = numClients + 1;
+    var newClient = Client(null, newClientNum, firstName, lastName);
+    return _persistence.insert(newClient).then((id) {
+      _clients[id] = newClient.setId(id);
       notifyListeners();
     });
   }

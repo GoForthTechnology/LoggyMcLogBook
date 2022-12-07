@@ -7,7 +7,9 @@ class Appointments extends IndexedRepo<String, Appointment> {
 
   Appointments(this._persistence)
       : super((a) => a.clientId, (v, k) => v.id = k, (a, b) => a.id == b.id,
-            (a, b) => a.time.compareTo(b.time));
+            (a, b) => a.time.compareTo(b.time)) {
+    _persistence.addListener(() => init());
+  }
 
   Future<Appointments> init() {
     return initIndex(_persistence.getAll()).then((_) => this);

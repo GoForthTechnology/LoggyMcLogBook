@@ -1,9 +1,13 @@
 
 import 'package:intl/intl.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:lmlb/entities/invoice.dart';
 
 import '../persistence/local/Indexable.dart';
 
+part 'appointment.g.dart';
+
+@JsonSerializable(explicitToJson: true)
 class Appointment extends Indexable<Appointment>{
   late String? id;
   final AppointmentType type;
@@ -41,6 +45,9 @@ class Appointment extends Indexable<Appointment>{
   Appointment setId(String id) {
     return new Appointment(id, type, time, duration, clientId, invoiceId);
   }
+
+  factory Appointment.fromJson(Map<String, dynamic> json) => _$AppointmentFromJson(json);
+  Map<String, dynamic> toJson() => _$AppointmentToJson(this);
 }
 
 enum AppointmentType {

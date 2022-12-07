@@ -1,21 +1,25 @@
 
+import 'package:json_annotation/json_annotation.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
 import 'package:sprintf/sprintf.dart';
 
+part 'invoice.g.dart';
 
+@JsonSerializable(explicitToJson: true)
 class Invoice extends Indexable<Invoice> {
   late String? id;
+  final int? num;
   final String clientId;
   final Currency currency;
   final DateTime dateCreated;
   DateTime? dateBilled;
   DateTime? datePaid;
 
-  Invoice(this.id, this.clientId, this.currency, this.dateCreated);
+  Invoice(this.id, this.num, this.clientId, this.currency, this.dateCreated);
 
   int invoiceNum() {
-    // TODO: do this properly;
-    return 1001;
+    var invoiceNum = num ?? 0;
+    return 100 + invoiceNum;
   }
 
   String invoiceNumStr() {
@@ -32,6 +36,9 @@ class Invoice extends Indexable<Invoice> {
     this.id = id;
     return this;
   }
+
+  factory Invoice.fromJson(Map<String, dynamic> json) => _$InvoiceFromJson(json);
+  Map<String, dynamic> toJson() => _$InvoiceToJson(this);
 }
 
 enum Currency {

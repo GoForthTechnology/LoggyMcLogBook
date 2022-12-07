@@ -10,7 +10,9 @@ class Invoices extends IndexedRepo<String, Invoice> {
 
   Invoices(this._persistence, this._appointmentRepo)
       : super((a) => a.clientId, (v, k) => v.id = k, (a, b) => a.id == b.id,
-            (a, b) => a.dateCreated.compareTo(b.dateCreated));
+            (a, b) => a.dateCreated.compareTo(b.dateCreated)) {
+    _persistence.addListener(() => init());
+  }
 
   Future<Invoices> init() {
     return initIndex(_persistence.getAll()).then((_) => this);
@@ -44,8 +46,10 @@ class Invoices extends IndexedRepo<String, Invoice> {
   }
 
   Future<Invoice> add(
-      String clientId, Currency currency, List<Appointment> appointments) {
-    final invoice = Invoice(null, clientId, currency, DateTime.now());
+      String clientId, Currency currency, List<Appointment> appointments) async {
+    var numInvoices = await _persistence.getAll().then((invoices) => invoices.length);
+    var newInvoiceNum = numInvoices + 1;
+    final invoice = Invoice(null, newInvoiceNum, clientId, currency, DateTime.now());
     return addToIndex(invoice, _persistence.insert(invoice))
         .then((savedInvoice) {
       final List<Future<void>> updateOps = [];

@@ -1,4 +1,6 @@
-abstract class CrudInterface<T> {
+import 'package:flutter/cupertino.dart';
+
+abstract class CrudInterface<T> with ChangeNotifier {
   Future<List<T>> getAll();
 
   Future<T?> get(String id);

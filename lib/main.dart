@@ -2,13 +2,16 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/auth.dart';
-import 'package:lmlb/persistence/local/LocalCrud.dart';
+import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'entities/appointment.dart';
+import 'entities/invoice.dart';
 import 'firebase_options.dart';
+import 'persistence/firebase/firebase_crud.dart';
 import 'routes.gr.dart';
 
 void main() async {
@@ -20,9 +23,21 @@ void main() async {
 }
 
 Future<Widget> init(Widget app, bool isWeb) {
-  final clients = Clients(new LocalCrud());
-  final appointments = Appointments(new LocalCrud());
-  final invoices = Invoices(new LocalCrud(), appointments);
+  final clients = Clients(new FirebaseCrud(
+    directory: "clients",
+    fromJson: Client.fromJson,
+    toJson: (c) => c.toJson(),
+  ));
+  final appointments = Appointments(new FirebaseCrud(
+    directory: "appointments",
+    fromJson: Appointment.fromJson,
+    toJson: (a) => a.toJson(),
+  ));
+  final invoices = Invoices(new FirebaseCrud(
+    directory: "invoices",
+    fromJson: Invoice.fromJson,
+    toJson: (i) => i.toJson(),
+  ), appointments);
   final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
   return init.then((_) => MultiProvider(providers: [
     ChangeNotifierProvider.value(value: clients),

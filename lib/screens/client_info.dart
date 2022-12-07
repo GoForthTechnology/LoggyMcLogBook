@@ -89,10 +89,16 @@ class ClientInfoFormState extends State<ClientInfoForm> {
       Future<void> op;
       if (clientNum == null) {
         op = clients.add(
-            _firstNameController.value.text, _lastNameController.value.text);
+          _firstNameController.value.text,
+          _lastNameController.value.text,
+        );
       } else {
-        op = clients.update(Client(_client?.id, _firstNameController.value.text,
-            _lastNameController.value.text));
+        op = clients.update(Client(
+          _client?.id,
+          _client?.num,
+          _firstNameController.value.text,
+          _lastNameController.value.text,
+        ));
       }
       op.then((_) => Navigator.of(context).pop(true));
     }
