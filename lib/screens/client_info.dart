@@ -177,7 +177,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
               ElevatedButton(
                   child: Text("View All"),
                   onPressed: () {
-                    AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.ALL, client: _client));
+                    AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.ALL.name, client: _client));
                   }),
             ],
             mainAxisSize: MainAxisSize.max,
@@ -234,7 +234,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
             : TextButton(
                 child: Text("View"),
                 onPressed: () {
-                  AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.PENDING, client: _client));
+                  AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.PENDING.name, client: _client));
                 }),
       ],
     );

@@ -53,7 +53,10 @@ class AppRouter extends _i9.RootStackRouter {
       );
     },
     AppointmentsScreenRoute.name: (routeData) {
-      final args = routeData.argsAs<AppointmentsScreenRouteArgs>();
+      final pathParams = routeData.inheritedPathParams;
+      final args = routeData.argsAs<AppointmentsScreenRouteArgs>(
+          orElse: () =>
+              AppointmentsScreenRouteArgs(view: pathParams.getString('view')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
         child: _i3.AppointmentsScreen(
@@ -135,7 +138,7 @@ class AppRouter extends _i9.RootStackRouter {
         ),
         _i9.RouteConfig(
           AppointmentsScreenRoute.name,
-          path: '/appointments',
+          path: '/appointments/:view',
         ),
         _i9.RouteConfig(
           ClientsScreenRoute.name,
@@ -233,15 +236,16 @@ class AppointmentsScreenRoute
   AppointmentsScreenRoute({
     _i10.Key? key,
     _i12.Client? client,
-    required _i3.View view,
+    required String view,
   }) : super(
           AppointmentsScreenRoute.name,
-          path: '/appointments',
+          path: '/appointments/:view',
           args: AppointmentsScreenRouteArgs(
             key: key,
             client: client,
             view: view,
           ),
+          rawPathParams: {'view': view},
         );
 
   static const String name = 'AppointmentsScreenRoute';
@@ -258,7 +262,7 @@ class AppointmentsScreenRouteArgs {
 
   final _i12.Client? client;
 
-  final _i3.View view;
+  final String view;
 
   @override
   String toString() {

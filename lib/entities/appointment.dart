@@ -29,7 +29,7 @@ class Appointment extends Indexable<Appointment>{
   }
 
   String timeStr() {
-    return DateFormat("d MMM H:m").format(time);
+    return DateFormat("d MMM @ HH:mm").format(time);
   }
 
   Appointment bill(Invoice? invoice) {

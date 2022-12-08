@@ -24,9 +24,11 @@ extension ViewExt on View {
 
 class AppointmentsScreen extends StatelessWidget {
   final Client? client;
-  final View view;
+  late View view;
 
-  const AppointmentsScreen({Key? key, this.client, required this.view}) : super(key: key);
+  AppointmentsScreen({Key? key, this.client, @PathParam() required String view}) : super(key: key) {
+    this.view = View.values.firstWhere((v) => v.name == view.toUpperCase());
+  }
 
   @override
   Widget build(BuildContext context) {

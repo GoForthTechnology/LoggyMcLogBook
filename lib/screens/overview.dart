@@ -65,7 +65,7 @@ class OverviewScreen extends StatelessWidget {
     return overviewContainer(
         context,
         "Appointment Overview",
-        AppointmentsScreenRoute(view: View.ALL),
+        AppointmentsScreenRoute(view: View.ALL.name),
         Consumer<Appointments>(builder: (context, model, child) {
       final numPending = model.getPending().length;
       return Column(

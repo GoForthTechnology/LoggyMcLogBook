@@ -22,7 +22,7 @@ import 'package:lmlb/screens/overview.dart';
       page: AppointmentInfoScreen,
     ),
     AutoRoute(
-      path: '/appointments',
+      path: '/appointments/:view',
       page: AppointmentsScreen,
     ),
     AutoRoute(
