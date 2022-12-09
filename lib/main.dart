@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseAuth auth = FirebaseAuth.instance;
+  auth.setPersistence(Persistence.LOCAL);
+
   await init(MyApp(), kIsWeb).then(runApp);
 }
 
@@ -38,7 +42,8 @@ Future<Widget> init(Widget app, bool isWeb) {
     fromJson: Invoice.fromJson,
     toJson: (i) => i.toJson(),
   ), appointments);
-  final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
+  //final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
+  final init = Future.value(null);
   return init.then((_) => MultiProvider(providers: [
     ChangeNotifierProvider.value(value: clients),
     ChangeNotifierProvider.value(value: appointments),

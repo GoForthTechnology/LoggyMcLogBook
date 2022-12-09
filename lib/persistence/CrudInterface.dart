@@ -10,4 +10,6 @@ abstract class CrudInterface<T> with ChangeNotifier {
   Future<void> update(T appointment);
 
   Future<void> remove(T appointment);
+
+  Future<void> init();
 }

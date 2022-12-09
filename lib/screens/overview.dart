@@ -69,14 +69,28 @@ class OverviewScreen extends StatelessWidget {
         "Appointment Overview",
         AppointmentsScreenRoute(view: View.ALL.name),
         Consumer<Appointments>(builder: (context, model, child) {
-      final numPending = model.getPending().length;
-      return Column(
-        children: [
-          Text("Num Upcoming: ${model.getUpcoming().length}"),
-          Text("Num to Bill: $numPending",
-              style:
+      return FutureBuilder(
+        future: Future.wait([
+          model.getPending().then((as) => as.length),
+          model.getUpcoming().then((as) => as.length),
+        ]),
+        builder: (context, snapshot) {
+          var numPending = 0;
+          var numUpcoming = 0;
+          if (snapshot.data != null) {
+            var dataF = snapshot.data! as List<int>;
+            numPending = dataF[0];
+            numUpcoming = dataF[1];
+          }
+          return Column(
+            children: [
+              Text("Num Upcoming: $numUpcoming"),
+              Text("Num to Bill: $numPending",
+                  style:
                   TextStyle(color: numPending > 0 ? Colors.red : Colors.black)),
-        ],
+            ],
+          );
+        },
       );
     }));
   }

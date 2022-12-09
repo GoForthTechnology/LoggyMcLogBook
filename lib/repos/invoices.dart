@@ -24,6 +24,13 @@ class Invoices extends IndexedRepo<String, Invoice> {
         keyFilter: clientId, sorted: sorted, predicate: predicate);
   }
 
+  Future<Invoice?> getSingle(String? id) async {
+    if (id == null) {
+      return null;
+    }
+    return _persistence.get(id);
+  }
+
   List<Invoice> getPending({bool? sorted, String? clientId}) {
     return get(
         clientId: clientId,
@@ -59,10 +66,11 @@ class Invoices extends IndexedRepo<String, Invoice> {
     });
   }
 
-  Future<void> remove(Invoice invoice) {
+  Future<void> remove(Invoice invoice) async {
     final List<Future<void>> updateOps = [];
-    _appointmentRepo.getInvoiced(invoice.id!).forEach((appointment) {
-      updateOps.add(_appointmentRepo.update(appointment.bill(null)));
+    var appointments = await _appointmentRepo.getInvoiced(invoice.id!);
+    appointments.forEach((a) {
+      updateOps.add(_appointmentRepo.update(a.bill(null)));
     });
     return Future.wait(updateOps)
         .then((_) => removeFromIndex(invoice, _persistence.remove(invoice)));

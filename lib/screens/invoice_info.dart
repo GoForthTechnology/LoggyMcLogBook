@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lmlb/entities/appointment.dart';
@@ -9,75 +10,38 @@ import 'package:lmlb/repos/invoices.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:provider/provider.dart';
 
-class InvoiceInfoScreen extends StatelessWidget {
-  final Invoice? invoice;
+class InvoiceInfoScreen extends StatefulWidget {
+  final String? invoiceId;
 
-  const InvoiceInfoScreen({Key? key, this.invoice}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InvoiceInfoForm(invoice);
-  }
-}
-
-class InvoiceInfoForm extends StatefulWidget {
-  final Invoice? _invoice;
-
-  InvoiceInfoForm(this._invoice);
+  const InvoiceInfoScreen({Key? key, @PathParam() this.invoiceId}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return InvoiceInfoFormState(_invoice);
-  }
+  State<StatefulWidget> createState() => InvoiceInfoFormState();
 }
 
-class InvoiceInfoFormState extends State<InvoiceInfoForm> {
+class InvoiceInfoFormState extends State<InvoiceInfoScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  late final Invoice? _invoice;
-  late List<Appointment> _appointments;
+  List<Appointment> _appointments = [];
   Currency? _currency;
   String? _clientId;
 
-  InvoiceInfoFormState(Invoice? invoice) {
-    this._invoice = invoice;
-    this._clientId = _invoice?.clientId;
-    this._currency = _invoice?.currency;
-  }
-
   @override
   void initState() {
+    if (widget.invoiceId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        var invoice = await Provider.of<Invoices>(context, listen: false).getSingle(widget.invoiceId);
+        var appointments = await Provider.of<Appointments>(context, listen: false).getInvoiced(widget.invoiceId!);
+        setState(() {
+          _appointments.addAll(appointments);
+          if (invoice != null) {
+            _currency = invoice.currency;
+            _clientId = invoice.clientId;
+          }
+        });
+      });
+    }
     super.initState();
-    final appointmentsRepo = Provider.of<Appointments>(context, listen: false);
-    this._appointments =
-        _invoice == null ? [] : appointmentsRepo.getInvoiced(_invoice!.id!);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      var clients = await Provider.of<Clients>(context, listen: false).getAll();
-      if (clients.isEmpty) {
-        Widget continueButton = TextButton(
-          child: Text("Ack"),
-          onPressed: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-        );
-        // set up the AlertDialog
-        AlertDialog alert = AlertDialog(
-          title: Text("No Clients Found"),
-          content: Text("Please add the client before creating an invoice"),
-          actions: [
-            continueButton,
-          ],
-        );
-        // show the dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return alert;
-          },
-        );
-      }
-    });
   }
 
   @override
@@ -88,36 +52,41 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_invoice == null
-            ? 'New Invoice'
-            : 'Invoice #${_invoice!.invoiceNumStr()}'),
-        actions: [
-          TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
-            icon: const Icon(Icons.save),
-            label: const Text('Save'),
-            onPressed: _onSave,
-          )
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: Container(
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildClientSelector(context),
-              _buildCurrencySelector(context),
-              _buildAppointmentSelector(context),
-              _buildTotal(context),
+    return Consumer<Invoices>(builder: (context, model, child) => FutureBuilder<Invoice?>(
+      future: widget.invoiceId == null ? Future.value(null) : model.getSingle(widget.invoiceId!),
+      builder: (context, snapshot) {
+        var invoice = snapshot.data;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(invoice == null
+                ? 'New Invoice'
+                : 'Invoice #${invoice.invoiceNumStr()}'),
+            actions: [
+              TextButton.icon(
+                style: TextButton.styleFrom(foregroundColor: Colors.white),
+                icon: const Icon(Icons.save),
+                label: const Text('Save'),
+                onPressed: _onSave,
+              )
             ],
           ),
-        ),
-      ),
-    );
+          body: Form(
+            key: _formKey,
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildClientSelector(context),
+                  _buildCurrencySelector(context),
+                  _buildAppointmentSelector(context),
+                  _buildTotal(context),
+                ],
+              ),
+            ),
+          ),
+        );
+      }));
   }
 
   void _onSave() {
@@ -144,42 +113,46 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
     return _buildContainer(
         null,
         FormField(
-          builder: (state) =>
-              Consumer<Appointments>(builder: (context, repo, child) {
+          builder: (state) => Consumer<Appointments>(builder: (context, repo, child) {
+            Future<List<Appointment>> appointmentsF;
+            if (widget.invoiceId == null) {
+              appointmentsF = repo.getPending(clientId: _clientId);
+            } else {
+              appointmentsF = repo.get((a) => a.clientId == _clientId && (
+                a.invoiceId == widget.invoiceId || a.invoiceId == null
+              ));
+            }
             return _clientId == null
                 ? Text("Please select a client",
                     style: TextStyle(fontStyle: FontStyle.italic))
-                : Expanded(
-                    child: MultiSelectFormField(
-                        chipBackGroundColor: ThemeData.light().dialogBackgroundColor,
-                        chipLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-                        dialogTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                        checkBoxActiveColor: ThemeData.light().colorScheme.secondary,
-                        checkBoxCheckColor: Colors.black,
-                        dialogShapeBorder: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(12.0))),
-                        title: Text("Appointments to bill",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        dataSource: _formatDataSource(_invoice == null
-                            ? repo.getPending(clientId: _clientId)
-                            : repo.get(
-                                clientId: _clientId,
-                                predicate: (a) =>
-                                    a.invoiceId == _invoice!.id ||
-                                    a.invoiceId == null)),
-                        textField: 'display',
-                        valueField: 'value',
-                        okButtonLabel: 'OK',
-                        cancelButtonLabel: 'CANCEL',
-                        hintWidget: Text('Please choose one or more'),
-                        initialValue: _appointments,
-                        onSaved: (value) {
-                          state.didChange(value);
-                          setState(() {
-                            _appointments = List<Appointment>.from(value);
-                          });
-                        }));
+                : FutureBuilder<List<Appointment>>(
+              future: appointmentsF,
+              builder: (context, snapshot) {
+                var appointments = snapshot.data ?? [];
+                return Expanded(child: MultiSelectFormField(chipBackGroundColor: ThemeData.light().dialogBackgroundColor,
+                  chipLabelStyle: TextStyle(fontWeight: FontWeight.bold),
+                  dialogTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                  checkBoxActiveColor: ThemeData.light().colorScheme.secondary,
+                  checkBoxCheckColor: Colors.black,
+                  dialogShapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  ),
+                  title: Text("Appointments to bill", style: TextStyle(fontWeight: FontWeight.bold)),
+                  dataSource: _formatDataSource(appointments),
+                  textField: 'display',
+                  valueField: 'value',
+                  okButtonLabel: 'OK',
+                  cancelButtonLabel: 'CANCEL',
+                  hintWidget: Text('Please choose one or more'),
+                  initialValue: _appointments,
+                  onSaved: (value) {
+                    state.didChange(value);
+                    setState(() {
+                      _appointments = List<Appointment>.from(value);
+                    });
+                  },
+                ));
+            });
           }),
         ));
   }
@@ -242,21 +215,21 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
                 future: clientModel.getAll(),
                 builder: (context, snapshot) {
                   var clients = snapshot.data ?? [];
-                  return DropdownButton<Client>(
+                  return DropdownButton<String?>(
                     hint: Text('Please make a selection'),
                     items: clients.map((client) {
-                      return DropdownMenuItem<Client>(
-                        value: client,
+                      return DropdownMenuItem<String?>(
+                        value: client.id,
                         child: new Text(client.fullName()),
                       );
                     }).toList(),
                     onChanged: (selection) {
                       state.didChange(selection);
                       setState(() {
-                        _clientId = selection!.id;
+                        _clientId = selection;
                       });
                     },
-                    value: clients.firstWhere((client) => client.id == _clientId, orElse: null),
+                    value: _clientId,
                   );
                 }
               ),

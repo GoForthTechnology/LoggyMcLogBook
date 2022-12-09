@@ -15,8 +15,9 @@ class Appointments extends IndexedRepo<String, Appointment> {
     return initIndex(_persistence.getAll()).then((_) => this);
   }
 
-  Appointment? getLast(String clientId) {
-    final appointments = get(sorted: true, clientId: clientId);
+  Future<Appointment?> getLast(String clientId) async {
+    final appointments = await get((a) => a.clientId == clientId);
+    appointments.sort();
     var lastAppointment;
     for (int i = 0; i < appointments.length; i++) {
       if (appointments[i].time.isBefore(DateTime.now())) {
@@ -26,28 +27,29 @@ class Appointments extends IndexedRepo<String, Appointment> {
     return lastAppointment;
   }
 
-  Appointment? getNext(String clientId) {
-    final appointments = getUpcoming(sorted: true, clientId: clientId);
+  Future<Appointment?> getNext(String clientId) async {
+    final appointments = await getUpcoming(sorted: true, clientId: clientId);
     if (appointments.isEmpty) {
       return null;
     }
     return appointments[0];
   }
 
-  List<Appointment> getUpcoming({bool? sorted, String? clientId}) {
-    return get(sorted: sorted, clientId: clientId, predicate: (a) => !a.time.isBefore(DateTime.now()));
+  Future<List<Appointment>> getUpcoming({bool? sorted, String? clientId}) {
+    return get((a) => a.clientId == clientId && !a.time.isBefore(DateTime.now()));
   }
 
-  List<Appointment> getPending({bool? sorted, String? clientId}) {
-    return get(sorted: sorted, clientId: clientId, predicate: (a) => a.invoiceId == null);
+  Future<List<Appointment>> getPending({bool? sorted, String? clientId}) async {
+    return get((a) => a.invoiceId == null);
   }
 
-  List<Appointment> getInvoiced(String invoiceId) {
-    return get(predicate: (a) => a.invoiceId == invoiceId);
+  Future<List<Appointment>> getInvoiced(String invoiceId) async {
+    return get((a) => a.invoiceId == invoiceId);
   }
 
-  List<Appointment> get({bool? sorted, String? clientId, bool Function(Appointment)? predicate}) {
-    return getFromIndex(keyFilter: clientId, sorted: sorted, predicate: predicate);
+  Future<List<Appointment>> get(bool Function(Appointment) predicate) async {
+    var allAppointments = await _persistence.getAll();
+    return allAppointments.where(predicate).toList();
   }
 
   Future<void> add(String clientId, DateTime startTime, Duration duration,
@@ -66,6 +68,10 @@ class Appointments extends IndexedRepo<String, Appointment> {
     }
     final appointment = Appointment(null, type, startTime, duration, clientId, null);
     return addToIndex(appointment, _persistence.insert(appointment));
+  }
+
+  Future<Appointment?> getSingle(String id) {
+    return _persistence.get(id);
   }
 
   Future<void> update(Appointment appointment) {

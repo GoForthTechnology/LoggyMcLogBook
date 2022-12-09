@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
@@ -5,77 +6,43 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:provider/provider.dart';
 
-class AppointmentInfoScreen extends StatelessWidget {
-  final Appointment? appointment;
+class AppointmentInfoScreen extends StatefulWidget {
+  final String? appointmentId;
 
-  const AppointmentInfoScreen({Key? key, this.appointment}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppointmentInfoForm(appointment);
-  }
-}
-
-class AppointmentInfoForm extends StatefulWidget {
-  final Appointment? _appointment;
-
-  AppointmentInfoForm(this._appointment);
+  const AppointmentInfoScreen({Key? key, @PathParam() this.appointmentId}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return AppointmentInfoFormState(_appointment);
-  }
+  State<StatefulWidget> createState() => AppointmentInfoFormState();
+
 }
 
-class AppointmentInfoFormState extends State<AppointmentInfoForm> {
+class AppointmentInfoFormState extends State<AppointmentInfoScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  late final Appointment? _appointment;
   String? _clientId;
   DateTime? _appointmentDate;
   TimeOfDay? _appointmentTime;
   AppointmentType? _appointmentType;
 
-  AppointmentInfoFormState(Appointment? appointment) {
-    this._appointment = appointment;
-    this._clientId = _appointment?.clientId;
-    this._appointmentType = _appointment?.type;
-    this._appointmentDate = _appointment?.time;
-    this._appointmentTime = _appointmentDate == null
-        ? null
-        : TimeOfDay.fromDateTime(_appointmentDate!);
-  }
-
   @override
   void initState() {
-    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      var clients = await Provider.of<Clients>(context, listen: false).getAll();
-      if (clients.isEmpty) {
-        Widget continueButton = TextButton(
-          child: Text("Ack"),
-          onPressed: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-        );
-        // set up the AlertDialog
-        AlertDialog alert = AlertDialog(
-          title: Text("No Clients Found"),
-          content:
-              Text("Please add the client before scheduling an appointment"),
-          actions: [
-            continueButton,
-          ],
-        );
-        // show the dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return alert;
-          },
-        );
+      if (widget.appointmentId != null) {
+        var appointment = await Provider.of<Appointments>(context, listen: false)
+            .getSingle(widget.appointmentId!);
+        setState(() {
+          _clientId = appointment?.clientId;
+          _appointmentDate = appointment?.time;
+          _appointmentType = appointment?.type;
+          if (appointment?.time != null) {
+            _appointmentDate = DateUtils.dateOnly(appointment!.time);
+            _appointmentTime = TimeOfDay.fromDateTime(appointment.time);
+          }
+        });
       }
     });
+
+    super.initState();
   }
 
   @override
@@ -89,7 +56,7 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
     return Scaffold(
       appBar: AppBar(
         title:
-            Text(_appointment == null ? 'New Appointment' : 'Appointment Info'),
+            Text(widget.appointmentId == null ? 'New Appointment' : 'Appointment Info'),
         actions: [
           TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.white),
@@ -241,32 +208,37 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
               return null;
             },
             builder: (state) => Consumer<Clients>(
-              builder: (context, clientModel, child) => _showErrorOrDisplay(
-                state,
-                FutureBuilder<List<Client>>(
-                  future: clientModel.getAll(),
-                  builder: (context, snapshot) {
-                    var clients = snapshot.data ?? [];
-                    return DropdownButton<Client>(
-                      hint: Text('Please make a selection'),
-                      items: clients.map((client) {
-                        return DropdownMenuItem<Client>(
-                          value: client,
-                          child: new Text(client.fullName()),
-                        );
-                      }).toList(),
-                      onChanged: (selection) {
-                        state.didChange(selection);
-                        setState(() {
-                          _clientId = selection!.id;
-                        });
-                      },
-                      value: clients.firstWhere((client) => client.id == _clientId, orElse: null),
-                    );
-                  },
-                ),
-              ),
-            )));
+              builder: (context, clientModel, child) {
+                return _showErrorOrDisplay(
+                  state,
+                  FutureBuilder<List<Client>>(
+                    future: clientModel.getAll(),
+                    builder: (context, snapshot) {
+                      var clients = snapshot.data ?? [];
+                      if (clients.isEmpty) {
+                        return Container();
+                      }
+                      return DropdownButton<String>(
+                        hint: Text('Please make a selection'),
+                        items: clients.map((client) {
+                          return DropdownMenuItem<String>(
+                            value: client.id,
+                            child: new Text(client.fullName()),
+                          );
+                        }).toList(),
+                        onChanged: (selection) {
+                          state.didChange(selection);
+                          setState(() {
+                            _clientId = selection;
+                          });
+                        },
+                        value: _clientId,
+                      );
+                    },
+                  ),
+                );
+              }),
+            ));
   }
 
   Widget _showErrorOrDisplay(FormFieldState state, Widget display) {

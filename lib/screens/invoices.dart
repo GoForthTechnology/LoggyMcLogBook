@@ -23,20 +23,27 @@ class InvoicesScreen extends StatelessWidget {
       body: Consumer2<Invoices, Clients>(
           builder: (context, invoiceRepo, clientsModel, child) {
         final invoices = invoiceRepo.get(sorted: true, clientId: client?.id);
-        return ListView.builder(
-            itemCount: invoices.length,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            itemBuilder: (context, index) {
-              final invoice = invoices[index];
-              return FutureBuilder<Client?>(
-                future: clientsModel.get(invoice.clientId),
-                builder: (context, snapshot) => InvoiceTile(
+        return FutureBuilder<Map<String, Client>>(
+          future: clientsModel.getAllIndexed(),
+          builder: (context, snapshot) {
+            if (snapshot.data == null) {
+              return Container();
+            }
+            var clients = snapshot.data!;
+            return ListView.builder(
+              itemCount: invoices.length,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemBuilder: (context, index) {
+                final invoice = invoices[index];
+                return InvoiceTile(
                   invoice,
-                  snapshot.data!,
+                  clients[invoice.clientId]!,
                   hasClientFilter,
-                )
-              );
-            });
+                );
+              },
+            );
+          },
+        );
       }),
       floatingActionButton: FloatingActionButton(
         // isExtended: true,
@@ -91,7 +98,7 @@ class InvoiceTile extends StatelessWidget {
           },
         ),
         onTap: () {
-          AutoRouter.of(context).push(InvoiceInfoScreenRoute(invoice:  invoice)).then((result) {
+          AutoRouter.of(context).push(InvoiceInfoScreenRoute(invoiceId: invoice.id)).then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)
                 ..removeCurrentSnackBar()

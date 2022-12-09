@@ -12,18 +12,16 @@ import 'package:provider/provider.dart';
 
 class ClientInfoScreen extends StatefulWidget {
   final String? clientId;
-  final Client? client;
 
-  const ClientInfoScreen({Key? key, this.client, @PathParam() this.clientId}) : super(key: key);
+  const ClientInfoScreen({Key? key, @PathParam() this.clientId}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => ClientInfoFormState(clientId);
+  State<StatefulWidget> createState() => ClientInfoFormState();
 }
 
 class ClientInfoFormState extends State<ClientInfoScreen> {
-  final String? _clientId;
 
-  ClientInfoFormState(this._clientId);
+  ClientInfoFormState();
 
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
@@ -39,7 +37,7 @@ class ClientInfoFormState extends State<ClientInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<Clients>(builder: (context, model, child) => FutureBuilder<Client?>(
-      future: _clientId == null ? Future.value(null) : model.get(_clientId!),
+      future: widget.clientId == null ? Future.value(null) : model.get(widget.clientId!),
       builder: (context, snapshot) {
         print("FOO: $snapshot");
         var client = snapshot.data;
@@ -163,8 +161,8 @@ class ClientInfoFormState extends State<ClientInfoScreen> {
               margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
               child: Text("Appointment Summary",
                   style: Theme.of(context).textTheme.subtitle2)),
-          _buildLastAppointment(model.getLast(clientId), context),
-          _buildNextAppointment(model.getNext(clientId), context),
+          _buildLastAppointment(model, clientId, context),
+          _buildNextAppointment(model, clientId, context),
           _buildToBeInvoiced(
               model.getPending(clientId: clientId),
               context, client),
@@ -186,53 +184,69 @@ class ClientInfoFormState extends State<ClientInfoScreen> {
   }
 
   Widget _buildLastAppointment(
-      Appointment? lastAppointment, BuildContext context) {
-    return Row(
-      children: [
-        _paddedItem(Text(
-            "Last Appointment: ${lastAppointment == null ? "None" : lastAppointment.time.toString()}")),
-        lastAppointment == null
-            ? Container()
-            : TextButton(
+      Appointments appointmentsRepo, String clientId, BuildContext context) {
+    return FutureBuilder<Appointment?>(
+      future: appointmentsRepo.getLast(clientId),
+      builder: (context, snapshot) {
+        var lastAppointment = snapshot.data;
+        return Row(
+          children: [
+            _paddedItem(Text(
+                "Last Appointment: ${lastAppointment == null ? "None" : lastAppointment.time.toString()}")),
+            lastAppointment == null
+                ? Container()
+                : TextButton(
                 child: Text("View"),
                 onPressed: () {
-                  AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointment: lastAppointment));
+                  AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointmentId: lastAppointment.id));
                 }),
-      ],
+          ],
+        );
+      },
     );
   }
 
   Widget _buildNextAppointment(
-      Appointment? nextAppointment, BuildContext context) {
-    return Row(
-      children: [
-        _paddedItem(Text(
-            "Next Appointment: ${nextAppointment == null ? "None" : nextAppointment.time.toString()}")),
-        nextAppointment == null
-            ? Container()
-            : TextButton(
-                child: Text("View"),
-                onPressed: () {
-                  AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointment: nextAppointment));
-                }),
-      ],
+      Appointments appointmentRepo, String clientId, BuildContext context) {
+    return FutureBuilder<Appointment?>(
+      future: appointmentRepo.getLast(clientId),
+      builder: (context, snapshot) {
+        var nextAppointment = snapshot.data;
+        return Row(
+          children: [
+            _paddedItem(Text(
+                "Next Appointment: ${nextAppointment == null ? "None" : nextAppointment.time.toString()}")),
+            nextAppointment == null? Container() : TextButton(
+              child: Text("View"),
+              onPressed: () {
+                AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointmentId: nextAppointment.id));
+              },
+            ),
+          ]);
+      },
     );
   }
 
   Widget _buildToBeInvoiced(
-      List<Appointment> appointments, BuildContext context, Client? client) {
-    return Row(
-      children: [
-        _paddedItem(Text(
-            "To Be Invoiced: ${appointments.isEmpty ? "None" : appointments.length}")),
-        appointments.isEmpty
-            ? Container()
-            : TextButton(
+      Future<List<Appointment>> appointmentsF, BuildContext context, Client? client) {
+    return FutureBuilder<List<Appointment>>(
+      future: appointmentsF,
+      builder: (context, snapshot) {
+        var appointments = snapshot.data ?? [];
+        return Row(
+          children: [
+            _paddedItem(Text(
+                "To Be Invoiced: ${appointments.isEmpty ? "None" : appointments.length}")),
+            appointments.isEmpty
+                ? Container()
+                : TextButton(
                 child: Text("View"),
                 onPressed: () {
                   AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.PENDING.name, client: client));
                 }),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -246,7 +260,7 @@ class ClientInfoFormState extends State<ClientInfoScreen> {
       var clientNum = client.num;
       var widget = clientNum == null
           ? ElevatedButton(onPressed: () => clientsRepo.assignClientNum(client), child: Text("Assign Number"),)
-          : Text("0$clientNum");
+          : Text(client.displayNum()!);
       return Row(children: [
         Container(
           child: Text("Client Num:"),

@@ -5,22 +5,32 @@ import 'package:lmlb/entities/client.dart';
 
 class Clients extends ChangeNotifier {
   CrudInterface<Client> _persistence;
-  Map<String, Client> _clients = {};
 
   Clients(this._persistence) {
     _persistence.addListener(() => init());
   }
 
-  Future<Clients> init() {
-    return _persistence.getAll().then((clients) {
-      clients.forEach((client) => _clients[client.id!] = client);
-      notifyListeners();
-      return this;
-    });
+  Future<Clients> init() async {
+    var cs = await _persistence.getAll();
+    print("initialized ${cs.length} clients");
+    return this;
   }
 
   Future<List<Client>> getAll() async {
     return _persistence.getAll();
+  }
+
+  Future<Map<String, Client>> getAllIndexed() async {
+    return _persistence.getAll().then((clients) {
+      Map<String, Client> index = {};
+      clients.forEach((client) {
+        if (client.id == null) {
+          return;
+        }
+        index[client.id!] = client;
+      });
+      return index;
+    });
   }
 
   Future<Client?> get(String id) {
@@ -39,7 +49,6 @@ class Clients extends ChangeNotifier {
   Future<void> add(String firstName, String lastName) async {
     var newClient = Client(null, null, firstName, lastName, true);
     return _persistence.insert(newClient).then((id) {
-      _clients[id] = newClient.setId(id);
       notifyListeners();
     });
   }
@@ -72,14 +81,12 @@ class Clients extends ChangeNotifier {
       return Future.error("Client missing id");
     }
     return _persistence.update(client).then((_) {
-      _clients[client.id!] = client;
       notifyListeners();
     });
   }
 
   Future<void> remove(Client client) {
     return _persistence.remove(client).then((_) {
-      _clients.remove(client.id);
       notifyListeners();
     });
   }

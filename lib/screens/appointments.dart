@@ -43,24 +43,39 @@ class AppointmentsScreen extends StatelessWidget {
         buildHeader(context, view),
         Flexible(child: Consumer2<Appointments, Clients>(
             builder: (context, appointmentsModel, clientsModel, child) {
-          final appointments = appointmentsModel.get(
-              sorted: true,
-              clientId: client?.id,
-              predicate: view.predicate()).reversed.toList();
-          return ListView.builder(
-              itemCount: appointments.length,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              itemBuilder: (context, index) {
-                final appointment = appointments[index];
-                return FutureBuilder<Client?>(
-                  future: clientsModel.get(appointment.clientId),
-                  builder: (context, snapshot) => AppointmentTile(
-                    appointment,
-                    snapshot.data!,
-                    hasClientFilter,
-                  ),
-                );
-              });
+          final appointmentsF = appointmentsModel
+              .get((a) => a.clientId == client?.id && view.predicate()(a))
+              .then((as) => as.reversed.toList());
+          final clientsF = clientsModel.getAll();
+
+          return FutureBuilder(
+            future: Future.wait([appointmentsF, clientsF]),
+            builder: (context, snapshot) {
+              List<Appointment> appointments = [];
+              Map<String, Client> clients = {};
+              if (snapshot.data != null) {
+                final dataF = snapshot.data! as List<Object>;
+                appointments.addAll(dataF[0] as List<Appointment>);
+                (dataF[1] as List<Client>).forEach((client) {
+                  clients[client.id!] = client;
+                });
+              }
+              if (snapshot.data == null) {
+                return Container();
+              }
+              return ListView.builder(
+                  itemCount: appointments.length,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  itemBuilder: (context, index) {
+                    final appointment = appointments[index];
+                    return AppointmentTile(
+                      appointment,
+                      clients[appointment.clientId]!,
+                      hasClientFilter,
+                     );
+                  });
+            }
+          );
         })),
         buildFooter(context, view),
       ]),
@@ -151,7 +166,7 @@ class AppointmentTile extends StatelessWidget {
           },
         ) : null,
         onTap: () {
-          AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointment: appointment))
+          AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointmentId: appointment.id))
               .then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)

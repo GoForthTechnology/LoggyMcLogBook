@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:lmlb/persistence/CrudInterface.dart';
@@ -9,22 +11,22 @@ class FirebaseCrud<T extends Indexable> extends CrudInterface<T> {
   final FirebaseDatabase db;
   final T Function(Map<String, dynamic>) fromJson;
   final Map<String, dynamic> Function(T) toJson;
-  User? user;
+  final userCompleter = new Completer<User>();
 
   FirebaseCrud({required this.directory, required this.fromJson, required this.toJson}) : db = FirebaseDatabase.instance {
     FirebaseAuth.instance
         .authStateChanges()
         .listen((user) {
-      this.user = user;
-      notifyListeners();
+          if (user != null) {
+            userCompleter.complete(user);
+            notifyListeners();
+          }
     });
   }
 
-  String? _ref({String? id}) {
-    if (user == null) {
-      return null;
-    }
-    var ref = "$directory/${user!.uid}";
+  Future<String?> _ref({String? id}) async {
+    var user = await userCompleter.future;
+    var ref = "$directory/${user.uid}";
     if (id != null) {
       ref = "$ref/$id";
     }
@@ -33,10 +35,7 @@ class FirebaseCrud<T extends Indexable> extends CrudInterface<T> {
 
   @override
   Future<T?> get(String id) async {
-    final ref = _ref(id: id);
-    if (ref == null) {
-      return null;
-    }
+    final ref = await _ref(id: id);
     final snapshot = await db.ref(ref).get();
     if (!snapshot.exists) {
       return null;
@@ -47,10 +46,7 @@ class FirebaseCrud<T extends Indexable> extends CrudInterface<T> {
 
   @override
   Future<List<T>> getAll() async {
-    final ref = _ref(id: null);
-    if (ref == null) {
-      return [];
-    }
+    final ref = await _ref(id: null);
     final snapshot = await db.ref(ref).get();
     return snapshot.children.map((child) {
       final json = child.value as Map<String, dynamic>;
@@ -59,8 +55,8 @@ class FirebaseCrud<T extends Indexable> extends CrudInterface<T> {
   }
 
   @override
-  Future<String> insert(T t) {
-    var ref = _ref(id: null);
+  Future<String> insert(T t) async {
+    var ref = await _ref(id: null);
     var child = db.ref(ref).push();
     var id = child.key!;
     var ut = t.setId(id);
@@ -68,22 +64,27 @@ class FirebaseCrud<T extends Indexable> extends CrudInterface<T> {
   }
 
   @override
-  Future<void> remove(T t) {
+  Future<void> remove(T t) async {
     final id = t.getId();
     if (id == null) {
       throw Exception("Id cannot be null during removal: $t}");
     }
-    return db.ref(_ref(id: id)).remove();
+    var ref = await _ref(id: id);
+    return db.ref(ref).remove();
   }
 
   @override
-  Future<void> update(T t) {
+  Future<void> update(T t) async {
     if (t.getId() == null) {
       return insert(t).then((id) {
         t.setId(id);
         return t;
       });
     }
-    return db.ref(_ref(id: t.getId())).set(toJson(t));
+    var ref = await _ref(id: t.getId());
+    return db.ref(ref).set(toJson(t));
   }
+
+  @override
+  Future<void> init() async {}
 }

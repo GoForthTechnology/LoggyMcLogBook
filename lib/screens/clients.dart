@@ -66,18 +66,11 @@ class ClientTile extends StatelessWidget {
                   //: Colors.primaries[client.id! % Colors.primaries.length],
         ),
         title: Text(
-          '${client.firstName} ${client.lastName} ${client.num == null ? "" : client.displayNum()}',
+          '${client.firstName} ${client.lastName} ${client.num == null ? "" : "#${client.displayNum()}"}',
           key: Key('client_text_${client.id}'),
         ),
-        trailing: IconButton(
-          key: Key('remove_icon_${client.id}'),
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            confirmDeletion(context, client);
-          },
-        ),
         onTap: () {
-          AutoRouter.of(context).push(ClientInfoScreenRoute(client: client, clientId: client.id))
+          AutoRouter.of(context).push(ClientInfoScreenRoute(clientId: client.id))
               .then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)
@@ -87,45 +80,6 @@ class ClientTile extends StatelessWidget {
           });
         },
       ),
-    );
-  }
-
-  void confirmDeletion(BuildContext context, Client client) {
-    // set up the buttons
-    Widget cancelButton = TextButton(
-      child: Text("Cancel"),
-      onPressed: () {
-        Navigator.of(context).pop(); // dismiss dialog
-      },
-    );
-    Widget continueButton = TextButton(
-      child: Text("Continue"),
-      onPressed: () {
-        Navigator.of(context).pop(); // dismiss dialog
-        Provider.of<Clients>(context, listen: false).remove(client);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Removed client.'),
-            duration: Duration(seconds: 1),
-          ),
-        );
-      },
-    );
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("Confirm Deletion"),
-      content: Text("Would you like to remove ${client.fullName()}?"),
-      actions: [
-        cancelButton,
-        continueButton,
-      ],
-    );
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
     );
   }
 }

@@ -18,28 +18,34 @@ import 'package:lmlb/screens/overview.dart';
       guards: [AuthGuard],
     ),
     AutoRoute(
-      path: '/appointment',
+      path: '/appointment/:appointmentId',
       page: AppointmentInfoScreen,
+      guards: [AuthGuard],
     ),
     AutoRoute(
       path: '/appointments/:view',
       page: AppointmentsScreen,
+      guards: [AuthGuard],
     ),
     AutoRoute(
       path: '/clients',
       page: ClientsScreen,
+      guards: [AuthGuard],
     ),
     AutoRoute(
       path: '/client/:clientId',
       page: ClientInfoScreen,
+      guards: [AuthGuard],
     ),
     AutoRoute(
       path: '/invoices',
       page: InvoicesScreen,
+      guards: [AuthGuard],
     ),
     AutoRoute(
-      path: '/invoice',
+      path: '/invoice/:invoiceId',
       page: InvoiceInfoScreen,
+      guards: [AuthGuard],
     ),
     ...authRoutes,
     // redirect all other paths

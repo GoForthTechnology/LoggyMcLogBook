@@ -44,4 +44,8 @@ class LocalCrud<T extends Indexable> extends CrudInterface<T> {
   Future<int> count() async {
     return _items.length;
   }
+
+  @override
+  Future<void> init() async {
+  }
 }
