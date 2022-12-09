@@ -8,8 +8,9 @@ import 'package:provider/provider.dart';
 
 class AppointmentInfoScreen extends StatefulWidget {
   final String? appointmentId;
+  final Appointment? appointment;
 
-  const AppointmentInfoScreen({Key? key, @PathParam() this.appointmentId}) : super(key: key);
+  const AppointmentInfoScreen({Key? key, @PathParam() this.appointmentId, this.appointment}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => AppointmentInfoFormState();
@@ -26,21 +27,27 @@ class AppointmentInfoFormState extends State<AppointmentInfoScreen> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.appointmentId != null) {
-        var appointment = await Provider.of<Appointments>(context, listen: false)
-            .getSingle(widget.appointmentId!);
-        setState(() {
-          _clientId = appointment?.clientId;
-          _appointmentDate = appointment?.time;
-          _appointmentType = appointment?.type;
-          if (appointment?.time != null) {
-            _appointmentDate = DateUtils.dateOnly(appointment!.time);
-            _appointmentTime = TimeOfDay.fromDateTime(appointment.time);
-          }
-        });
-      }
-    });
+    void update(Appointment? appointment) {
+      setState(() {
+        _clientId = appointment?.clientId;
+        _appointmentDate = appointment?.time;
+        _appointmentType = appointment?.type;
+        if (appointment?.time != null) {
+          _appointmentDate = DateUtils.dateOnly(appointment!.time);
+          _appointmentTime = TimeOfDay.fromDateTime(appointment.time);
+        }
+      });
+    }
+    if (widget.appointment != null) {
+      update(widget.appointment);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (widget.appointmentId != null) {
+          update(await Provider.of<Appointments>(context, listen: false)
+              .getSingle(widget.appointmentId!));
+        }
+      });
+    }
 
     super.initState();
   }
