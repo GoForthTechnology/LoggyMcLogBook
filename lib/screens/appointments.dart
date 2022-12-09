@@ -44,7 +44,7 @@ class AppointmentsScreen extends StatelessWidget {
         Flexible(child: Consumer2<Appointments, Clients>(
             builder: (context, appointmentsModel, clientsModel, child) {
           final appointmentsF = appointmentsModel
-              .get((a) => a.clientId == client?.id && view.predicate()(a))
+              .get((a) => client == null || a.clientId == client?.id && view.predicate()(a))
               .then((as) => as.reversed.toList());
           final clientsF = clientsModel.getAll();
 
