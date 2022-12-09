@@ -52,8 +52,9 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
     this._appointments =
         _invoice == null ? [] : appointmentsRepo.getInvoiced(_invoice!.id!);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Provider.of<Clients>(context, listen: false).getAll().isEmpty) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      var clients = await Provider.of<Clients>(context, listen: false).getAll();
+      if (clients.isEmpty) {
         Widget continueButton = TextButton(
           child: Text("Ack"),
           onPressed: () {
@@ -235,27 +236,31 @@ class InvoiceInfoFormState extends State<InvoiceInfoForm> {
               }
               return null;
             },
-            builder: (state) => Consumer<Clients>(
-                builder: (context, clientModel, child) => _showErrorOrDisplay(
-                    state,
-                    DropdownButton<Client>(
-                      hint: Text('Please make a selection'),
-                      items: clientModel.getAll().map((client) {
-                        return DropdownMenuItem<Client>(
-                          value: client,
-                          child: new Text(client.fullName()),
-                        );
-                      }).toList(),
-                      onChanged: (selection) {
-                        state.didChange(selection);
-                        setState(() {
-                          _clientId = selection!.id;
-                        });
-                      },
-                      value: _clientId == null
-                          ? null
-                          : clientModel.get(_clientId!),
-                    )))));
+            builder: (state) => Consumer<Clients>(builder: (context, clientModel, child) => _showErrorOrDisplay(
+              state,
+              FutureBuilder<List<Client>>(
+                future: clientModel.getAll(),
+                builder: (context, snapshot) {
+                  var clients = snapshot.data ?? [];
+                  return DropdownButton<Client>(
+                    hint: Text('Please make a selection'),
+                    items: clients.map((client) {
+                      return DropdownMenuItem<Client>(
+                        value: client,
+                        child: new Text(client.fullName()),
+                      );
+                    }).toList(),
+                    onChanged: (selection) {
+                      state.didChange(selection);
+                      setState(() {
+                        _clientId = selection!.id;
+                      });
+                    },
+                    value: clients.firstWhere((client) => client.id == _clientId, orElse: null),
+                  );
+                }
+              ),
+            ))));
   }
 
   Widget _showErrorOrDisplay(FormFieldState state, Widget display) {

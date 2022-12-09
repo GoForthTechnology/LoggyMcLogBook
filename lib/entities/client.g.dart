@@ -11,6 +11,7 @@ Client _$ClientFromJson(Map<String, dynamic> json) => Client(
       json['num'] as int?,
       json['firstName'] as String,
       json['lastName'] as String,
+      json['active'] as bool?,
     );
 
 Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
@@ -18,4 +19,5 @@ Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
       'num': instance.num,
       'firstName': instance.firstName,
       'lastName': instance.lastName,
+      'active': instance.active,
     };

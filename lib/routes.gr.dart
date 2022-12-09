@@ -73,13 +73,16 @@ class AppRouter extends _i9.RootStackRouter {
       );
     },
     ClientInfoScreenRoute.name: (routeData) {
+      final pathParams = routeData.inheritedPathParams;
       final args = routeData.argsAs<ClientInfoScreenRouteArgs>(
-          orElse: () => const ClientInfoScreenRouteArgs());
+          orElse: () => ClientInfoScreenRouteArgs(
+              clientId: pathParams.optString('clientId')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
         child: _i5.ClientInfoScreen(
           key: args.key,
           client: args.client,
+          clientId: args.clientId,
         ),
       );
     },
@@ -146,7 +149,7 @@ class AppRouter extends _i9.RootStackRouter {
         ),
         _i9.RouteConfig(
           ClientInfoScreenRoute.name,
-          path: '/client',
+          path: '/client/:clientId',
         ),
         _i9.RouteConfig(
           InvoicesScreenRoute.name,
@@ -289,13 +292,16 @@ class ClientInfoScreenRoute
   ClientInfoScreenRoute({
     _i10.Key? key,
     _i12.Client? client,
+    String? clientId,
   }) : super(
           ClientInfoScreenRoute.name,
-          path: '/client',
+          path: '/client/:clientId',
           args: ClientInfoScreenRouteArgs(
             key: key,
             client: client,
+            clientId: clientId,
           ),
+          rawPathParams: {'clientId': clientId},
         );
 
   static const String name = 'ClientInfoScreenRoute';
@@ -305,15 +311,18 @@ class ClientInfoScreenRouteArgs {
   const ClientInfoScreenRouteArgs({
     this.key,
     this.client,
+    this.clientId,
   });
 
   final _i10.Key? key;
 
   final _i12.Client? client;
 
+  final String? clientId;
+
   @override
   String toString() {
-    return 'ClientInfoScreenRouteArgs{key: $key, client: $client}';
+    return 'ClientInfoScreenRouteArgs{key: $key, client: $client, clientId: $clientId}';
   }
 }
 

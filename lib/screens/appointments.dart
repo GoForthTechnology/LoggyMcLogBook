@@ -52,10 +52,13 @@ class AppointmentsScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 16),
               itemBuilder: (context, index) {
                 final appointment = appointments[index];
-                return AppointmentTile(
-                  appointment,
-                  clientsModel.get(appointment.clientId)!,
-                  hasClientFilter,
+                return FutureBuilder<Client?>(
+                  future: clientsModel.get(appointment.clientId),
+                  builder: (context, snapshot) => AppointmentTile(
+                    appointment,
+                    snapshot.data!,
+                    hasClientFilter,
+                  ),
                 );
               });
         })),

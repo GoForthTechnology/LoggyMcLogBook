@@ -49,8 +49,9 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Provider.of<Clients>(context, listen: false).getAll().isEmpty) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      var clients = await Provider.of<Clients>(context, listen: false).getAll();
+      if (clients.isEmpty) {
         Widget continueButton = TextButton(
           child: Text("Ack"),
           onPressed: () {
@@ -240,11 +241,15 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
               return null;
             },
             builder: (state) => Consumer<Clients>(
-                builder: (context, clientModel, child) => _showErrorOrDisplay(
-                    state,
-                    DropdownButton<Client>(
+              builder: (context, clientModel, child) => _showErrorOrDisplay(
+                state,
+                FutureBuilder<List<Client>>(
+                  future: clientModel.getAll(),
+                  builder: (context, snapshot) {
+                    var clients = snapshot.data ?? [];
+                    return DropdownButton<Client>(
                       hint: Text('Please make a selection'),
-                      items: clientModel.getAll().map((client) {
+                      items: clients.map((client) {
                         return DropdownMenuItem<Client>(
                           value: client,
                           child: new Text(client.fullName()),
@@ -256,10 +261,12 @@ class AppointmentInfoFormState extends State<AppointmentInfoForm> {
                           _clientId = selection!.id;
                         });
                       },
-                      value: _clientId == null
-                          ? null
-                          : clientModel.get(_clientId!),
-                    )))));
+                      value: clients.firstWhere((client) => client.id == _clientId, orElse: null),
+                    );
+                  },
+                ),
+              ),
+            )));
   }
 
   Widget _showErrorOrDisplay(FormFieldState state, Widget display) {

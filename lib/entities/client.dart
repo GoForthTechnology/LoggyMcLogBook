@@ -9,11 +9,13 @@ class Client extends Indexable<Client> {
   final int? num;
   final String firstName;
   final String lastName;
+  final bool? active;
   Client(
       this.id,
       this.num,
       this.firstName,
       this.lastName,
+      this.active,
       );
 
   @override
@@ -23,16 +25,23 @@ class Client extends Indexable<Client> {
 
   @override
   Client setId(String id) {
-    return new Client(id, num, firstName, lastName);
+    return new Client(id, num, firstName, lastName, active);
+  }
+
+  Client assignNum(int num) {
+    return new Client(id, num, firstName, lastName, active);
+  }
+
+  Client setActive(bool value) {
+    return new Client(id, num, firstName, lastName, value);
   }
 
   String fullName() {
     return "$firstName $lastName";
   }
 
-  int? displayNum() {
-    // TODO: fix
-    return 0;
+  String? displayNum() {
+    return num == null ? null : "0${num! + 10000}";
   }
 
   factory Client.fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);

@@ -10,32 +10,20 @@ import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:provider/provider.dart';
 
-class ClientInfoScreen extends StatelessWidget {
+class ClientInfoScreen extends StatefulWidget {
+  final String? clientId;
   final Client? client;
 
-  const ClientInfoScreen({Key? key, this.client}) : super(key: key);
+  const ClientInfoScreen({Key? key, this.client, @PathParam() this.clientId}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return ClientInfoForm(client);
-  }
+  State<StatefulWidget> createState() => ClientInfoFormState(clientId);
 }
 
-class ClientInfoForm extends StatefulWidget {
-  final Client? _client;
+class ClientInfoFormState extends State<ClientInfoScreen> {
+  final String? _clientId;
 
-  ClientInfoForm(this._client);
-
-  @override
-  State<StatefulWidget> createState() {
-    return ClientInfoFormState(_client);
-  }
-}
-
-class ClientInfoFormState extends State<ClientInfoForm> {
-  final Client? _client;
-
-  ClientInfoFormState(this._client);
+  ClientInfoFormState(this._clientId);
 
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
@@ -50,63 +38,70 @@ class ClientInfoFormState extends State<ClientInfoForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_client == null ? 'New Client' : 'Client Info'),
-        actions: [
-          TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
-            icon: const Icon(Icons.save),
-            label: const Text('Save'),
-            onPressed: _onSave,
-          )
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: Container(
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_client != null) _buildClientNum(),
-              _buildFirstName(),
-              _buildLastName(),
-              _buildAppointmentSummary(),
-              _buildInvoiceSummary(),
+    return Consumer<Clients>(builder: (context, model, child) => FutureBuilder<Client?>(
+      future: _clientId == null ? Future.value(null) : model.get(_clientId!),
+      builder: (context, snapshot) {
+        print("FOO: $snapshot");
+        var client = snapshot.data;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(client == null ? 'New Client' : 'Client Info'),
+            actions: [
+              TextButton.icon(
+                style: TextButton.styleFrom(foregroundColor: Colors.white),
+                icon: const Icon(Icons.save),
+                label: const Text('Save'),
+                onPressed: () => _onSave(client),
+              )
             ],
           ),
-        ),
-      ),
-    );
+          body: Form(
+            key: _formKey,
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (client != null) _buildClientNum(client),
+                  _buildFirstName(client),
+                  _buildLastName(client),
+                  _buildAppointmentSummary(client),
+                  _buildInvoiceSummary(client),
+                  if (client != null) _buildActivateDeactivate(client, model),
+                ],
+              ),
+            ),
+          ),
+        );
+      }));
   }
 
-  void _onSave() {
+  void _onSave(Client? client) {
     if (_formKey.currentState!.validate()) {
       final clients = Provider.of<Clients>(context, listen: false);
-      var clientNum = _client?.displayNum();
       Future<void> op;
-      if (clientNum == null) {
+      if (client?.num == null) {
         op = clients.add(
           _firstNameController.value.text,
           _lastNameController.value.text,
         );
       } else {
         op = clients.update(Client(
-          _client?.id,
-          _client?.num,
+          client?.id,
+          client?.num,
           _firstNameController.value.text,
           _lastNameController.value.text,
+          client?.active,
         ));
       }
       op.then((_) => Navigator.of(context).pop(true));
     }
   }
 
-  Widget _buildInvoiceSummary() {
+  Widget _buildInvoiceSummary(Client? client) {
     return Consumer<Invoices>(builder: (context, invoices, child) {
-      if (_client?.id == null) {
+      if (client?.id == null) {
         return Container();
       }
       return Column(
@@ -125,7 +120,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
               ElevatedButton(
                   child: Text("View All"),
                   onPressed: () {
-                    AutoRouter.of(context).push(InvoicesScreenRoute(client: _client));
+                    AutoRouter.of(context).push(InvoicesScreenRoute(client: client));
                   }),
             ],
             mainAxisSize: MainAxisSize.max,
@@ -154,9 +149,10 @@ class ClientInfoFormState extends State<ClientInfoForm> {
     );
   }
 
-  Widget _buildAppointmentSummary() {
+  Widget _buildAppointmentSummary(Client? client) {
     return Consumer<Appointments>(builder: (context, model, child) {
-      if (_client?.id == null) {
+      var clientId = client?.id;
+      if (clientId == null) {
         return Container();
       }
       return Column(
@@ -167,17 +163,17 @@ class ClientInfoFormState extends State<ClientInfoForm> {
               margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
               child: Text("Appointment Summary",
                   style: Theme.of(context).textTheme.subtitle2)),
-          _buildLastAppointment(model.getLast(_client!.id!), context),
-          _buildNextAppointment(model.getNext(_client!.id!), context),
+          _buildLastAppointment(model.getLast(clientId), context),
+          _buildNextAppointment(model.getNext(clientId), context),
           _buildToBeInvoiced(
-              model.getPending(clientId: _client!.id),
-              context),
+              model.getPending(clientId: clientId),
+              context, client),
           Row(
             children: [
               ElevatedButton(
                   child: Text("View All"),
                   onPressed: () {
-                    AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.ALL.name, client: _client));
+                    AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.ALL.name, client: client));
                   }),
             ],
             mainAxisSize: MainAxisSize.max,
@@ -224,7 +220,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
   }
 
   Widget _buildToBeInvoiced(
-      List<Appointment> appointments, BuildContext context) {
+      List<Appointment> appointments, BuildContext context, Client? client) {
     return Row(
       children: [
         _paddedItem(Text(
@@ -234,7 +230,7 @@ class ClientInfoFormState extends State<ClientInfoForm> {
             : TextButton(
                 child: Text("View"),
                 onPressed: () {
-                  AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.PENDING.name, client: _client));
+                  AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.PENDING.name, client: client));
                 }),
       ],
     );
@@ -245,25 +241,50 @@ class ClientInfoFormState extends State<ClientInfoForm> {
         margin: EdgeInsets.symmetric(vertical: 10.0), child: child);
   }
 
-  Widget _buildClientNum() {
-    var clientNum = _client?.displayNum().toString();
-    return _paddedItem(Row(children: [
-      Container(
-        child: Text("Client Num:"),
-        margin: EdgeInsets.only(right: 10.0),
+  Widget _buildClientNum(Client client) {
+    return _paddedItem(Consumer<Clients>(builder: (context, clientsRepo, child) {
+      var clientNum = client.num;
+      var widget = clientNum == null
+          ? ElevatedButton(onPressed: () => clientsRepo.assignClientNum(client), child: Text("Assign Number"),)
+          : Text("0$clientNum");
+      return Row(children: [
+        Container(
+          child: Text("Client Num:"),
+          margin: EdgeInsets.only(right: 10.0),
+        ),
+        widget,
+      ]);
+    }));
+  }
+
+  Widget _buildFirstName(Client? client) {
+    return _textInput(
+        "First Name:", client?.firstName, _firstNameController, true);
+  }
+
+  Widget _buildLastName(Client? client) {
+    return _textInput(
+        "Last Name:", client?.lastName, _lastNameController, false);
+  }
+
+  Widget _buildActivateDeactivate(Client client, Clients clientModel) {
+    Widget text;
+    Function() onPressed;
+    var isActive = client.active ?? false;
+    if (isActive) {
+      text = Text("Deactivate");
+      onPressed = () => clientModel.deactivate(client);
+    } else {
+      text = Text("Reactivate");
+      onPressed = () => clientModel.activate(client);
+    }
+    return Padding(padding: EdgeInsets.all(20), child: Center(child: ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isActive ? Colors.red : Colors.green,
       ),
-      Text(clientNum == null ? "NULL" : clientNum),
-    ]));
-  }
-
-  Widget _buildFirstName() {
-    return _textInput(
-        "First Name:", _client?.firstName, _firstNameController, true);
-  }
-
-  Widget _buildLastName() {
-    return _textInput(
-        "Last Name:", _client?.lastName, _lastNameController, false);
+      child: text,
+    )));
   }
 
   static Widget _textInput(String title, String? value,

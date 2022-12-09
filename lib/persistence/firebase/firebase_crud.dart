@@ -20,10 +20,6 @@ class FirebaseCrud<T extends Indexable> extends CrudInterface<T> {
     });
   }
 
-  @override
-  void reInit() {
-  }
-
   String? _ref({String? id}) {
     if (user == null) {
       return null;
@@ -42,14 +38,10 @@ class FirebaseCrud<T extends Indexable> extends CrudInterface<T> {
       return null;
     }
     final snapshot = await db.ref(ref).get();
-    final numChildren = snapshot.children.length;
     if (!snapshot.exists) {
       return null;
     }
-    if (numChildren > 1) {
-      throw Exception("Found $numChildren children for $ref");
-    }
-    final json = snapshot.children.first.value as Map<String, dynamic>;
+    final json = snapshot.value as Map<String, dynamic>;
     return fromJson(json);
   }
 
@@ -61,7 +53,6 @@ class FirebaseCrud<T extends Indexable> extends CrudInterface<T> {
     }
     final snapshot = await db.ref(ref).get();
     return snapshot.children.map((child) {
-      print("$ref getAll() ${child.value}");
       final json = child.value as Map<String, dynamic>;
       return fromJson(json);
     }).toList();

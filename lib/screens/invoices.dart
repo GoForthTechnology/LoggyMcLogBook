@@ -28,10 +28,13 @@ class InvoicesScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             itemBuilder: (context, index) {
               final invoice = invoices[index];
-              return InvoiceTile(
-                invoice,
-                clientsModel.get(invoice.clientId)!,
-                hasClientFilter,
+              return FutureBuilder<Client?>(
+                future: clientsModel.get(invoice.clientId),
+                builder: (context, snapshot) => InvoiceTile(
+                  invoice,
+                  snapshot.data!,
+                  hasClientFilter,
+                )
               );
             });
       }),

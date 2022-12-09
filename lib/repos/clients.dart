@@ -19,22 +19,52 @@ class Clients extends ChangeNotifier {
     });
   }
 
-  List<Client> getAll() {
-    return _clients.values.toList();
+  Future<List<Client>> getAll() async {
+    return _persistence.getAll();
   }
 
-  Client? get(String id) {
-    return _clients[id];
+  Future<Client?> get(String id) {
+    print("Getting : $id");
+    return _persistence.get(id);
+  }
+
+  Future<Client?> getForNum(int? clientNum) async {
+    if (clientNum == null) {
+      return null;
+    }
+    var clients = await getAll();
+    return clients.firstWhere((client) => client.num == clientNum, orElse: null);
   }
 
   Future<void> add(String firstName, String lastName) async {
-    var numClients = await _persistence.getAll().then((clients) => clients.length);
-    var newClientNum = numClients + 1;
-    var newClient = Client(null, newClientNum, firstName, lastName);
+    var newClient = Client(null, null, firstName, lastName, true);
     return _persistence.insert(newClient).then((id) {
       _clients[id] = newClient.setId(id);
       notifyListeners();
     });
+  }
+
+  Future<void> assignClientNum(Client client) async {
+    var maxClientNum = 0;
+    var clients = await _persistence.getAll();
+    clients.forEach((client) {
+      if (client.num == null) {
+        return;
+      }
+      if (client.num! > maxClientNum) {
+        maxClientNum = client.num!;
+      }
+    });
+    return _persistence.update(client.assignNum(maxClientNum + 1))
+        .then((_) => notifyListeners());
+  }
+
+  Future<void> activate(Client client) {
+    return _persistence.update(client.setActive(true)).then((_) => notifyListeners());
+  }
+
+  Future<void> deactivate(Client client) {
+    return _persistence.update(client.setActive(false)).then((_) => notifyListeners());
   }
 
   Future<void> update(Client client) {

@@ -30,7 +30,7 @@ import 'package:lmlb/screens/overview.dart';
       page: ClientsScreen,
     ),
     AutoRoute(
-      path: '/client',
+      path: '/client/:clientId',
       page: ClientInfoScreen,
     ),
     AutoRoute(

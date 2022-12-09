@@ -13,10 +13,16 @@ class ClientsScreen extends StatelessWidget {
         title: const Text('Clients'),
       ),
       body: Consumer<Clients>(
-        builder: (context, model, child) => ListView.builder(
-          itemCount: model.getAll().length,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          itemBuilder: (context, index) => ClientTile(model.getAll()[index]),
+        builder: (context, model, child) => FutureBuilder<List<Client>>(
+          future: model.getAll(),
+          builder: (context, snapshot) {
+            var clients = snapshot.data ?? [];
+            return ListView.builder(
+              itemCount: clients.length,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemBuilder: (context, index) => ClientTile(clients[index]),
+            );
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -60,7 +66,7 @@ class ClientTile extends StatelessWidget {
                   //: Colors.primaries[client.id! % Colors.primaries.length],
         ),
         title: Text(
-          '${client.firstName} ${client.lastName}',
+          '${client.firstName} ${client.lastName} ${client.num == null ? "" : client.displayNum()}',
           key: Key('client_text_${client.id}'),
         ),
         trailing: IconButton(
@@ -71,7 +77,7 @@ class ClientTile extends StatelessWidget {
           },
         ),
         onTap: () {
-          AutoRouter.of(context).push(ClientInfoScreenRoute(client: client))
+          AutoRouter.of(context).push(ClientInfoScreenRoute(client: client, clientId: client.id))
               .then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)

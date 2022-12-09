@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
@@ -56,9 +57,10 @@ class OverviewScreen extends StatelessWidget {
         context,
         "Client Overview",
         ClientsScreenRoute(),
-        Consumer<Clients>(
-            builder: (context, model, child) =>
-                Text("Num Clients: ${model.getAll().length}")));
+        Consumer<Clients>(builder: (context, model, child) => FutureBuilder<List<Client>>(
+          future: model.getAll(),
+          builder: (context, snapshot) => Text("Num Clients: ${snapshot.data?.length}"),
+        )));
   }
 
   Widget appointmentOverview(BuildContext context) {
