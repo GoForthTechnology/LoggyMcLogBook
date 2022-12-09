@@ -209,7 +209,7 @@ class ClientInfoFormState extends State<ClientInfoScreen> {
   Widget _buildNextAppointment(
       Appointments appointmentRepo, String clientId, BuildContext context) {
     return FutureBuilder<Appointment?>(
-      future: appointmentRepo.getLast(clientId),
+      future: appointmentRepo.getNext(clientId),
       builder: (context, snapshot) {
         var nextAppointment = snapshot.data;
         return Row(

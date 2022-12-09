@@ -21,7 +21,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseAuth auth = FirebaseAuth.instance;
-  auth.setPersistence(Persistence.LOCAL);
+  auth.setPersistence(Persistence.INDEXED_DB);
 
   await init(MyApp(), kIsWeb).then(runApp);
 }
