@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
@@ -55,13 +57,73 @@ class InvoicesScreen extends StatelessWidget {
   }
 
   void addInvoice(BuildContext context) {
-    AutoRouter.of(context).push(InvoiceInfoScreenRoute()).then((updated) {
-      if (updated != null && updated as bool) {
-        ScaffoldMessenger.of(context)
-          ..removeCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text('Invoice added')));
+    promptForClient(context).then((client) {
+      if (client != null) {
+        AutoRouter.of(context).push(InvoiceInfoScreenRoute(clientId: client.id)).then((updated) {
+          if (updated != null && updated as bool) {
+            ScaffoldMessenger.of(context)
+              ..removeCurrentSnackBar()
+              ..showSnackBar(SnackBar(content: Text('Invoice added')));
+          }
+        });
+        Navigator.of(context).pop("OK");
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Client selection required to create an invoice")));
       }
     });
+  }
+}
+
+class ClientSelection extends ChangeNotifier {
+  Client? client;
+
+  void updateSelection(Client? client) {
+    this.client = client;
+    notifyListeners();
+  }
+}
+
+Future<Client?> promptForClient(BuildContext context) {
+  final clientRepo = Provider.of<Clients>(context, listen: false);
+  return clientRepo.getAll().then((clients) {
+    final completer = Completer<Client?>();
+    showDialog(context: context, builder: (context) => ChangeNotifierProvider(create: (context) => ClientSelection(), child: AlertDialog(
+      title: Text("Choose a Client"),
+      content: ClientDropDownButton(clients: clients),
+      actions: [
+        Consumer<ClientSelection>(builder: (context, clientSelection, child) =>
+        TextButton(onPressed: () {
+          completer.complete(clientSelection.client);
+        }, child: Text("Submit"))),
+      ],
+    ))).then((_) {
+      if (!completer.isCompleted) {
+        completer.complete(null);
+      }
+    });
+    return completer.future;
+  });
+}
+
+class ClientDropDownButton extends StatelessWidget {
+  final List<Client> clients;
+
+  const ClientDropDownButton({Key? key, required this.clients}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var items = clients
+        .where((client) => client.isActive())
+        .map((client) => DropdownMenuItem(
+          value: client,
+          child: Text("${client.firstName} ${client.lastName} #${client.displayNum()}")
+        ))
+        .toList();
+    return Consumer<ClientSelection>(builder: (context, clientSelection, child) => DropdownButton<Client>(
+      items: items,
+      value: clientSelection.client,
+      onChanged: (value) => clientSelection.updateSelection(value),
+    ));
   }
 }
 

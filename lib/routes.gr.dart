@@ -108,6 +108,7 @@ class AppRouter extends _i9.RootStackRouter {
         child: _i7.InvoiceInfoScreen(
           key: args.key,
           invoiceId: args.invoiceId,
+          clientId: args.clientId,
         ),
       );
     },
@@ -377,12 +378,14 @@ class InvoiceInfoScreenRoute
   InvoiceInfoScreenRoute({
     _i10.Key? key,
     String? invoiceId,
+    String? clientId,
   }) : super(
           InvoiceInfoScreenRoute.name,
           path: '/invoice/:invoiceId',
           args: InvoiceInfoScreenRouteArgs(
             key: key,
             invoiceId: invoiceId,
+            clientId: clientId,
           ),
           rawPathParams: {'invoiceId': invoiceId},
         );
@@ -394,15 +397,18 @@ class InvoiceInfoScreenRouteArgs {
   const InvoiceInfoScreenRouteArgs({
     this.key,
     this.invoiceId,
+    this.clientId,
   });
 
   final _i10.Key? key;
 
   final String? invoiceId;
 
+  final String? clientId;
+
   @override
   String toString() {
-    return 'InvoiceInfoScreenRouteArgs{key: $key, invoiceId: $invoiceId}';
+    return 'InvoiceInfoScreenRouteArgs{key: $key, invoiceId: $invoiceId, clientId: $clientId}';
   }
 }
 

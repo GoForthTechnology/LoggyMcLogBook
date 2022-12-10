@@ -12,8 +12,9 @@ import 'package:provider/provider.dart';
 
 class InvoiceInfoScreen extends StatefulWidget {
   final String? invoiceId;
+  final String? clientId;
 
-  const InvoiceInfoScreen({Key? key, @PathParam() this.invoiceId}) : super(key: key);
+  const InvoiceInfoScreen({Key? key, @PathParam() this.invoiceId, this.clientId}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => InvoiceInfoFormState();
@@ -28,6 +29,7 @@ class InvoiceInfoFormState extends State<InvoiceInfoScreen> {
 
   @override
   void initState() {
+    _clientId = widget.clientId;
     if (widget.invoiceId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         var invoice = await Provider.of<Invoices>(context, listen: false).getSingle(widget.invoiceId);

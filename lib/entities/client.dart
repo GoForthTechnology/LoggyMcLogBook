@@ -23,6 +23,10 @@ class Client extends Indexable<Client> {
     return id;
   }
 
+  bool isActive() {
+    return num != null && (active ?? false);
+  }
+
   @override
   Client setId(String id) {
     return new Client(id, num, firstName, lastName, active);
