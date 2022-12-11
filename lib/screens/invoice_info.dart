@@ -10,7 +10,250 @@ import 'package:lmlb/repos/invoices.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:provider/provider.dart';
 
-class InvoiceInfoScreen extends StatefulWidget {
+class InvoiceInfoModel extends ChangeNotifier {
+  final Appointments appointmentRepo;
+
+  final String? invoiceId;
+  String? clientId;
+  Currency? currency;
+  List<Appointment> allAppointments = [];
+  List<Appointment> invoicedAppointments = [];
+
+  InvoiceInfoModel({this.invoiceId, this.clientId, this.currency, required this.appointmentRepo}) {
+    _updateAppointments();
+  }
+
+  void updateCurrency(Currency? value) {
+    currency = value;
+    notifyListeners();
+  }
+
+  void updateClientId(String? value) {
+    clientId = value;
+    _updateAppointments();
+    notifyListeners();
+  }
+
+  void _updateAppointments() {
+    Future<List<Appointment>> pendingAppointments = appointmentRepo.getPending(clientId: clientId);
+    Future<List<Appointment>> invoicedAppointments = invoiceId == null
+        ? Future.value([]) : appointmentRepo.getInvoiced(invoiceId!);
+    Future.wait([pendingAppointments, invoicedAppointments]).then((appointmentLists) {
+      allAppointments.clear();
+      allAppointments.addAll(appointmentLists[0]);
+      allAppointments.addAll(appointmentLists[1]);
+      this.invoicedAppointments.clear();
+      this.invoicedAppointments.addAll(appointmentLists[1]);
+      notifyListeners();
+    });
+  }
+}
+
+class InvoiceInfoScreen extends StatelessWidget {
+  final String? invoiceId;
+  final String? clientId;
+
+  const InvoiceInfoScreen({Key? key, @PathParam() this.invoiceId, this.clientId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Consumer2<Invoices, Appointments>(builder: (context, invoiceRepo, appointmentRepo, child) => FutureBuilder<Invoice?>(
+      future: invoiceRepo.getSingle(invoiceId),
+      builder: (context, snapshot) {
+        var invoice = snapshot.data;
+        if (invoice == null) {
+          return Container();
+        }
+        var createModel = (context) => InvoiceInfoModel(
+          invoiceId: invoiceId,
+          clientId: clientId ?? invoice.clientId,
+          currency: invoice.currency,
+          appointmentRepo: appointmentRepo,
+        );
+        return ChangeNotifierProvider(create: createModel, child: content(context, invoice));
+      },
+    ));
+  }
+
+  Widget content(BuildContext context, Invoice? invoice) {
+    final formKey = GlobalKey<FormState>();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(invoice == null
+            ? 'New Invoice'
+            : 'Invoice #${invoice.invoiceNumStr()}'),
+        actions: [
+          TextButton.icon(
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            icon: const Icon(Icons.save),
+            label: const Text('Save'),
+            onPressed: () {},
+          )
+        ],
+      ),
+      body: Form(
+        key: formKey,
+        child: Container(
+          padding: EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildClientSelector(context),
+              _buildCurrencySelector(context),
+              _buildAppointmentSelector(context),
+              //_buildTotal(context),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCurrencySelector(BuildContext context) {
+    var validator = (value) {
+      if (value == null) {
+        return "Select a value";
+      }
+      return null;
+    };
+    var dropDownButton = Consumer<InvoiceInfoModel>(builder: (context, model, child) => DropdownButton<Currency>(
+      hint: Text('Please make a selection'),
+      items: Currency.values.map((enumValue) {
+        return DropdownMenuItem<Currency>(
+          value: enumValue,
+          child: new Text(enumValue.toString().split(".")[1]),
+        );
+      }).toList(),
+      onChanged: (selection) {
+        model.updateCurrency(selection);
+      },
+      value: model.currency,
+    ));
+    var formField = FormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
+      builder: (state) => _showErrorOrDisplay(state, dropDownButton),
+    );
+    return _buildContainer("Currency:", formField);
+  }
+
+  Widget _buildAppointmentSelector(BuildContext context) {
+    List<Map<String, Object>> formatDataSource(List<Appointment> appointments) {
+      return appointments
+          .map((a) => {
+        'display':
+        "${a.type.name()} on ${DateFormat("d MMM").format(a.time)}",
+        'value': a
+      }).toList();
+    }
+    var formField = FormField(
+      builder: (state) => Consumer<InvoiceInfoModel>(builder: (context, model, child) {
+        var noClientWidget = Text(
+          "Please select a client",
+          style: TextStyle(fontStyle: FontStyle.italic),
+        );
+
+        var selectorWidget = Expanded(child: MultiSelectFormField(chipBackGroundColor: ThemeData.light().dialogBackgroundColor,
+          chipLabelStyle: TextStyle(fontWeight: FontWeight.bold),
+          dialogTextStyle: TextStyle(fontWeight: FontWeight.bold),
+          checkBoxActiveColor: ThemeData.light().colorScheme.secondary,
+          checkBoxCheckColor: Colors.black,
+          dialogShapeBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12.0)),
+          ),
+          title: Text("Appointments to bill", style: TextStyle(fontWeight: FontWeight.bold)),
+          dataSource: formatDataSource(model.allAppointments),
+          textField: 'display',
+          valueField: 'value',
+          okButtonLabel: 'OK',
+          cancelButtonLabel: 'CANCEL',
+          hintWidget: Text('Please choose one or more'),
+          initialValue: model.invoicedAppointments,
+          onSaved: (value) {
+            state.didChange(value);
+            /*setState(() {
+              _appointments = List<Appointment>.from(value);
+            });*/
+          },
+        ));
+        return clientId == null ? noClientWidget : selectorWidget;
+      }),
+    );
+    return _buildContainer(null, formField);
+  }
+
+  Widget _buildClientSelector(BuildContext context) {
+    var validator = (value) {
+      if (value == null) {
+        return "Select a value";
+      }
+      return null;
+    };
+    var contentBuilder = (state) => Consumer2<Clients, InvoiceInfoModel>(builder: (context, clientModel, screenModel, child) {
+      var widget = FutureBuilder<List<Client>>(
+        future: clientModel.getAll(),
+        builder: (context, snapshot) {
+          var clients = snapshot.data ?? [];
+          var button = DropdownButton<String?>(
+            hint: Text('Please make a selection'),
+            items: clients.map((client) {
+              return DropdownMenuItem<String?>(
+                value: client.id,
+                child: new Text(client.fullName()),
+              );
+            }).toList(),
+            onChanged: (selection) {
+              state.didChange(selection);
+              screenModel.updateClientId(selection);
+            },
+            value: screenModel.clientId,
+          );
+          return button;
+        },
+      );
+      return _showErrorOrDisplay(state, widget);
+    });
+    var formField = FormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
+      builder: contentBuilder,
+    );
+    return _buildContainer("Client:", formField);
+  }
+
+  Widget _showErrorOrDisplay(FormFieldState state, Widget display) {
+    return Column(
+      children: [
+        display,
+        state.hasError
+            ? Text(
+          state.errorText!,
+          style: TextStyle(color: Colors.red),
+        )
+            : Container()
+      ],
+    );
+  }
+
+  Widget _buildContainer(String? title, Widget content) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(children: [
+        title == null
+            ? Container()
+            : Container(
+          child:
+          Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+          margin: EdgeInsets.only(right: 10.0),
+        ),
+        content,
+      ]),
+    );
+  }
+}
+
+/*class InvoiceInfoScreen extends StatefulWidget {
   final String? invoiceId;
   final String? clientId;
 
@@ -30,19 +273,20 @@ class InvoiceInfoFormState extends State<InvoiceInfoScreen> {
   @override
   void initState() {
     _clientId = widget.clientId;
-    if (widget.invoiceId != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.invoiceId != null) {
         var invoice = await Provider.of<Invoices>(context, listen: false).getSingle(widget.invoiceId);
-        var appointments = await Provider.of<Appointments>(context, listen: false).getInvoiced(widget.invoiceId!);
+        var eligibleInvoices = await Provider.of<Appointments>(context, listen: false).getPending(clientId: _clientId);
+        var selectedAppointments = await Provider.of<Appointments>(context, listen: false).getInvoiced(widget.invoiceId!);
         setState(() {
-          _appointments.addAll(appointments);
+          _appointments.addAll(selectedAppointments);
           if (invoice != null) {
             _currency = invoice.currency;
             _clientId = invoice.clientId;
           }
         });
-      });
-    }
+      }
+    });
     super.initState();
   }
 
@@ -111,160 +355,4 @@ class InvoiceInfoFormState extends State<InvoiceInfoScreen> {
                 : "${_appointments.isEmpty ? 0 : _appointments.map((a) => a.type.price(_currency!)).reduce((a, b) => a + b)} ${_currency.toString().split(".")[1]}"));
   }
 
-  Widget _buildAppointmentSelector(BuildContext context) {
-    return _buildContainer(
-        null,
-        FormField(
-          builder: (state) => Consumer<Appointments>(builder: (context, repo, child) {
-            Future<List<Appointment>> appointmentsF;
-            if (widget.invoiceId == null) {
-              appointmentsF = repo.getPending(clientId: _clientId);
-            } else {
-              appointmentsF = repo.get((a) => a.clientId == _clientId && (
-                a.invoiceId == widget.invoiceId || a.invoiceId == null
-              ));
-            }
-            return _clientId == null
-                ? Text("Please select a client",
-                    style: TextStyle(fontStyle: FontStyle.italic))
-                : FutureBuilder<List<Appointment>>(
-              future: appointmentsF,
-              builder: (context, snapshot) {
-                var appointments = snapshot.data ?? [];
-                return Expanded(child: MultiSelectFormField(chipBackGroundColor: ThemeData.light().dialogBackgroundColor,
-                  chipLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  dialogTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                  checkBoxActiveColor: ThemeData.light().colorScheme.secondary,
-                  checkBoxCheckColor: Colors.black,
-                  dialogShapeBorder: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                  title: Text("Appointments to bill", style: TextStyle(fontWeight: FontWeight.bold)),
-                  dataSource: _formatDataSource(appointments),
-                  textField: 'display',
-                  valueField: 'value',
-                  okButtonLabel: 'OK',
-                  cancelButtonLabel: 'CANCEL',
-                  hintWidget: Text('Please choose one or more'),
-                  initialValue: _appointments,
-                  onSaved: (value) {
-                    state.didChange(value);
-                    setState(() {
-                      _appointments = List<Appointment>.from(value);
-                    });
-                  },
-                ));
-            });
-          }),
-        ));
-  }
-
-  List<Map<String, Object>> _formatDataSource(List<Appointment> appointments) {
-    return appointments
-        .map((a) => {
-              'display':
-                  "${a.type.name()} on ${DateFormat("d MMM").format(a.time)}",
-              'value': a
-            })
-        .toList();
-  }
-
-  Widget _buildCurrencySelector(BuildContext context) {
-    return _buildContainer(
-        "Currency:",
-        FormField(
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            validator: (value) {
-              if (value == null) {
-                return "Select a value";
-              }
-              return null;
-            },
-            builder: (state) => _showErrorOrDisplay(
-                state,
-                DropdownButton<Currency>(
-                  hint: Text('Please make a selection'),
-                  items: Currency.values.map((enumValue) {
-                    return DropdownMenuItem<Currency>(
-                      value: enumValue,
-                      child: new Text(enumValue.toString().split(".")[1]),
-                    );
-                  }).toList(),
-                  onChanged: (selection) {
-                    state.didChange(selection);
-                    setState(() {
-                      _currency = selection;
-                    });
-                  },
-                  value: _currency,
-                ))));
-  }
-
-  Widget _buildClientSelector(BuildContext context) {
-    return _buildContainer(
-        "Client:",
-        FormField(
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            validator: (value) {
-              if (value == null) {
-                return "Select a value";
-              }
-              return null;
-            },
-            builder: (state) => Consumer<Clients>(builder: (context, clientModel, child) => _showErrorOrDisplay(
-              state,
-              FutureBuilder<List<Client>>(
-                future: clientModel.getAll(),
-                builder: (context, snapshot) {
-                  var clients = snapshot.data ?? [];
-                  return DropdownButton<String?>(
-                    hint: Text('Please make a selection'),
-                    items: clients.map((client) {
-                      return DropdownMenuItem<String?>(
-                        value: client.id,
-                        child: new Text(client.fullName()),
-                      );
-                    }).toList(),
-                    onChanged: (selection) {
-                      state.didChange(selection);
-                      setState(() {
-                        _clientId = selection;
-                      });
-                    },
-                    value: _clientId,
-                  );
-                }
-              ),
-            ))));
-  }
-
-  Widget _showErrorOrDisplay(FormFieldState state, Widget display) {
-    return Column(
-      children: [
-        display,
-        state.hasError
-            ? Text(
-                state.errorText!,
-                style: TextStyle(color: Colors.red),
-              )
-            : Container()
-      ],
-    );
-  }
-
-  Widget _buildContainer(String? title, Widget content) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(children: [
-        title == null
-            ? Container()
-            : Container(
-                child:
-                    Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-                margin: EdgeInsets.only(right: 10.0),
-              ),
-        content,
-      ]),
-    );
-  }
-}
+}*/

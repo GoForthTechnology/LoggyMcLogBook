@@ -160,7 +160,7 @@ class InvoiceTile extends StatelessWidget {
           },
         ),
         onTap: () {
-          AutoRouter.of(context).push(InvoiceInfoScreenRoute(invoiceId: invoice.id)).then((result) {
+          AutoRouter.of(context).push(InvoiceInfoScreenRoute(invoiceId: invoice.id, clientId: invoice.clientId)).then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)
                 ..removeCurrentSnackBar()
