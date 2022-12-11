@@ -216,7 +216,7 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
                 : TextButton(
                 child: Text("View"),
                 onPressed: () {
-                  AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointmentId: lastAppointment.id));
+                  AutoRouter.of(context).push(AppointmentDetailScreenRoute(appointmentId: lastAppointment.id));
                 }),
           ],
         );
@@ -237,7 +237,7 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
             nextAppointment == null? Container() : TextButton(
               child: Text("View"),
               onPressed: () {
-                AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointmentId: nextAppointment.id));
+                AutoRouter.of(context).push(AppointmentDetailScreenRoute(appointmentId: nextAppointment.id));
               },
             ),
           ]);

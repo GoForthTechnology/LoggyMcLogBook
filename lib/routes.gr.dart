@@ -40,10 +40,10 @@ class AppRouter extends _i9.RootStackRouter {
         child: _i1.OverviewScreen(),
       );
     },
-    AppointmentInfoScreenRoute.name: (routeData) {
+    AppointmentDetailScreenRoute.name: (routeData) {
       final pathParams = routeData.inheritedPathParams;
-      final args = routeData.argsAs<AppointmentInfoScreenRouteArgs>(
-          orElse: () => AppointmentInfoScreenRouteArgs(
+      final args = routeData.argsAs<AppointmentDetailScreenRouteArgs>(
+          orElse: () => AppointmentDetailScreenRouteArgs(
               appointmentId: pathParams.optString('appointmentId')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
@@ -98,10 +98,10 @@ class AppRouter extends _i9.RootStackRouter {
         ),
       );
     },
-    InvoiceInfoScreenRoute.name: (routeData) {
+    InvoiceDetailScreenRoute.name: (routeData) {
       final pathParams = routeData.inheritedPathParams;
-      final args = routeData.argsAs<InvoiceInfoScreenRouteArgs>(
-          orElse: () => InvoiceInfoScreenRouteArgs(
+      final args = routeData.argsAs<InvoiceDetailScreenRouteArgs>(
+          orElse: () => InvoiceDetailScreenRouteArgs(
               invoiceId: pathParams.optString('invoiceId')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
@@ -140,7 +140,7 @@ class AppRouter extends _i9.RootStackRouter {
           guards: [authGuard],
         ),
         _i9.RouteConfig(
-          AppointmentInfoScreenRoute.name,
+          AppointmentDetailScreenRoute.name,
           path: '/appointment/:appointmentId',
           guards: [authGuard],
         ),
@@ -165,7 +165,7 @@ class AppRouter extends _i9.RootStackRouter {
           guards: [authGuard],
         ),
         _i9.RouteConfig(
-          InvoiceInfoScreenRoute.name,
+          InvoiceDetailScreenRoute.name,
           path: '/invoice/:invoiceId',
           guards: [authGuard],
         ),
@@ -209,16 +209,16 @@ class OverviewScreenRoute extends _i9.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i2.AppointmentDetailScreen]
-class AppointmentInfoScreenRoute
-    extends _i9.PageRouteInfo<AppointmentInfoScreenRouteArgs> {
-  AppointmentInfoScreenRoute({
+class AppointmentDetailScreenRoute
+    extends _i9.PageRouteInfo<AppointmentDetailScreenRouteArgs> {
+  AppointmentDetailScreenRoute({
     _i10.Key? key,
     String? appointmentId,
     _i11.Appointment? appointment,
   }) : super(
-          AppointmentInfoScreenRoute.name,
+          AppointmentDetailScreenRoute.name,
           path: '/appointment/:appointmentId',
-          args: AppointmentInfoScreenRouteArgs(
+          args: AppointmentDetailScreenRouteArgs(
             key: key,
             appointmentId: appointmentId,
             appointment: appointment,
@@ -226,11 +226,11 @@ class AppointmentInfoScreenRoute
           rawPathParams: {'appointmentId': appointmentId},
         );
 
-  static const String name = 'AppointmentInfoScreenRoute';
+  static const String name = 'AppointmentDetailScreenRoute';
 }
 
-class AppointmentInfoScreenRouteArgs {
-  const AppointmentInfoScreenRouteArgs({
+class AppointmentDetailScreenRouteArgs {
+  const AppointmentDetailScreenRouteArgs({
     this.key,
     this.appointmentId,
     this.appointment,
@@ -244,7 +244,7 @@ class AppointmentInfoScreenRouteArgs {
 
   @override
   String toString() {
-    return 'AppointmentInfoScreenRouteArgs{key: $key, appointmentId: $appointmentId, appointment: $appointment}';
+    return 'AppointmentDetailScreenRouteArgs{key: $key, appointmentId: $appointmentId, appointment: $appointment}';
   }
 }
 
@@ -373,16 +373,16 @@ class InvoicesScreenRouteArgs {
 
 /// generated route for
 /// [_i7.InvoiceDetailScreen]
-class InvoiceInfoScreenRoute
-    extends _i9.PageRouteInfo<InvoiceInfoScreenRouteArgs> {
-  InvoiceInfoScreenRoute({
+class InvoiceDetailScreenRoute
+    extends _i9.PageRouteInfo<InvoiceDetailScreenRouteArgs> {
+  InvoiceDetailScreenRoute({
     _i10.Key? key,
     String? invoiceId,
     String? clientId,
   }) : super(
-          InvoiceInfoScreenRoute.name,
+          InvoiceDetailScreenRoute.name,
           path: '/invoice/:invoiceId',
-          args: InvoiceInfoScreenRouteArgs(
+          args: InvoiceDetailScreenRouteArgs(
             key: key,
             invoiceId: invoiceId,
             clientId: clientId,
@@ -390,11 +390,11 @@ class InvoiceInfoScreenRoute
           rawPathParams: {'invoiceId': invoiceId},
         );
 
-  static const String name = 'InvoiceInfoScreenRoute';
+  static const String name = 'InvoiceDetailScreenRoute';
 }
 
-class InvoiceInfoScreenRouteArgs {
-  const InvoiceInfoScreenRouteArgs({
+class InvoiceDetailScreenRouteArgs {
+  const InvoiceDetailScreenRouteArgs({
     this.key,
     this.invoiceId,
     this.clientId,
@@ -408,7 +408,7 @@ class InvoiceInfoScreenRouteArgs {
 
   @override
   String toString() {
-    return 'InvoiceInfoScreenRouteArgs{key: $key, invoiceId: $invoiceId, clientId: $clientId}';
+    return 'InvoiceDetailScreenRouteArgs{key: $key, invoiceId: $invoiceId, clientId: $clientId}';
   }
 }
 

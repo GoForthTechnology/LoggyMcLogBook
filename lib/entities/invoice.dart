@@ -17,7 +17,7 @@ class Invoice extends Indexable<Invoice> {
   DateTime? dateBilled;
   DateTime? datePaid;
 
-  Invoice(this.id, this.num, this.clientId, this.currency, this.dateCreated);
+  Invoice(this.id, this.num, this.clientId, this.currency, this.dateCreated, this.dateBilled, this.datePaid);
 
   int invoiceNum() {
     var invoiceNum = num ?? 0;

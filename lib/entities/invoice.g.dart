@@ -12,13 +12,13 @@ Invoice _$InvoiceFromJson(Map<String, dynamic> json) => Invoice(
       json['clientId'] as String,
       $enumDecode(_$CurrencyEnumMap, json['currency']),
       DateTime.parse(json['dateCreated'] as String),
-    )
-      ..dateBilled = json['dateBilled'] == null
+      json['dateBilled'] == null
           ? null
-          : DateTime.parse(json['dateBilled'] as String)
-      ..datePaid = json['datePaid'] == null
+          : DateTime.parse(json['dateBilled'] as String),
+      json['datePaid'] == null
           ? null
-          : DateTime.parse(json['datePaid'] as String);
+          : DateTime.parse(json['datePaid'] as String),
+    );
 
 Map<String, dynamic> _$InvoiceToJson(Invoice instance) => <String, dynamic>{
       'id': instance.id,

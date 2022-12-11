@@ -121,7 +121,7 @@ class AppointmentsScreen extends StatelessWidget {
   }
 
   void addAppointment(BuildContext context) {
-    AutoRouter.of(context).push(AppointmentInfoScreenRoute())
+    AutoRouter.of(context).push(AppointmentDetailScreenRoute())
         .then((updated) {
       if (updated != null && updated as bool) {
         ScaffoldMessenger.of(context)
@@ -166,7 +166,7 @@ class AppointmentTile extends StatelessWidget {
           },
         ) : null,
         onTap: () {
-          AutoRouter.of(context).push(AppointmentInfoScreenRoute(appointmentId: appointment.id, appointment: appointment))
+          AutoRouter.of(context).push(AppointmentDetailScreenRoute(appointmentId: appointment.id, appointment: appointment))
               .then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)

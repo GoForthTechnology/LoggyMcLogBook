@@ -59,7 +59,7 @@ class InvoicesScreen extends StatelessWidget {
   void addInvoice(BuildContext context) {
     promptForClient(context).then((client) {
       if (client != null) {
-        AutoRouter.of(context).push(InvoiceInfoScreenRoute(clientId: client.id)).then((updated) {
+        AutoRouter.of(context).push(InvoiceDetailScreenRoute(clientId: client.id)).then((updated) {
           if (updated != null && updated as bool) {
             ScaffoldMessenger.of(context)
               ..removeCurrentSnackBar()
@@ -160,7 +160,7 @@ class InvoiceTile extends StatelessWidget {
           },
         ),
         onTap: () {
-          AutoRouter.of(context).push(InvoiceInfoScreenRoute(invoiceId: invoice.id, clientId: invoice.clientId)).then((result) {
+          AutoRouter.of(context).push(InvoiceDetailScreenRoute(invoiceId: invoice.id, clientId: invoice.clientId)).then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)
                 ..removeCurrentSnackBar()

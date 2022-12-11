@@ -1,6 +1,4 @@
-import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/persistence/CrudInterface.dart';
-import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/internal/indexed_repo.dart';
@@ -53,16 +51,15 @@ class Invoices extends IndexedRepo<String, Invoice> {
         predicate: (i) => i.dateBilled != null && i.datePaid != null);
   }
 
-  Future<Invoice> add(
-      String clientId, Currency currency, List<Appointment> appointments) async {
+  Future<Invoice> add(Invoice invoice) async {
     var numInvoices = await _persistence.getAll().then((invoices) => invoices.length);
     var newInvoiceNum = numInvoices + 1;
-    final invoice = Invoice(null, newInvoiceNum, clientId, currency, DateTime.now());
-    return addToIndex(invoice, _persistence.insert(invoice))
+    final newInvoice = Invoice(null, newInvoiceNum, invoice.clientId, invoice.currency, invoice.dateCreated, invoice.dateBilled, invoice.datePaid);
+    return addToIndex(newInvoice, _persistence.insert(newInvoice))
         .then((savedInvoice) {
       final List<Future<void>> updateOps = [];
-      appointments.forEach((appointment) => updateOps
-          .add(_appointmentRepo.update(appointment.bill(savedInvoice))));
+      /*appointments.forEach((appointment) => updateOps
+          .add(_appointmentRepo.update(appointment.bill(savedInvoice))));*/
       return Future.wait(updateOps).then((_) => savedInvoice);
     });
   }
@@ -77,7 +74,10 @@ class Invoices extends IndexedRepo<String, Invoice> {
         .then((_) => removeFromIndex(invoice, _persistence.remove(invoice)));
   }
 
-  Future<void> update(Invoice appointment) {
-    return updateIndex(appointment, _persistence.update(appointment));
+  Future<void> update(Invoice invoice) {
+    if (invoice.id == null) {
+      return add(invoice);
+    }
+    return updateIndex(invoice, _persistence.update(invoice));
   }
 }

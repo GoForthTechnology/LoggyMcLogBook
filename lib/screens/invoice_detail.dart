@@ -16,13 +16,41 @@ class InvoiceDetailModel extends ChangeNotifier {
   final Clients clientRepo;
 
   final String? invoiceId;
+  final Invoice? invoice;
+
   String? clientId;
   Currency? currency;
   List<Appointment> allAppointments = [];
   List<Appointment> invoicedAppointments = [];
+  DateTime? dateBilled;
+  DateTime? datePaid;
 
-  InvoiceDetailModel({this.invoiceId, this.clientId, this.currency, required this.appointmentRepo, required this.clientRepo}) {
+  InvoiceDetailModel({this.invoiceId, this.invoice, this.clientId, this.currency, required this.appointmentRepo, required this.clientRepo}) {
+    dateBilled = invoice?.dateBilled;
+    datePaid = invoice?.datePaid;
     _updateAppointments();
+  }
+
+  Invoice updatedInvoice() {
+    return Invoice(
+      invoice?.id,
+      invoice?.num,
+      clientId!,
+      currency!,
+      invoice?.dateCreated ?? DateTime.now(),
+      dateBilled,
+      datePaid,
+    );
+  }
+
+  void updateDatePaid(DateTime? date) {
+    datePaid = date;
+    notifyListeners();
+  }
+
+  void updateDateBilled(DateTime? date) {
+    dateBilled = date;
+    notifyListeners();
   }
 
   void updateClientId(String? value) {
@@ -73,11 +101,13 @@ class InvoiceDetailScreen extends StatelessWidget {
         }
         var createModel = (context) {
           var model = InvoiceDetailModel(
+            invoice: invoice,
             invoiceId: invoiceId,
             clientId: clientId ?? invoice?.clientId,
             currency: invoice?.currency,
             appointmentRepo: appointmentRepo,
-            clientRepo: clientRepo);
+            clientRepo: clientRepo,
+          );
           model.updateClientId(clientId ?? invoice?.clientId);
           return model;
         };
@@ -95,12 +125,14 @@ class InvoiceDetailScreen extends StatelessWidget {
             ? 'New Invoice'
             : 'Invoice #${invoice.invoiceNumStr()}'),
         actions: [
-          TextButton.icon(
+          Consumer2<Invoices, InvoiceDetailModel>(builder: (context, invoiceRepo, model, child) => TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.white),
             icon: const Icon(Icons.save),
             label: const Text('Save'),
-            onPressed: () {},
-          )
+            onPressed: () {
+              invoiceRepo.update(model.updatedInvoice()).then((_) => AutoRouter.of(context).pop());
+            },
+          )),
         ],
       ),
       body: Form(
@@ -112,6 +144,8 @@ class InvoiceDetailScreen extends StatelessWidget {
             children: [
               _buildClientSelector(context, invoice),
               _buildCurrencySelector(context),
+              _buildDateBilled(),
+              _buildDatePaid(),
               _buildAppointmentSelector(context),
               //_buildTotal(context),
             ],
@@ -120,6 +154,7 @@ class InvoiceDetailScreen extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _buildCurrencySelector(BuildContext context) {
     var widget = Consumer<InvoiceDetailModel>(builder: (context, model, child) => Text(
@@ -241,6 +276,51 @@ class InvoiceDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildDateWidget(BuildContext context, String title, Function(DateTime?) onUpdate, DateTime? value) {
+    final Widget display = value == null
+        ? Text("Select a date") : Text(value.toIso8601String());
+    final Widget widget = FormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) {
+        if (value == null) {
+          return "Date required";
+        }
+        return null;
+      },
+      builder: (state) => GestureDetector(
+        onTap: () async {
+          final DateTime? picked = await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(), // Refer step 1
+            firstDate: DateTime.now().subtract(Duration(days: 365)),
+            lastDate: DateTime.now().add(Duration(days: 365)),
+          );
+          if (picked != null) {
+            state.didChange(picked);
+            onUpdate(picked);
+          }
+        },
+        child: _showErrorOrDisplay(state, display),
+      ),
+    );
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      _buildContainer(title, widget),
+      if (value != null) TextButton(onPressed: () => onUpdate(null), child: Text("Clear")),
+    ]);
+  }
+
+  Widget _buildDateBilled() {
+    return Consumer<InvoiceDetailModel>(builder: (context, model, child) {
+      return _buildDateWidget(context, "Date Billed:", model.updateDateBilled, model.dateBilled);
+    });
+  }
+
+  Widget _buildDatePaid() {
+    return Consumer<InvoiceDetailModel>(builder: (context, model, child) {
+      return _buildDateWidget(context, "Date Paid:", model.updateDatePaid, model.datePaid);
+    });
+  }
+
   Widget _buildContainer(String? title, Widget content) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10.0),
@@ -258,106 +338,3 @@ class InvoiceDetailScreen extends StatelessWidget {
   }
 }
 
-/*class InvoiceInfoScreen extends StatefulWidget {
-  final String? invoiceId;
-  final String? clientId;
-
-  const InvoiceInfoScreen({Key? key, @PathParam() this.invoiceId, this.clientId}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => InvoiceInfoFormState();
-}
-
-class InvoiceInfoFormState extends State<InvoiceInfoScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  List<Appointment> _appointments = [];
-  Currency? _currency;
-  String? _clientId;
-
-  @override
-  void initState() {
-    _clientId = widget.clientId;
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.invoiceId != null) {
-        var invoice = await Provider.of<Invoices>(context, listen: false).getSingle(widget.invoiceId);
-        var eligibleInvoices = await Provider.of<Appointments>(context, listen: false).getPending(clientId: _clientId);
-        var selectedAppointments = await Provider.of<Appointments>(context, listen: false).getInvoiced(widget.invoiceId!);
-        setState(() {
-          _appointments.addAll(selectedAppointments);
-          if (invoice != null) {
-            _currency = invoice.currency;
-            _clientId = invoice.clientId;
-          }
-        });
-      }
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is disposed.
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<Invoices>(builder: (context, model, child) => FutureBuilder<Invoice?>(
-      future: widget.invoiceId == null ? Future.value(null) : model.getSingle(widget.invoiceId!),
-      builder: (context, snapshot) {
-        var invoice = snapshot.data;
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(invoice == null
-                ? 'New Invoice'
-                : 'Invoice #${invoice.invoiceNumStr()}'),
-            actions: [
-              TextButton.icon(
-                style: TextButton.styleFrom(foregroundColor: Colors.white),
-                icon: const Icon(Icons.save),
-                label: const Text('Save'),
-                onPressed: _onSave,
-              )
-            ],
-          ),
-          body: Form(
-            key: _formKey,
-            child: Container(
-              padding: EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildClientSelector(context),
-                  _buildCurrencySelector(context),
-                  _buildAppointmentSelector(context),
-                  _buildTotal(context),
-                ],
-              ),
-            ),
-          ),
-        );
-      }));
-  }
-
-  void _onSave() {
-    if (_formKey.currentState!.validate()) {
-      Provider.of<Invoices>(context, listen: false)
-          .add(_clientId!, _currency!, _appointments)
-          .then((_) => Navigator.of(context).pop(true));
-    } else {
-      print("Validation error");
-    }
-  }
-
-  Widget _buildTotal(BuildContext context) {
-    return _buildContainer(
-        "Invoice Total:",
-        Text(_clientId == null
-            ? "Select a client"
-            : _currency == null
-                ? "Select a currency"
-                : "${_appointments.isEmpty ? 0 : _appointments.map((a) => a.type.price(_currency!)).reduce((a, b) => a + b)} ${_currency.toString().split(".")[1]}"));
-  }
-
-}*/
