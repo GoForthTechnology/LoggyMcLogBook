@@ -16,11 +16,11 @@ import 'package:flutter/material.dart' as _i10;
 import 'package:lmlb/auth.dart' as _i8;
 import 'package:lmlb/entities/appointment.dart' as _i11;
 import 'package:lmlb/entities/client.dart' as _i12;
-import 'package:lmlb/screens/appointment_info.dart' as _i2;
+import 'package:lmlb/screens/appointment_detail.dart' as _i2;
 import 'package:lmlb/screens/appointments.dart' as _i3;
 import 'package:lmlb/screens/client_details.dart' as _i5;
 import 'package:lmlb/screens/clients.dart' as _i4;
-import 'package:lmlb/screens/invoice_info.dart' as _i7;
+import 'package:lmlb/screens/invoice_detail.dart' as _i7;
 import 'package:lmlb/screens/invoices.dart' as _i6;
 import 'package:lmlb/screens/overview.dart' as _i1;
 
@@ -47,7 +47,7 @@ class AppRouter extends _i9.RootStackRouter {
               appointmentId: pathParams.optString('appointmentId')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i2.AppointmentInfoScreen(
+        child: _i2.AppointmentDetailScreen(
           key: args.key,
           appointmentId: args.appointmentId,
           appointment: args.appointment,
@@ -105,7 +105,7 @@ class AppRouter extends _i9.RootStackRouter {
               invoiceId: pathParams.optString('invoiceId')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i7.InvoiceInfoScreen(
+        child: _i7.InvoiceDetailScreen(
           key: args.key,
           invoiceId: args.invoiceId,
           clientId: args.clientId,
@@ -208,7 +208,7 @@ class OverviewScreenRoute extends _i9.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i2.AppointmentInfoScreen]
+/// [_i2.AppointmentDetailScreen]
 class AppointmentInfoScreenRoute
     extends _i9.PageRouteInfo<AppointmentInfoScreenRouteArgs> {
   AppointmentInfoScreenRoute({
@@ -372,7 +372,7 @@ class InvoicesScreenRouteArgs {
 }
 
 /// generated route for
-/// [_i7.InvoiceInfoScreen]
+/// [_i7.InvoiceDetailScreen]
 class InvoiceInfoScreenRoute
     extends _i9.PageRouteInfo<InvoiceInfoScreenRouteArgs> {
   InvoiceInfoScreenRoute({

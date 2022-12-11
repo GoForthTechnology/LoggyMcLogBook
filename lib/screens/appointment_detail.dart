@@ -6,18 +6,18 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:provider/provider.dart';
 
-class AppointmentInfoScreen extends StatefulWidget {
+class AppointmentDetailScreen extends StatefulWidget {
   final String? appointmentId;
   final Appointment? appointment;
 
-  const AppointmentInfoScreen({Key? key, @PathParam() this.appointmentId, this.appointment}) : super(key: key);
+  const AppointmentDetailScreen({Key? key, @PathParam() this.appointmentId, this.appointment}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => AppointmentInfoFormState();
+  State<StatefulWidget> createState() => AppointmentDetailState();
 
 }
 
-class AppointmentInfoFormState extends State<AppointmentInfoScreen> {
+class AppointmentDetailState extends State<AppointmentDetailScreen> {
   final _formKey = GlobalKey<FormState>();
 
   String? _clientId;

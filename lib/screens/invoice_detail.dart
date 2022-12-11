@@ -11,7 +11,7 @@ import 'package:lmlb/repos/invoices.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:provider/provider.dart';
 
-class InvoiceInfoModel extends ChangeNotifier {
+class InvoiceDetailModel extends ChangeNotifier {
   final Appointments appointmentRepo;
   final Clients clientRepo;
 
@@ -21,7 +21,7 @@ class InvoiceInfoModel extends ChangeNotifier {
   List<Appointment> allAppointments = [];
   List<Appointment> invoicedAppointments = [];
 
-  InvoiceInfoModel({this.invoiceId, this.clientId, this.currency, required this.appointmentRepo, required this.clientRepo}) {
+  InvoiceDetailModel({this.invoiceId, this.clientId, this.currency, required this.appointmentRepo, required this.clientRepo}) {
     _updateAppointments();
   }
 
@@ -55,11 +55,11 @@ class InvoiceInfoModel extends ChangeNotifier {
   }
 }
 
-class InvoiceInfoScreen extends StatelessWidget {
+class InvoiceDetailScreen extends StatelessWidget {
   final String? invoiceId;
   final String? clientId;
 
-  const InvoiceInfoScreen({Key? key, @PathParam() this.invoiceId, this.clientId}) : super(key: key);
+  const InvoiceDetailScreen({Key? key, @PathParam() this.invoiceId, this.clientId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,7 @@ class InvoiceInfoScreen extends StatelessWidget {
           return Container();
         }
         var createModel = (context) {
-          var model = InvoiceInfoModel(
+          var model = InvoiceDetailModel(
             invoiceId: invoiceId,
             clientId: clientId ?? invoice?.clientId,
             currency: invoice?.currency,
@@ -110,7 +110,7 @@ class InvoiceInfoScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildClientSelector(context),
+              _buildClientSelector(context, invoice),
               _buildCurrencySelector(context),
               _buildAppointmentSelector(context),
               //_buildTotal(context),
@@ -122,7 +122,7 @@ class InvoiceInfoScreen extends StatelessWidget {
   }
 
   Widget _buildCurrencySelector(BuildContext context) {
-    var widget = Consumer<InvoiceInfoModel>(builder: (context, model, child) => Text(
+    var widget = Consumer<InvoiceDetailModel>(builder: (context, model, child) => Text(
       model.currency?.name ?? "IDK"));
     return _buildContainer("Currency:", widget);
   }
@@ -137,7 +137,7 @@ class InvoiceInfoScreen extends StatelessWidget {
       }).toList();
     }
     var formField = FormField(
-      builder: (state) => Consumer<InvoiceInfoModel>(builder: (context, model, child) {
+      builder: (state) => Consumer<InvoiceDetailModel>(builder: (context, model, child) {
         var noClientWidget = Text(
           "Please select a client",
           style: TextStyle(fontStyle: FontStyle.italic),
@@ -172,14 +172,30 @@ class InvoiceInfoScreen extends StatelessWidget {
     return _buildContainer(null, formField);
   }
 
-  Widget _buildClientSelector(BuildContext context) {
+  Widget _buildClientNameWidget(String clientId) {
+    return Consumer<Clients>(builder: (context, clientsRepo, child) => FutureBuilder<Client?>(
+      future: clientsRepo.get(clientId),
+      builder: (context, snapshot) {
+        if (snapshot.data == null) {
+          return _buildContainer("Client:", Text("TBD"));
+        }
+        var client = snapshot.data!;
+        return _buildContainer("Client:", Text("${client.firstName} ${client.lastName} #${client.displayNum()}"));
+      },
+    ));
+  }
+
+  Widget _buildClientSelector(BuildContext context, Invoice? invoice) {
+    if (invoice != null) {
+      return _buildClientNameWidget(invoice.clientId);
+    }
     var validator = (value) {
       if (value == null) {
         return "Select a value";
       }
       return null;
     };
-    var contentBuilder = (state) => Consumer2<Clients, InvoiceInfoModel>(builder: (context, clientModel, screenModel, child) {
+    var contentBuilder = (state) => Consumer2<Clients, InvoiceDetailModel>(builder: (context, clientModel, screenModel, child) {
       var widget = FutureBuilder<List<Client>>(
         future: clientModel.getAll(),
         builder: (context, snapshot) {

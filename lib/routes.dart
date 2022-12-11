@@ -1,10 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:lmlb/auth.dart';
-import 'package:lmlb/screens/appointment_info.dart';
+import 'package:lmlb/screens/appointment_detail.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:lmlb/screens/client_details.dart';
 import 'package:lmlb/screens/clients.dart';
-import 'package:lmlb/screens/invoice_info.dart';
+import 'package:lmlb/screens/invoice_detail.dart';
 import 'package:lmlb/screens/invoices.dart';
 import 'package:lmlb/screens/overview.dart';
 
@@ -19,7 +19,7 @@ import 'package:lmlb/screens/overview.dart';
     ),
     AutoRoute(
       path: '/appointment/:appointmentId',
-      page: AppointmentInfoScreen,
+      page: AppointmentDetailScreen,
       guards: [AuthGuard],
     ),
     AutoRoute(
@@ -44,7 +44,7 @@ import 'package:lmlb/screens/overview.dart';
     ),
     AutoRoute(
       path: '/invoice/:invoiceId',
-      page: InvoiceInfoScreen,
+      page: InvoiceDetailScreen,
       guards: [AuthGuard],
     ),
     ...authRoutes,
