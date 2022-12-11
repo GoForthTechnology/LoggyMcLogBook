@@ -40,7 +40,7 @@ class Appointments extends IndexedRepo<String, Appointment> {
   }
 
   Future<List<Appointment>> getPending({bool? sorted, String? clientId}) async {
-    return get((a) => a.invoiceId == null);
+    return get((a) => a.clientId == clientId && a.invoiceId == null);
   }
 
   Future<List<Appointment>> getInvoiced(String invoiceId) async {
