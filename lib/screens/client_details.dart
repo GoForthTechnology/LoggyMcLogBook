@@ -110,7 +110,6 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
     );
     var formField = FormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      //validator: validator,
       builder: (state) => dropDownButton,
     );
     return _inputWidget("Currency:", formField);
