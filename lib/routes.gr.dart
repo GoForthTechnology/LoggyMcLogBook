@@ -18,7 +18,7 @@ import 'package:lmlb/entities/appointment.dart' as _i11;
 import 'package:lmlb/entities/client.dart' as _i12;
 import 'package:lmlb/screens/appointment_info.dart' as _i2;
 import 'package:lmlb/screens/appointments.dart' as _i3;
-import 'package:lmlb/screens/client_info.dart' as _i5;
+import 'package:lmlb/screens/client_details.dart' as _i5;
 import 'package:lmlb/screens/clients.dart' as _i4;
 import 'package:lmlb/screens/invoice_info.dart' as _i7;
 import 'package:lmlb/screens/invoices.dart' as _i6;
@@ -81,7 +81,7 @@ class AppRouter extends _i9.RootStackRouter {
               clientId: pathParams.optString('clientId')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i5.ClientInfoScreen(
+        child: _i5.ClientDetailsScreen(
           key: args.key,
           clientId: args.clientId,
         ),
@@ -302,7 +302,7 @@ class ClientsScreenRoute extends _i9.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i5.ClientInfoScreen]
+/// [_i5.ClientDetailsScreen]
 class ClientInfoScreenRoute
     extends _i9.PageRouteInfo<ClientInfoScreenRouteArgs> {
   ClientInfoScreenRoute({

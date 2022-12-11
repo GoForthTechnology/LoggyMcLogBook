@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:lmlb/auth.dart';
 import 'package:lmlb/screens/appointment_info.dart';
 import 'package:lmlb/screens/appointments.dart';
-import 'package:lmlb/screens/client_info.dart';
+import 'package:lmlb/screens/client_details.dart';
 import 'package:lmlb/screens/clients.dart';
 import 'package:lmlb/screens/invoice_info.dart';
 import 'package:lmlb/screens/invoices.dart';
@@ -34,7 +34,7 @@ import 'package:lmlb/screens/overview.dart';
     ),
     AutoRoute(
       path: '/client/:clientId',
-      page: ClientInfoScreen,
+      page: ClientDetailsScreen,
       guards: [AuthGuard],
     ),
     AutoRoute(

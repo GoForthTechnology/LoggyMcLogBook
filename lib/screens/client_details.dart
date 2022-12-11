@@ -10,18 +10,18 @@ import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/screens/appointments.dart';
 import 'package:provider/provider.dart';
 
-class ClientInfoScreen extends StatefulWidget {
+class ClientDetailsScreen extends StatefulWidget {
   final String? clientId;
 
-  const ClientInfoScreen({Key? key, @PathParam() this.clientId}) : super(key: key);
+  const ClientDetailsScreen({Key? key, @PathParam() this.clientId}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => ClientInfoFormState();
+  State<StatefulWidget> createState() => ClientDetailsState();
 }
 
-class ClientInfoFormState extends State<ClientInfoScreen> {
+class ClientDetailsState extends State<ClientDetailsScreen> {
 
-  ClientInfoFormState();
+  ClientDetailsState();
 
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
@@ -39,11 +39,10 @@ class ClientInfoFormState extends State<ClientInfoScreen> {
     return Consumer<Clients>(builder: (context, model, child) => FutureBuilder<Client?>(
       future: widget.clientId == null ? Future.value(null) : model.get(widget.clientId!),
       builder: (context, snapshot) {
-        print("FOO: $snapshot");
         var client = snapshot.data;
         return Scaffold(
           appBar: AppBar(
-            title: Text(client == null ? 'New Client' : 'Client Info'),
+            title: Text(client == null ? 'New Client' : 'Client Details'),
             actions: [
               TextButton.icon(
                 style: TextButton.styleFrom(foregroundColor: Colors.white),
@@ -109,7 +108,7 @@ class ClientInfoFormState extends State<ClientInfoScreen> {
           Container(
               margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
               child: Text("Invoice Summary",
-                  style: Theme.of(context).textTheme.subtitle2)),
+                  style: Theme.of(context).textTheme.titleMedium)),
           _buildNumInvoices(invoices.getPending(), "Pending", context),
           _buildNumInvoices(invoices.getReceivable(), "Receivable", context),
           _buildNumInvoices(invoices.getPaid(), "Paid", context),
@@ -160,7 +159,7 @@ class ClientInfoFormState extends State<ClientInfoScreen> {
           Container(
               margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
               child: Text("Appointment Summary",
-                  style: Theme.of(context).textTheme.subtitle2)),
+                  style: Theme.of(context).textTheme.titleMedium)),
           _buildLastAppointment(model, clientId, context),
           _buildNextAppointment(model, clientId, context),
           _buildToBeInvoiced(
