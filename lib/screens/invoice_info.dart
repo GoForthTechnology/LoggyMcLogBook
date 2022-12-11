@@ -33,7 +33,9 @@ class InvoiceInfoModel extends ChangeNotifier {
   }
 
   void _updateCurrency() {
-    if (clientId != null) {
+    // Only update currency based on the client info if the invoice has not been
+    // saved.
+    if (clientId != null && invoiceId == null) {
       clientRepo.get(clientId!).then((client) => currency = client?.currency);
     }
   }
@@ -66,17 +68,17 @@ class InvoiceInfoScreen extends StatelessWidget {
       future: invoiceRepo.getSingle(invoiceId),
       builder: (context, snapshot) {
         var invoice = snapshot.data;
-        if (invoice == null) {
+        if (invoiceId != null && invoice == null) {
           return Container();
         }
         var createModel = (context) {
           var model = InvoiceInfoModel(
             invoiceId: invoiceId,
-            clientId: clientId ?? invoice.clientId,
-            currency: invoice.currency,
+            clientId: clientId ?? invoice?.clientId,
+            currency: invoice?.currency,
             appointmentRepo: appointmentRepo,
             clientRepo: clientRepo);
-          model.updateClientId(clientId ?? invoice.clientId);
+          model.updateClientId(clientId ?? invoice?.clientId);
           return model;
         };
 
@@ -120,12 +122,6 @@ class InvoiceInfoScreen extends StatelessWidget {
   }
 
   Widget _buildCurrencySelector(BuildContext context) {
-    var validator = (value) {
-      if (value == null) {
-        return "Select a value";
-      }
-      return null;
-    };
     var widget = Consumer<InvoiceInfoModel>(builder: (context, model, child) => Text(
       model.currency?.name ?? "IDK"));
     return _buildContainer("Currency:", widget);
