@@ -104,18 +104,4 @@ extension AppointmentTypeExt on AppointmentType {
   String name() {
     return toString().split(".")[1];
   }
-
-  int price(Currency currency) {
-    switch(currency) {
-      default:
-        switch(this) {
-          case AppointmentType.GENERIC:
-          case AppointmentType.INFO:
-          case AppointmentType.INTRO:
-            return 0;
-          default:
-            return 75;
-        }
-    }
-  }
 }

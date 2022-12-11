@@ -35,7 +35,7 @@ class ClientsScreen extends StatelessWidget {
   }
 
   void addClient(BuildContext context) {
-    AutoRouter.of(context).push(ClientInfoScreenRoute())
+    AutoRouter.of(context).push(ClientDetailsScreenRoute())
         .then((updated) {
       if (updated as bool) {
         ScaffoldMessenger.of(context)
@@ -70,7 +70,7 @@ class ClientTile extends StatelessWidget {
           key: Key('client_text_${client.id}'),
         ),
         onTap: () {
-          AutoRouter.of(context).push(ClientInfoScreenRoute(clientId: client.id))
+          AutoRouter.of(context).push(ClientDetailsScreenRoute(clientId: client.id))
               .then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)

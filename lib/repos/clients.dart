@@ -1,5 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
+import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/client.dart';
 
@@ -46,8 +47,8 @@ class Clients extends ChangeNotifier {
     return clients.firstWhere((client) => client.num == clientNum, orElse: null);
   }
 
-  Future<void> add(String firstName, String lastName) async {
-    var newClient = Client(null, null, firstName, lastName, true);
+  Future<void> add(String firstName, String lastName, Currency currency) async {
+    var newClient = Client(null, null, firstName, lastName, currency, true);
     return _persistence.insert(newClient).then((id) {
       notifyListeners();
     });

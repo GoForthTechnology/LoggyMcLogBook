@@ -11,6 +11,7 @@ Client _$ClientFromJson(Map<String, dynamic> json) => Client(
       json['num'] as int?,
       json['firstName'] as String,
       json['lastName'] as String,
+      $enumDecodeNullable(_$CurrencyEnumMap, json['currency']),
       json['active'] as bool?,
     );
 
@@ -19,5 +20,13 @@ Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
       'num': instance.num,
       'firstName': instance.firstName,
       'lastName': instance.lastName,
+      'currency': _$CurrencyEnumMap[instance.currency],
       'active': instance.active,
     };
+
+const _$CurrencyEnumMap = {
+  Currency.USD: 'USD',
+  Currency.CHF: 'CHF',
+  Currency.EUR: 'EUR',
+  Currency.GBP: 'GBP',
+};

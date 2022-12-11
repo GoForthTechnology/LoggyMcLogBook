@@ -74,10 +74,10 @@ class AppRouter extends _i9.RootStackRouter {
         child: _i4.ClientsScreen(),
       );
     },
-    ClientInfoScreenRoute.name: (routeData) {
+    ClientDetailsScreenRoute.name: (routeData) {
       final pathParams = routeData.inheritedPathParams;
-      final args = routeData.argsAs<ClientInfoScreenRouteArgs>(
-          orElse: () => ClientInfoScreenRouteArgs(
+      final args = routeData.argsAs<ClientDetailsScreenRouteArgs>(
+          orElse: () => ClientDetailsScreenRouteArgs(
               clientId: pathParams.optString('clientId')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
@@ -155,7 +155,7 @@ class AppRouter extends _i9.RootStackRouter {
           guards: [authGuard],
         ),
         _i9.RouteConfig(
-          ClientInfoScreenRoute.name,
+          ClientDetailsScreenRoute.name,
           path: '/client/:clientId',
           guards: [authGuard],
         ),
@@ -303,26 +303,26 @@ class ClientsScreenRoute extends _i9.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i5.ClientDetailsScreen]
-class ClientInfoScreenRoute
-    extends _i9.PageRouteInfo<ClientInfoScreenRouteArgs> {
-  ClientInfoScreenRoute({
+class ClientDetailsScreenRoute
+    extends _i9.PageRouteInfo<ClientDetailsScreenRouteArgs> {
+  ClientDetailsScreenRoute({
     _i10.Key? key,
     String? clientId,
   }) : super(
-          ClientInfoScreenRoute.name,
+          ClientDetailsScreenRoute.name,
           path: '/client/:clientId',
-          args: ClientInfoScreenRouteArgs(
+          args: ClientDetailsScreenRouteArgs(
             key: key,
             clientId: clientId,
           ),
           rawPathParams: {'clientId': clientId},
         );
 
-  static const String name = 'ClientInfoScreenRoute';
+  static const String name = 'ClientDetailsScreenRoute';
 }
 
-class ClientInfoScreenRouteArgs {
-  const ClientInfoScreenRouteArgs({
+class ClientDetailsScreenRouteArgs {
+  const ClientDetailsScreenRouteArgs({
     this.key,
     this.clientId,
   });
@@ -333,7 +333,7 @@ class ClientInfoScreenRouteArgs {
 
   @override
   String toString() {
-    return 'ClientInfoScreenRouteArgs{key: $key, clientId: $clientId}';
+    return 'ClientDetailsScreenRouteArgs{key: $key, clientId: $clientId}';
   }
 }
 

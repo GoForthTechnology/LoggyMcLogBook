@@ -1,6 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
 
+import 'currency.dart';
+
 part 'client.g.dart';
 
 @JsonSerializable(explicitToJson: true)
@@ -9,12 +11,14 @@ class Client extends Indexable<Client> {
   final int? num;
   final String firstName;
   final String lastName;
+  final Currency? currency;
   final bool? active;
   Client(
       this.id,
       this.num,
       this.firstName,
       this.lastName,
+      this.currency,
       this.active,
       );
 
@@ -29,15 +33,15 @@ class Client extends Indexable<Client> {
 
   @override
   Client setId(String id) {
-    return new Client(id, num, firstName, lastName, active);
+    return new Client(id, num, firstName, lastName, currency, active);
   }
 
   Client assignNum(int num) {
-    return new Client(id, num, firstName, lastName, active);
+    return new Client(id, num, firstName, lastName, currency, active);
   }
 
   Client setActive(bool value) {
-    return new Client(id, num, firstName, lastName, value);
+    return new Client(id, num, firstName, lastName, currency, value);
   }
 
   String fullName() {

@@ -1,3 +1,4 @@
+import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/invoice.dart';

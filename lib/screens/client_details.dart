@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
@@ -19,41 +20,54 @@ class ClientDetailsScreen extends StatefulWidget {
   State<StatefulWidget> createState() => ClientDetailsState();
 }
 
+class ClientDetailModel extends ChangeNotifier {
+  final formKey = GlobalKey<FormState>();
+
+  final Client? client;
+
+  TextEditingController firstNameController = new TextEditingController();
+  TextEditingController lastNameController = new TextEditingController();
+  Currency? currencyValue;
+
+  ClientDetailModel(this.client) {
+    firstNameController.text = client?.firstName ?? "";
+    lastNameController.text = client?.lastName ?? "";
+    currencyValue = client?.currency;
+  }
+
+  void updateCurrency(Currency? value) {
+    currencyValue = value;
+    notifyListeners();
+  }
+}
+
 class ClientDetailsState extends State<ClientDetailsScreen> {
 
   ClientDetailsState();
 
-  final _formKey = GlobalKey<FormState>();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is disposed.
-    _firstNameController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Consumer<Clients>(builder: (context, model, child) => FutureBuilder<Client?>(
-      future: widget.clientId == null ? Future.value(null) : model.get(widget.clientId!),
+    return Consumer<Clients>(builder: (context, clientModel, child) => FutureBuilder<Client?>(
+      future: widget.clientId == null ? Future.value(null) : clientModel.get(widget.clientId!),
       builder: (context, snapshot) {
         var client = snapshot.data;
-        return Scaffold(
+        if (widget.clientId != null && client == null) {
+          return Container();
+        }
+        return ChangeNotifierProvider(create: (context) => ClientDetailModel(client), child: Scaffold(
           appBar: AppBar(
             title: Text(client == null ? 'New Client' : 'Client Details'),
             actions: [
-              TextButton.icon(
+              Consumer<ClientDetailModel>(builder: (context, model, child) => TextButton.icon(
                 style: TextButton.styleFrom(foregroundColor: Colors.white),
                 icon: const Icon(Icons.save),
                 label: const Text('Save'),
-                onPressed: () => _onSave(client),
-              )
+                onPressed: () => _onSave(model),
+              ))
             ],
           ),
-          body: Form(
-            key: _formKey,
+          body: Consumer<ClientDetailModel>(builder: (context, model, child) => Form(
+            key: model.formKey,
             child: Container(
               padding: EdgeInsets.all(10.0),
               child: Column(
@@ -61,39 +75,70 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (client != null) _buildClientNum(client),
-                  _buildFirstName(client),
-                  _buildLastName(client),
-                  _buildAppointmentSummary(client),
-                  _buildInvoiceSummary(client),
-                  if (client != null) _buildActivateDeactivate(client, model),
+                  _buildFirstName(model),
+                  _buildLastName(model),
+                  _buildCurrencySelector(model),
+                  Row(children: [
+                    Spacer(),
+                    _buildAppointmentSummary(client),
+                    Spacer(),
+                    _buildInvoiceSummary(client),
+                    Spacer(),
+                  ]),
+                  if (client != null) _buildActivateDeactivate(client, clientModel),
                 ],
               ),
             ),
-          ),
-        );
+          )),
+        ));
       }));
   }
 
-  void _onSave(Client? client) {
-    if (_formKey.currentState!.validate()) {
-      final clients = Provider.of<Clients>(context, listen: false);
-      Future<void> op;
-      if (client?.num == null) {
-        op = clients.add(
-          _firstNameController.value.text,
-          _lastNameController.value.text,
+  Widget _buildCurrencySelector(ClientDetailModel model) {
+    var dropDownButton = DropdownButton<Currency>(
+      hint: Text('Please make a selection'),
+      items: Currency.values.map((enumValue) {
+        return DropdownMenuItem<Currency>(
+          value: enumValue,
+          child: new Text(enumValue.toString().split(".")[1]),
         );
-      } else {
-        op = clients.update(Client(
-          client?.id,
-          client?.num,
-          _firstNameController.value.text,
-          _lastNameController.value.text,
-          client?.active,
-        ));
-      }
-      op.then((_) => Navigator.of(context).pop(true));
+      }).toList(),
+      onChanged: (selection) {
+        model.updateCurrency(selection);
+      },
+      value: model.currencyValue,
+    );
+    var formField = FormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      //validator: validator,
+      builder: (state) => dropDownButton,
+    );
+    return _inputWidget("Currency:", formField);
+  }
+
+  void _onSave(ClientDetailModel model) {
+    if (!model.formKey.currentState!.validate()) {
+      return;
     }
+    final clients = Provider.of<Clients>(context, listen: false);
+    Future<void> op;
+    if (model.client?.num == null) {
+      op = clients.add(
+        model.firstNameController.text,
+        model.lastNameController.text,
+        model.currencyValue!,
+      );
+    } else {
+      op = clients.update(Client(
+        model.client?.id,
+        model.client?.num,
+        model.firstNameController.text,
+        model.lastNameController.text,
+        model.currencyValue,
+        model.client?.active,
+      ));
+    }
+    op.then((_) => Navigator.of(context).pop(true));
   }
 
   Widget _buildInvoiceSummary(Client? client) {
@@ -156,10 +201,10 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          Center(child: Container(
               margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
               child: Text("Appointment Summary",
-                  style: Theme.of(context).textTheme.titleMedium)),
+                  style: Theme.of(context).textTheme.titleMedium))),
           _buildLastAppointment(model, clientId, context),
           _buildNextAppointment(model, clientId, context),
           _buildToBeInvoiced(
@@ -270,14 +315,14 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
     }));
   }
 
-  Widget _buildFirstName(Client? client) {
+  Widget _buildFirstName(ClientDetailModel model) {
     return _textInput(
-        "First Name:", client?.firstName, _firstNameController, true);
+        "First Name:", model.client?.firstName, model.firstNameController, true);
   }
 
-  Widget _buildLastName(Client? client) {
+  Widget _buildLastName(ClientDetailModel model) {
     return _textInput(
-        "Last Name:", client?.lastName, _lastNameController, false);
+        "Last Name:", model.client?.lastName, model.lastNameController, false);
   }
 
   Widget _buildActivateDeactivate(Client client, Clients clientModel) {
@@ -300,29 +345,33 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
     )));
   }
 
-  static Widget _textInput(String title, String? value,
-      TextEditingController controller, bool autoFocus) {
-    if (value != null) {
-      controller.text = value;
-    }
+  static Widget _inputWidget(String title, Widget child) {
     return Row(
       children: [
         Container(
           child: Text(title),
           margin: EdgeInsets.only(right: 10.0),
         ),
-        Expanded(
-          child: TextFormField(
-              autofocus: autoFocus && value == null,
-              controller: controller,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter some text';
-                }
-                return null;
-              }),
-        ),
+        Expanded(child: child),
       ],
     );
+  }
+
+  static Widget _textInput(String title, String? value,
+      TextEditingController controller, bool autoFocus) {
+    if (value != null) {
+      controller.text = value;
+    }
+    Widget child = TextFormField(
+      autofocus: autoFocus && value == null,
+      controller: controller,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter some text';
+        }
+        return null;
+      },
+    );
+    return _inputWidget(title, child);
   }
 }

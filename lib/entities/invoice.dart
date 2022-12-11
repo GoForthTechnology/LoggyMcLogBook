@@ -3,6 +3,8 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
 import 'package:sprintf/sprintf.dart';
 
+import 'currency.dart';
+
 part 'invoice.g.dart';
 
 @JsonSerializable(explicitToJson: true)
@@ -39,11 +41,4 @@ class Invoice extends Indexable<Invoice> {
 
   factory Invoice.fromJson(Map<String, dynamic> json) => _$InvoiceFromJson(json);
   Map<String, dynamic> toJson() => _$InvoiceToJson(this);
-}
-
-enum Currency {
-  USD,
-  CHF,
-  EUR,
-  GBP
 }
