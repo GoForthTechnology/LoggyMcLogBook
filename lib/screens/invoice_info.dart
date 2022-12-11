@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 
 class InvoiceInfoModel extends ChangeNotifier {
   final Appointments appointmentRepo;
+  final Clients clientRepo;
 
   final String? invoiceId;
   String? clientId;
@@ -20,19 +21,21 @@ class InvoiceInfoModel extends ChangeNotifier {
   List<Appointment> allAppointments = [];
   List<Appointment> invoicedAppointments = [];
 
-  InvoiceInfoModel({this.invoiceId, this.clientId, this.currency, required this.appointmentRepo}) {
+  InvoiceInfoModel({this.invoiceId, this.clientId, this.currency, required this.appointmentRepo, required this.clientRepo}) {
     _updateAppointments();
-  }
-
-  void updateCurrency(Currency? value) {
-    currency = value;
-    notifyListeners();
   }
 
   void updateClientId(String? value) {
     clientId = value;
+    _updateCurrency();
     _updateAppointments();
     notifyListeners();
+  }
+
+  void _updateCurrency() {
+    if (clientId != null) {
+      clientRepo.get(clientId!).then((client) => currency = client?.currency);
+    }
   }
 
   void _updateAppointments() {
@@ -59,19 +62,24 @@ class InvoiceInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Consumer2<Invoices, Appointments>(builder: (context, invoiceRepo, appointmentRepo, child) => FutureBuilder<Invoice?>(
+    return Consumer3<Invoices, Appointments, Clients>(builder: (context, invoiceRepo, appointmentRepo, clientRepo, child) => FutureBuilder<Invoice?>(
       future: invoiceRepo.getSingle(invoiceId),
       builder: (context, snapshot) {
         var invoice = snapshot.data;
         if (invoice == null) {
           return Container();
         }
-        var createModel = (context) => InvoiceInfoModel(
-          invoiceId: invoiceId,
-          clientId: clientId ?? invoice.clientId,
-          currency: invoice.currency,
-          appointmentRepo: appointmentRepo,
-        );
+        var createModel = (context) {
+          var model = InvoiceInfoModel(
+            invoiceId: invoiceId,
+            clientId: clientId ?? invoice.clientId,
+            currency: invoice.currency,
+            appointmentRepo: appointmentRepo,
+            clientRepo: clientRepo);
+          model.updateClientId(clientId ?? invoice.clientId);
+          return model;
+        };
+
         return ChangeNotifierProvider(create: createModel, child: content(context, invoice));
       },
     ));
@@ -118,25 +126,9 @@ class InvoiceInfoScreen extends StatelessWidget {
       }
       return null;
     };
-    var dropDownButton = Consumer<InvoiceInfoModel>(builder: (context, model, child) => DropdownButton<Currency>(
-      hint: Text('Please make a selection'),
-      items: Currency.values.map((enumValue) {
-        return DropdownMenuItem<Currency>(
-          value: enumValue,
-          child: new Text(enumValue.toString().split(".")[1]),
-        );
-      }).toList(),
-      onChanged: (selection) {
-        model.updateCurrency(selection);
-      },
-      value: model.currency,
-    ));
-    var formField = FormField(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: validator,
-      builder: (state) => _showErrorOrDisplay(state, dropDownButton),
-    );
-    return _buildContainer("Currency:", formField);
+    var widget = Consumer<InvoiceInfoModel>(builder: (context, model, child) => Text(
+      model.currency?.name ?? "IDK"));
+    return _buildContainer("Currency:", widget);
   }
 
   Widget _buildAppointmentSelector(BuildContext context) {
@@ -178,7 +170,7 @@ class InvoiceInfoScreen extends StatelessWidget {
             });*/
           },
         ));
-        return clientId == null ? noClientWidget : selectorWidget;
+        return model.clientId == null ? noClientWidget : selectorWidget;
       }),
     );
     return _buildContainer(null, formField);
