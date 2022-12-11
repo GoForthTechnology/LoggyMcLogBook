@@ -17,10 +17,15 @@ class Appointments extends IndexedRepo<String, Appointment> {
 
   Future<Appointment?> getLast(String clientId) async {
     final appointments = await get((a) => a.clientId == clientId);
-    appointments.sort();
+    print("bar ${appointments.length}");
     var lastAppointment;
     for (int i = 0; i < appointments.length; i++) {
-      if (appointments[i].time.isBefore(DateTime.now())) {
+      var appointment = appointments[i];
+      if (!appointment.time.isBefore(DateTime.now())) {
+        // Appointment is in the future...
+        continue;
+      }
+      if (lastAppointment == null || appointment.time.isAfter(lastAppointment.time)) {
         lastAppointment = appointments[i];
       }
     }

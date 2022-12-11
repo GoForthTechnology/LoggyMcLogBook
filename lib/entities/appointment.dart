@@ -28,6 +28,11 @@ class Appointment extends Indexable<Appointment>{
     return time.add(duration);
   }
 
+  @override
+  String toString() {
+    return "${type.name()} on ${timeStr()}";
+  }
+
   String timeStr() {
     return DateFormat("d MMM @ HH:mm").format(time);
   }

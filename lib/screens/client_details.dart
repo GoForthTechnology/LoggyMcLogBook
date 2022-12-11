@@ -78,7 +78,7 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
                   _buildFirstName(model),
                   _buildLastName(model),
                   _buildCurrencySelector(model),
-                  Row(children: [
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Spacer(),
                     _buildAppointmentSummary(client),
                     Spacer(),
@@ -153,28 +153,16 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
               margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
               child: Text("Invoice Summary",
                   style: Theme.of(context).textTheme.titleMedium)),
-          _buildNumInvoices(invoices.getPending(), "Pending", context),
-          _buildNumInvoices(invoices.getReceivable(), "Receivable", context),
-          _buildNumInvoices(invoices.getPaid(), "Paid", context),
-          Row(
-            children: [
-              ElevatedButton(
-                  child: Text("View All"),
-                  onPressed: () {
-                    AutoRouter.of(context).push(InvoicesScreenRoute(client: client));
-                  }),
-            ],
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-          ),
+          _buildNumInvoices(invoices.getPending(clientId: client?.id), "Pending", InvoicesScreenRoute(client: client)),
+          _buildNumInvoices(invoices.getReceivable(clientId: client?.id), "Receivable", InvoicesScreenRoute(client: client)),
+          _buildNumInvoices(invoices.get(clientId: client?.id), "(Total)", InvoicesScreenRoute(client: client)),
         ],
       );
     });
   }
 
   Widget _buildNumInvoices(
-      List<Invoice> invoices, String title, BuildContext context) {
+      List<Invoice> invoices, String title, PageRouteInfo route) {
     return Row(
       children: [
         _paddedItem(Text(
@@ -184,7 +172,7 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
             : TextButton(
                 child: Text("View"),
                 onPressed: () {
-                  // TODO: navigate
+                  AutoRouter.of(context).push(route);
                 }),
       ],
     );
@@ -204,23 +192,10 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
               margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
               child: Text("Appointment Summary",
                   style: Theme.of(context).textTheme.titleMedium))),
-          _buildLastAppointment(model, clientId, context),
           _buildNextAppointment(model, clientId, context),
-          _buildToBeInvoiced(
-              model.getPending(clientId: clientId),
-              context, client),
-          Row(
-            children: [
-              ElevatedButton(
-                  child: Text("View All"),
-                  onPressed: () {
-                    AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.ALL.name, client: client));
-                  }),
-            ],
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-          ),
+          _buildLastAppointment(model, clientId, context),
+          _buildToBeInvoiced(model, context, client),
+          _buildNumAppointments(model, context, client),
         ],
       );
     });
@@ -232,10 +207,10 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
       future: appointmentsRepo.getLast(clientId),
       builder: (context, snapshot) {
         var lastAppointment = snapshot.data;
+        String appointmentSummary = lastAppointment == null ? "None" : lastAppointment.toString();
         return Row(
           children: [
-            _paddedItem(Text(
-                "Last Appointment: ${lastAppointment == null ? "None" : lastAppointment.time.toString()}")),
+            _paddedItem(Text("Last Appointment: $appointmentSummary")),
             lastAppointment == null
                 ? Container()
                 : TextButton(
@@ -255,10 +230,10 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
       future: appointmentRepo.getNext(clientId),
       builder: (context, snapshot) {
         var nextAppointment = snapshot.data;
+        String appointmentSummary = nextAppointment == null ? "None" : nextAppointment.toString();
         return Row(
           children: [
-            _paddedItem(Text(
-                "Next Appointment: ${nextAppointment == null ? "None" : nextAppointment.time.toString()}")),
+            _paddedItem(Text("Next Appointment: $appointmentSummary")),
             nextAppointment == null? Container() : TextButton(
               child: Text("View"),
               onPressed: () {
@@ -271,9 +246,9 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
   }
 
   Widget _buildToBeInvoiced(
-      Future<List<Appointment>> appointmentsF, BuildContext context, Client? client) {
+      Appointments appointmentRepo, BuildContext context, Client? client) {
     return FutureBuilder<List<Appointment>>(
-      future: appointmentsF,
+      future: appointmentRepo.getPending(clientId: client?.id),
       builder: (context, snapshot) {
         var appointments = snapshot.data ?? [];
         return Row(
@@ -286,6 +261,29 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
                 child: Text("View"),
                 onPressed: () {
                   AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.PENDING.name, client: client));
+                }),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildNumAppointments(
+      Appointments appointmentRepo, BuildContext context, Client? client) {
+    return FutureBuilder<List<Appointment>>(
+      future: appointmentRepo.get((a) => a.clientId == client?.id),
+      builder: (context, snapshot) {
+        var appointments = snapshot.data ?? [];
+        return Row(
+          children: [
+            _paddedItem(Text(
+                "Num Appointments: ${appointments.isEmpty ? "None" : appointments.length}")),
+            appointments.isEmpty
+                ? Container()
+                : TextButton(
+                child: Text("View"),
+                onPressed: () {
+                  AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.ALL.name, client: client));
                 }),
           ],
         );
