@@ -58,7 +58,7 @@ class Appointments extends IndexedRepo<String, Appointment> {
   }
 
   Future<void> add(String clientId, DateTime startTime, Duration duration,
-      AppointmentType type) {
+      AppointmentType type, int price) {
     var appointments = getFromIndex(keyFilter: clientId);
     var overlappingAppointment;
     appointments.forEach((appointment) {
@@ -71,7 +71,7 @@ class Appointments extends IndexedRepo<String, Appointment> {
       return Future.error(
           "Found overlapping appointment $overlappingAppointment");
     }
-    final appointment = Appointment(null, type, startTime, duration, clientId, null);
+    final appointment = Appointment(null, type, startTime, duration, clientId, price, null);
     return addToIndex(appointment, _persistence.insert(appointment));
   }
 

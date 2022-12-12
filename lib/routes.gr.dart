@@ -14,8 +14,7 @@
 import 'package:auto_route/auto_route.dart' as _i9;
 import 'package:flutter/material.dart' as _i10;
 import 'package:lmlb/auth.dart' as _i8;
-import 'package:lmlb/entities/appointment.dart' as _i11;
-import 'package:lmlb/entities/client.dart' as _i12;
+import 'package:lmlb/entities/client.dart' as _i11;
 import 'package:lmlb/screens/appointment_detail.dart' as _i2;
 import 'package:lmlb/screens/appointments.dart' as _i3;
 import 'package:lmlb/screens/client_details.dart' as _i5;
@@ -50,7 +49,6 @@ class AppRouter extends _i9.RootStackRouter {
         child: _i2.AppointmentDetailScreen(
           key: args.key,
           appointmentId: args.appointmentId,
-          appointment: args.appointment,
         ),
       );
     },
@@ -214,14 +212,12 @@ class AppointmentDetailScreenRoute
   AppointmentDetailScreenRoute({
     _i10.Key? key,
     String? appointmentId,
-    _i11.Appointment? appointment,
   }) : super(
           AppointmentDetailScreenRoute.name,
           path: '/appointment/:appointmentId',
           args: AppointmentDetailScreenRouteArgs(
             key: key,
             appointmentId: appointmentId,
-            appointment: appointment,
           ),
           rawPathParams: {'appointmentId': appointmentId},
         );
@@ -233,18 +229,15 @@ class AppointmentDetailScreenRouteArgs {
   const AppointmentDetailScreenRouteArgs({
     this.key,
     this.appointmentId,
-    this.appointment,
   });
 
   final _i10.Key? key;
 
   final String? appointmentId;
 
-  final _i11.Appointment? appointment;
-
   @override
   String toString() {
-    return 'AppointmentDetailScreenRouteArgs{key: $key, appointmentId: $appointmentId, appointment: $appointment}';
+    return 'AppointmentDetailScreenRouteArgs{key: $key, appointmentId: $appointmentId}';
   }
 }
 
@@ -254,7 +247,7 @@ class AppointmentsScreenRoute
     extends _i9.PageRouteInfo<AppointmentsScreenRouteArgs> {
   AppointmentsScreenRoute({
     _i10.Key? key,
-    _i12.Client? client,
+    _i11.Client? client,
     required String view,
   }) : super(
           AppointmentsScreenRoute.name,
@@ -279,7 +272,7 @@ class AppointmentsScreenRouteArgs {
 
   final _i10.Key? key;
 
-  final _i12.Client? client;
+  final _i11.Client? client;
 
   final String view;
 
@@ -342,7 +335,7 @@ class ClientDetailsScreenRouteArgs {
 class InvoicesScreenRoute extends _i9.PageRouteInfo<InvoicesScreenRouteArgs> {
   InvoicesScreenRoute({
     _i10.Key? key,
-    _i12.Client? client,
+    _i11.Client? client,
   }) : super(
           InvoicesScreenRoute.name,
           path: '/invoices',
@@ -363,7 +356,7 @@ class InvoicesScreenRouteArgs {
 
   final _i10.Key? key;
 
-  final _i12.Client? client;
+  final _i11.Client? client;
 
   @override
   String toString() {

@@ -12,6 +12,7 @@ Appointment _$AppointmentFromJson(Map<String, dynamic> json) => Appointment(
       DateTime.parse(json['time'] as String),
       Duration(microseconds: json['duration'] as int),
       json['clientId'] as String,
+      json['price'] as int,
       json['invoiceId'] as String?,
     );
 
@@ -22,6 +23,7 @@ Map<String, dynamic> _$AppointmentToJson(Appointment instance) =>
       'time': instance.time.toIso8601String(),
       'duration': instance.duration.inMicroseconds,
       'clientId': instance.clientId,
+      'price': instance.price,
       'invoiceId': instance.invoiceId,
     };
 

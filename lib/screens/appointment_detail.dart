@@ -1,89 +1,116 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/widgets/client_selector.dart';
+import 'package:lmlb/widgets/input_container.dart';
 import 'package:provider/provider.dart';
 
-class AppointmentDetailScreen extends StatefulWidget {
-  final String? appointmentId;
+class AppointmentDetailModel extends ClientSelectorModel {
+  final Appointments appointmentRepo;
+  final formKey = GlobalKey<FormState>();
   final Appointment? appointment;
 
-  const AppointmentDetailScreen({Key? key, @PathParam() this.appointmentId, this.appointment}) : super(key: key);
+  String? clientId;
+  DateTime? appointmentDate;
+  TimeOfDay? appointmentTime;
+  AppointmentType? appointmentType;
+  TextEditingController priceController = new TextEditingController();
 
-  @override
-  State<StatefulWidget> createState() => AppointmentDetailState();
+  AppointmentDetailModel(this.appointment, this.appointmentRepo) : super(appointment?.clientId) {
+    clientId = appointment?.clientId;
+    appointmentType = appointment?.type;
+    priceController.text = appointment?.price.toString() ?? "";
+    final time = appointment?.time;
+    if (time != null) {
+      appointmentDate = DateUtils.dateOnly(time);
+      appointmentTime = TimeOfDay.fromDateTime(time);
+    }
+  }
 
+  void updateClientId(String? value) {
+    clientId = value;
+    notifyListeners();
+  }
+
+  void updateAppointmentType(AppointmentType? value) {
+    appointmentType = value;
+    notifyListeners();
+  }
+
+  void updateAppointmentDate(DateTime? value) {
+    appointmentDate = value;
+    notifyListeners();
+  }
+
+  void updateAppointmentTime(TimeOfDay? value) {
+    appointmentTime = value;
+    notifyListeners();
+  }
+
+  Future<void> save() {
+    final appointmentTime = DateTime(
+        appointmentDate!.year,
+        appointmentDate!.month,
+        appointmentDate!.day,
+        appointmentDate!.hour,
+        appointmentDate!.minute);
+    return appointmentRepo.add(
+        clientId!, appointmentTime, Duration(hours: 1), appointmentType!, priceController.text as int);
+  }
 }
 
-class AppointmentDetailState extends State<AppointmentDetailScreen> {
-  final _formKey = GlobalKey<FormState>();
+class AppointmentDetailScreen extends StatelessWidget {
+  final String? appointmentId;
 
-  String? _clientId;
-  DateTime? _appointmentDate;
-  TimeOfDay? _appointmentTime;
-  AppointmentType? _appointmentType;
-
-  @override
-  void initState() {
-    void update(Appointment? appointment) {
-      setState(() {
-        _clientId = appointment?.clientId;
-        _appointmentDate = appointment?.time;
-        _appointmentType = appointment?.type;
-        if (appointment?.time != null) {
-          _appointmentDate = DateUtils.dateOnly(appointment!.time);
-          _appointmentTime = TimeOfDay.fromDateTime(appointment.time);
-        }
-      });
-    }
-    if (widget.appointment != null) {
-      update(widget.appointment);
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (widget.appointmentId != null) {
-          update(await Provider.of<Appointments>(context, listen: false)
-              .getSingle(widget.appointmentId!));
-        }
-      });
-    }
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is disposed.
-    super.dispose();
-  }
+  const AppointmentDetailScreen({Key? key, @PathParam() this.appointmentId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    return Consumer2<Appointments, Clients>(builder: (context, appointmentRepo, clientRepo, child) => FutureBuilder<Appointment?>(
+      future: appointmentId == null ? Future.value(null) : appointmentRepo.getSingle(appointmentId!),
+      builder: (context, snapshot) {
+        var appointment = snapshot.data;
+        if (appointmentId != null && appointment == null) {
+          return Container();
+        }
+        return ChangeNotifierProvider(
+          create: (context) => AppointmentDetailModel(appointment, appointmentRepo),
+          child: Consumer<AppointmentDetailModel>(builder: (context, model, child) => body(context, model)),
+        );
+      },
+    ));
+  }
+
+  Widget body(BuildContext context, AppointmentDetailModel model) {
     return Scaffold(
       appBar: AppBar(
         title:
-            Text(widget.appointmentId == null ? 'New Appointment' : 'Appointment Info'),
+        Text(appointmentId == null ? 'New Appointment' : 'Appointment Info'),
         actions: [
           TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.white),
             icon: const Icon(Icons.save),
             label: const Text('Save'),
-            onPressed: _onSave,
+            onPressed: () => _onSave(context, model),
           )
         ],
       ),
       body: Form(
-        key: _formKey,
+        key: model.formKey,
         child: Container(
           padding: EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildClientSelector(context),
-              _buildTypeSelector(context),
-              _buildEventDate(context),
-              _buildEventTime(context),
+              _buildClientSelector(context, model),
+              _buildTypeSelector(context, model),
+              _buildEventDate(context, model),
+              _buildEventTime(context, model),
+              _buildPrice(context, model),
             ],
           ),
         ),
@@ -91,32 +118,21 @@ class AppointmentDetailState extends State<AppointmentDetailScreen> {
     );
   }
 
-  void _onSave() {
-    if (_formKey.currentState!.validate()) {
-      final appointmentTime = DateTime(
-          _appointmentDate!.year,
-          _appointmentDate!.month,
-          _appointmentDate!.day,
-          _appointmentTime!.hour,
-          _appointmentTime!.minute);
-      Provider.of<Appointments>(context, listen: false)
-          .add(_clientId!, appointmentTime, Duration(hours: 1),
-              _appointmentType!)
-          .then((_) {
-        Navigator.of(context).pop(true);
-      });
+  void _onSave(BuildContext context, AppointmentDetailModel model) {
+    if (model.formKey.currentState!.validate()) {
+      model.save().then((_) => Navigator.of(context).pop());
     } else {
       print("Validation error");
     }
   }
 
-  Widget _buildEventDate(BuildContext context) {
-    final Widget display = _appointmentDate == null
+  Widget _buildEventDate(BuildContext context, AppointmentDetailModel model) {
+    final Widget display = model.appointmentDate == null
         ? Text("Select a date")
-        : Text(_appointmentDate!.toIso8601String());
-    return _buildContainer(
-        "Appointment Date:",
-        FormField(
+        : Text(model.appointmentDate!.toIso8601String());
+    return InputContainer(
+        title: "Appointment Date:",
+        content: FormField(
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
               if (value == null) {
@@ -134,21 +150,40 @@ class AppointmentDetailState extends State<AppointmentDetailScreen> {
                   );
                   if (picked != null) {
                     state.didChange(picked);
-                    setState(() {
-                      _appointmentDate = picked;
-                    });
+                    model.updateAppointmentDate(picked);
                   }
                 },
                 child: _showErrorOrDisplay(state, display))));
   }
 
-  Widget _buildEventTime(BuildContext context) {
-    final Widget display = _appointmentTime == null
+  Widget _buildPrice(BuildContext context, AppointmentDetailModel model) {
+    var formField = Expanded(child: TextFormField(
+      controller: model.priceController,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter some text';
+        }
+        return null;
+      },
+    ));
+    return Consumer<Clients>(builder: (context, clients, child) => FutureBuilder<Client?>(
+      future: model.clientId == null ? Future.value(null) : clients.get(model.clientId!),
+      builder: (context, snapshot) {
+        var currency = snapshot.data?.currency?.name ?? "TBD";
+        return InputContainer(title: "Appointment Price ($currency):", content: formField);
+      },
+    ));
+  }
+
+  Widget _buildEventTime(BuildContext context, AppointmentDetailModel model) {
+    final Widget display = model.appointmentTime == null
         ? Text("Select a time")
-        : Text(_appointmentTime!.format(context));
-    return _buildContainer(
-        "Appointment Time:",
-        FormField(
+        : Text(model.appointmentTime!.format(context));
+    return InputContainer(
+        title: "Appointment Time:",
+        content: FormField(
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
               if (value == null) {
@@ -164,18 +199,16 @@ class AppointmentDetailState extends State<AppointmentDetailScreen> {
                   );
                   if (picked != null) {
                     state.didChange(picked);
-                    setState(() {
-                      _appointmentTime = picked;
-                    });
+                    model.updateAppointmentTime(picked);
                   }
                 },
                 child: _showErrorOrDisplay(state, display))));
   }
 
-  Widget _buildTypeSelector(BuildContext context) {
-    return _buildContainer(
-        "Appointment Type:",
-        FormField(
+  Widget _buildTypeSelector(BuildContext context, AppointmentDetailModel model) {
+    return InputContainer(
+        title: "Appointment Type:",
+        content: FormField(
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
               if (value == null) {
@@ -195,57 +228,18 @@ class AppointmentDetailState extends State<AppointmentDetailScreen> {
                   }).toList(),
                   onChanged: (selection) {
                     state.didChange(selection);
-                    setState(() {
-                      _appointmentType = selection;
-                    });
+                    model.updateAppointmentType(selection);
                   },
-                  value: _appointmentType,
+                  value: model.appointmentType,
                 ))));
   }
 
-  Widget _buildClientSelector(BuildContext context) {
-    return _buildContainer(
-        "Client:",
-        FormField(
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            validator: (value) {
-              if (value == null) {
-                return "Select a value";
-              }
-              return null;
-            },
-            builder: (state) => Consumer<Clients>(
-              builder: (context, clientModel, child) {
-                return _showErrorOrDisplay(
-                  state,
-                  FutureBuilder<List<Client>>(
-                    future: clientModel.getAll(),
-                    builder: (context, snapshot) {
-                      var clients = snapshot.data ?? [];
-                      if (clients.isEmpty) {
-                        return Container();
-                      }
-                      return DropdownButton<String>(
-                        hint: Text('Please make a selection'),
-                        items: clients.map((client) {
-                          return DropdownMenuItem<String>(
-                            value: client.id,
-                            child: new Text(client.fullName()),
-                          );
-                        }).toList(),
-                        onChanged: (selection) {
-                          state.didChange(selection);
-                          setState(() {
-                            _clientId = selection;
-                          });
-                        },
-                        value: _clientId,
-                      );
-                    },
-                  ),
-                );
-              }),
-            ));
+  Widget _buildClientSelector(BuildContext context, AppointmentDetailModel model) {
+    return ClientSelector(
+      canEdit: model.appointment == null,
+      selectedClientId: model.clientId,
+      onUpdate: model.updateClientId,
+    );
   }
 
   Widget _showErrorOrDisplay(FormFieldState state, Widget display) {
@@ -259,19 +253,6 @@ class AppointmentDetailState extends State<AppointmentDetailScreen> {
               )
             : Container()
       ],
-    );
-  }
-
-  Widget _buildContainer(String title, Widget content) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(children: [
-        Container(
-          child: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-          margin: EdgeInsets.only(right: 10.0),
-        ),
-        content,
-      ]),
     );
   }
 }

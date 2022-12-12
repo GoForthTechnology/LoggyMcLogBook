@@ -14,6 +14,7 @@ class Appointment extends Indexable<Appointment>{
   final DateTime time;
   final Duration duration;
   final String clientId;
+  final int price;
   final String? invoiceId;
   Appointment(
       this.id,
@@ -21,6 +22,7 @@ class Appointment extends Indexable<Appointment>{
       this.time,
       this.duration,
       this.clientId,
+      this.price,
       this.invoiceId,
       );
 
@@ -38,7 +40,7 @@ class Appointment extends Indexable<Appointment>{
   }
 
   Appointment bill(Invoice? invoice) {
-    return Appointment(this.id, this.type, this.time, this.duration, this.clientId, invoice?.id);
+    return Appointment(this.id, this.type, this.time, this.duration, this.clientId, this.price, invoice?.id);
   }
 
   @override
@@ -48,7 +50,7 @@ class Appointment extends Indexable<Appointment>{
 
   @override
   Appointment setId(String id) {
-    return new Appointment(id, type, time, duration, clientId, invoiceId);
+    return new Appointment(id, type, time, duration, clientId, price, invoiceId);
   }
 
   factory Appointment.fromJson(Map<String, dynamic> json) => _$AppointmentFromJson(json);

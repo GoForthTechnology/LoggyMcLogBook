@@ -2,12 +2,13 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lmlb/entities/appointment.dart';
-import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
+import 'package:lmlb/widgets/client_selector.dart';
+import 'package:lmlb/widgets/input_container.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:provider/provider.dart';
 
@@ -159,7 +160,7 @@ class InvoiceDetailScreen extends StatelessWidget {
   Widget _buildCurrencySelector(BuildContext context) {
     var widget = Consumer<InvoiceDetailModel>(builder: (context, model, child) => Text(
       model.currency?.name ?? "IDK"));
-    return _buildContainer("Currency:", widget);
+    return InputContainer(title: "Currency:", content: widget);
   }
 
   Widget _buildAppointmentSelector(BuildContext context) {
@@ -204,62 +205,16 @@ class InvoiceDetailScreen extends StatelessWidget {
         return model.clientId == null ? noClientWidget : selectorWidget;
       }),
     );
-    return _buildContainer(null, formField);
+    return InputContainer(title: null, content: formField);
   }
 
-  Widget _buildClientNameWidget(String clientId) {
-    return Consumer<Clients>(builder: (context, clientsRepo, child) => FutureBuilder<Client?>(
-      future: clientsRepo.get(clientId),
-      builder: (context, snapshot) {
-        if (snapshot.data == null) {
-          return _buildContainer("Client:", Text("TBD"));
-        }
-        var client = snapshot.data!;
-        return _buildContainer("Client:", Text("${client.firstName} ${client.lastName} #${client.displayNum()}"));
-      },
-    ));
-  }
 
   Widget _buildClientSelector(BuildContext context, Invoice? invoice) {
-    if (invoice != null) {
-      return _buildClientNameWidget(invoice.clientId);
-    }
-    var validator = (value) {
-      if (value == null) {
-        return "Select a value";
-      }
-      return null;
-    };
-    var contentBuilder = (state) => Consumer2<Clients, InvoiceDetailModel>(builder: (context, clientModel, screenModel, child) {
-      var widget = FutureBuilder<List<Client>>(
-        future: clientModel.getAll(),
-        builder: (context, snapshot) {
-          var clients = snapshot.data ?? [];
-          var button = DropdownButton<String?>(
-            hint: Text('Please make a selection'),
-            items: clients.map((client) {
-              return DropdownMenuItem<String?>(
-                value: client.id,
-                child: new Text(client.fullName()),
-              );
-            }).toList(),
-            onChanged: (selection) {
-              state.didChange(selection);
-              screenModel.updateClientId(selection);
-            },
-            value: screenModel.clientId,
-          );
-          return button;
-        },
-      );
-      return _showErrorOrDisplay(state, widget);
-    });
-    var formField = FormField(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: validator,
-      builder: contentBuilder,
-    );
-    return _buildContainer("Client:", formField);
+    return Consumer<InvoiceDetailModel>(builder: (context, model, child) => ClientSelector(
+      canEdit: invoice == null,
+      selectedClientId: invoice?.clientId,
+      onUpdate: model.updateClientId,
+    ));
   }
 
   Widget _showErrorOrDisplay(FormFieldState state, Widget display) {
@@ -304,7 +259,7 @@ class InvoiceDetailScreen extends StatelessWidget {
       ),
     );
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      _buildContainer(title, widget),
+      InputContainer(title: title, content: widget),
       if (value != null) TextButton(onPressed: () => onUpdate(null), child: Text("Clear")),
     ]);
   }
@@ -319,22 +274,6 @@ class InvoiceDetailScreen extends StatelessWidget {
     return Consumer<InvoiceDetailModel>(builder: (context, model, child) {
       return _buildDateWidget(context, "Date Paid:", model.updateDatePaid, model.datePaid);
     });
-  }
-
-  Widget _buildContainer(String? title, Widget content) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(children: [
-        title == null
-            ? Container()
-            : Container(
-          child:
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-          margin: EdgeInsets.only(right: 10.0),
-        ),
-        content,
-      ]),
-    );
   }
 }
 

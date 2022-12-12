@@ -166,7 +166,7 @@ class AppointmentTile extends StatelessWidget {
           },
         ) : null,
         onTap: () {
-          AutoRouter.of(context).push(AppointmentDetailScreenRoute(appointmentId: appointment.id, appointment: appointment))
+          AutoRouter.of(context).push(AppointmentDetailScreenRoute(appointmentId: appointment.id))
               .then((result) {
             if (result != null && result as bool) {
               ScaffoldMessenger.of(context)
