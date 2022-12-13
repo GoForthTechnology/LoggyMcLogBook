@@ -1,4 +1,5 @@
 
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:lmlb/entities/invoice.dart';
@@ -6,6 +7,23 @@ import 'package:lmlb/entities/invoice.dart';
 import '../persistence/local/Indexable.dart';
 
 part 'appointment.g.dart';
+
+enum AppointmentStatus {
+  upcoming,
+  billable,
+  billed;
+
+  Color get color {
+    switch (this) {
+      case AppointmentStatus.upcoming:
+        return Colors.green;
+      case AppointmentStatus.billable:
+        return Colors.red;
+      case AppointmentStatus.billed:
+        return Colors.grey;
+    }
+  }
+}
 
 @JsonSerializable(explicitToJson: true)
 class Appointment extends Indexable<Appointment>{
@@ -25,6 +43,16 @@ class Appointment extends Indexable<Appointment>{
       this.price,
       this.invoiceId,
       );
+
+  AppointmentStatus status() {
+    if (time.isAfter(DateTime.now())) {
+      return AppointmentStatus.upcoming;
+    }
+    if (invoiceId != null) {
+      return AppointmentStatus.billed;
+    }
+    return AppointmentStatus.billable;
+  }
 
   DateTime endTime() {
     return time.add(duration);

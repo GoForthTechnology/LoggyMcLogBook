@@ -135,8 +135,8 @@ class AppointmentDetailScreen extends StatelessWidget {
         future: invoiceRepo.getSingle(model.appointment?.invoiceId),
         builder: (context, snapshot) {
           var invoiceNum = snapshot.data?.invoiceNumStr();
-          var content = invoiceNum == null ? Text("TBD") : Text(invoiceNum);
-          return InputContainer(title: "Invoice #:", content: content);
+          var content = invoiceNum == null ? Text("TBD") : Text("#$invoiceNum (${snapshot.data!.status().name})");
+          return InputContainer(title: "Invoice:", content: content);
         },
       );
     });

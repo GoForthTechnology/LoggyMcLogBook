@@ -155,8 +155,8 @@ class AppointmentTile extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors
-              .primaries[appointment.time.minute % Colors.primaries.length],
+          // TODO: make this color blind accessible
+          backgroundColor: appointment.status().color,
         ),
         title: Text(title, style: TextStyle(color: isInPast ? Colors.grey : Colors.black)),
         trailing: showDeleteButton ? IconButton(

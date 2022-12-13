@@ -140,18 +140,16 @@ class InvoiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var invoiceStr = "Invoice #${invoice.invoiceNumStr()}";
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.blue,
-          /*backgroundColor: Colors
-              .primaries[invoice.id! % Colors.primaries.length],*/
-        ),
+        leading: Tooltip(message: invoice.status().name, child: CircleAvatar(
+          // TODO: make this RG color blind accessible
+          backgroundColor: invoice.status().color,
+        )),
         title: Text(
-          hasClientFilter
-              ? "Invoice #${invoice.invoiceNumStr()}"
-              : "${client.fullName()} Invoice #${invoice.invoiceNumStr()}",
+          hasClientFilter ? invoiceStr : "${client.fullName()} $invoiceStr",
         ),
         trailing: IconButton(
           icon: const Icon(Icons.close),
