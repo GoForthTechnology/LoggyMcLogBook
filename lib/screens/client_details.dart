@@ -78,14 +78,14 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
                   _buildFirstName(model),
                   _buildLastName(model),
                   _buildCurrencySelector(model),
-                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  if (model.client?.isActive() ?? false) Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Spacer(),
                     _buildAppointmentSummary(client),
                     Spacer(),
                     _buildInvoiceSummary(client),
                     Spacer(),
                   ]),
-                  if (client != null) _buildActivateDeactivate(client, clientModel),
+                  if (model.client?.isActive() ?? false) if (client != null) _buildActivateDeactivate(client, clientModel),
                 ],
               ),
             ),
@@ -121,7 +121,7 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
     }
     final clients = Provider.of<Clients>(context, listen: false);
     Future<void> op;
-    if (model.client?.num == null) {
+    if (model.client?.id == null) {
       op = clients.add(
         model.firstNameController.text,
         model.lastNameController.text,

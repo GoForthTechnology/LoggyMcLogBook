@@ -157,7 +157,7 @@ class AppointmentDetailScreen extends StatelessWidget {
   }
 
   Widget _buildPrice(BuildContext context, AppointmentDetailModel model) {
-    var formField = Expanded(child: TextFormField(
+    var formField = ConstrainedBox(constraints: BoxConstraints.tightFor(width: 100), child: TextFormField(
       controller: model.priceController,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       keyboardType: TextInputType.number,
