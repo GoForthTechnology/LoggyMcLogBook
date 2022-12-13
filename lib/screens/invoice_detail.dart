@@ -212,6 +212,7 @@ class InvoiceDetailScreen extends StatelessWidget {
   Widget _buildClientSelector(BuildContext context, Invoice? invoice) {
     return Consumer<InvoiceDetailModel>(builder: (context, model, child) => ClientSelector(
       canEdit: invoice == null,
+      includeInactive: false,
       selectedClientId: invoice?.clientId,
       onUpdate: model.updateClientId,
     ));

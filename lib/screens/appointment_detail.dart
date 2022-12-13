@@ -237,6 +237,7 @@ class AppointmentDetailScreen extends StatelessWidget {
   Widget _buildClientSelector(BuildContext context, AppointmentDetailModel model) {
     return ClientSelector(
       canEdit: model.appointment == null,
+      includeInactive: false,
       selectedClientId: model.clientId,
       onUpdate: model.updateClientId,
     );

@@ -17,10 +17,11 @@ class ClientSelectorModel extends ChangeNotifier {
 
 class ClientSelector extends StatelessWidget {
   final bool canEdit;
+  final bool includeInactive;
   final String? selectedClientId;
   final Function(String?) onUpdate;
 
-  ClientSelector({Key? key, required this.canEdit, required this.selectedClientId, required this.onUpdate}) : super(key: key) {
+  ClientSelector({Key? key, required this.canEdit, required this.selectedClientId, required this.onUpdate, required this.includeInactive}) : super(key: key) {
     if (!canEdit && selectedClientId == null) {
       throw Exception();
     }
