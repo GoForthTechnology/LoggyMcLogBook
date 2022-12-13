@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/widgets/client_selector.dart';
 import 'package:lmlb/widgets/input_container.dart';
 import 'package:provider/provider.dart';
@@ -111,6 +113,7 @@ class AppointmentDetailScreen extends StatelessWidget {
               _buildEventDate(context, model),
               _buildEventTime(context, model),
               _buildPrice(context, model),
+              _buildInvoiceId(model),
             ],
           ),
         ),
@@ -124,6 +127,19 @@ class AppointmentDetailScreen extends StatelessWidget {
     } else {
       print("Validation error");
     }
+  }
+
+  Widget _buildInvoiceId(AppointmentDetailModel model) {
+    return Consumer<Invoices>(builder: (context, invoiceRepo, child) {
+      return FutureBuilder<Invoice?>(
+        future: invoiceRepo.getSingle(model.appointment?.invoiceId),
+        builder: (context, snapshot) {
+          var invoiceNum = snapshot.data?.invoiceNumStr();
+          var content = invoiceNum == null ? Text("TBD") : Text(invoiceNum);
+          return InputContainer(title: "Invoice #:", content: content);
+        },
+      );
+    });
   }
 
   Widget _buildEventDate(BuildContext context, AppointmentDetailModel model) {

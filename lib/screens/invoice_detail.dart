@@ -179,7 +179,8 @@ class InvoiceDetailScreen extends StatelessWidget {
           style: TextStyle(fontStyle: FontStyle.italic),
         );
 
-        var selectorWidget = Expanded(child: MultiSelectFormField(chipBackGroundColor: ThemeData.light().dialogBackgroundColor,
+        var selectorWidget = Expanded(child: MultiSelectFormField(
+          chipBackGroundColor: Colors.grey[300],
           chipLabelStyle: TextStyle(fontWeight: FontWeight.bold),
           dialogTextStyle: TextStyle(fontWeight: FontWeight.bold),
           checkBoxActiveColor: ThemeData.light().colorScheme.secondary,
