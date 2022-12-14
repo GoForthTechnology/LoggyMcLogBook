@@ -124,7 +124,7 @@ class InvoiceDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(invoice == null
             ? 'New Invoice'
-            : 'Invoice #${invoice.invoiceNumStr()}'),
+            : 'Invoice #${invoice.invoiceNumStr()} (${invoice.status().name})'),
         actions: [
           Consumer2<Invoices, InvoiceDetailModel>(builder: (context, invoiceRepo, model, child) => TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.white),
