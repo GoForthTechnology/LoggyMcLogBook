@@ -63,7 +63,9 @@ class ClientSelector extends StatelessWidget {
     };
     var contentBuilder = (state) => Consumer2<Clients, ClientSelectorModel>(builder: (context, clientModel, screenModel, child) {
       return FutureBuilder<List<Client>>(
-        future: clientModel.getAll(),
+        future: clientModel.getAll()
+            .then((clients) => clients.where(
+                (c) => c.isActive() || includeInactive).toList()),
         builder: (context, snapshot) {
           var clients = snapshot.data ?? [];
           var button = DropdownButton<String?>(
