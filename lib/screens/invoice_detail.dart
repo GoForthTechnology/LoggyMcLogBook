@@ -23,6 +23,7 @@ class InvoiceDetailModel extends ChangeNotifier {
   Currency? currency;
   List<Appointment> allAppointments = [];
   List<Appointment> invoicedAppointments = [];
+  List<Appointment> appointmentsToInvoice = [];
   DateTime? dateBilled;
   DateTime? datePaid;
 
@@ -61,6 +62,12 @@ class InvoiceDetailModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateAppointmentsToBill(List<Appointment> appointments) {
+    appointmentsToInvoice.clear();
+    appointmentsToInvoice.addAll(appointments);
+    notifyListeners();
+  }
+
   void _updateCurrency() {
     // Only update currency based on the client info if the invoice has not been
     // saved.
@@ -79,6 +86,8 @@ class InvoiceDetailModel extends ChangeNotifier {
       allAppointments.addAll(appointmentLists[1]);
       this.invoicedAppointments.clear();
       this.invoicedAppointments.addAll(appointmentLists[1]);
+      this.appointmentsToInvoice.clear();
+      this.appointmentsToInvoice.addAll(appointmentLists[1]);
       notifyListeners();
     });
   }
@@ -126,12 +135,26 @@ class InvoiceDetailScreen extends StatelessWidget {
             ? 'New Invoice'
             : 'Invoice #${invoice.invoiceNumStr()} (${invoice.status().name})'),
         actions: [
-          Consumer2<Invoices, InvoiceDetailModel>(builder: (context, invoiceRepo, model, child) => TextButton.icon(
+          Consumer3<Invoices, Appointments, InvoiceDetailModel>(builder: (context, invoiceRepo, appointmentsRepo, model, child) => TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.white),
             icon: const Icon(Icons.save),
             label: const Text('Save'),
             onPressed: () {
-              invoiceRepo.update(model.updatedInvoice()).then((_) => AutoRouter.of(context).pop());
+              List<Future<void>> ops = [];
+              var invoice = model.updatedInvoice();
+              ops.add(invoiceRepo.update(model.updatedInvoice()));
+
+              model.allAppointments.forEach((appointment) {
+                var wasInvoiced = model.invoicedAppointments.contains(appointment);
+                var shouldBeInvoiced = model.appointmentsToInvoice.contains(appointment);
+                if (wasInvoiced && !shouldBeInvoiced) {
+                  ops.add(appointmentsRepo.removeFromInvoice(appointment));
+                }
+                if (shouldBeInvoiced && !wasInvoiced) {
+                  ops.add(appointmentsRepo.addToInvoice(appointment, invoice));
+                }
+              });
+              Future.wait(ops).then((_) => AutoRouter.of(context).pop());
             },
           )),
         ],
@@ -195,12 +218,12 @@ class InvoiceDetailScreen extends StatelessWidget {
           okButtonLabel: 'OK',
           cancelButtonLabel: 'CANCEL',
           hintWidget: Text('Please choose one or more'),
-          initialValue: model.invoicedAppointments,
+          initialValue: model.appointmentsToInvoice,
           onSaved: (value) {
             state.didChange(value);
-            /*setState(() {
-              _appointments = List<Appointment>.from(value);
-            });*/
+            List<Appointment> appointments = [];
+            value.forEach((v) => appointments.add(v));
+            model.updateAppointmentsToBill(appointments);
           },
         ));
         return model.clientId == null ? noClientWidget : selectorWidget;

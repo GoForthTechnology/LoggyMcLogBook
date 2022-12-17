@@ -1,3 +1,4 @@
+import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/repos/internal/indexed_repo.dart';
@@ -17,7 +18,6 @@ class Appointments extends IndexedRepo<String, Appointment> {
 
   Future<Appointment?> getLast(String clientId) async {
     final appointments = await get((a) => a.clientId == clientId);
-    print("bar ${appointments.length}");
     var lastAppointment;
     for (int i = 0; i < appointments.length; i++) {
       var appointment = appointments[i];
@@ -73,6 +73,16 @@ class Appointments extends IndexedRepo<String, Appointment> {
     }
     final appointment = Appointment(null, type, startTime, duration, clientId, price, null);
     return addToIndex(appointment, _persistence.insert(appointment));
+  }
+
+  Future<Appointment> addToInvoice(Appointment appointment, Invoice invoice) {
+    var updatedAppointment = appointment.bill(invoice);
+    return _persistence.update(appointment.bill(invoice)).then((_) => updatedAppointment);
+  }
+
+  Future<Appointment> removeFromInvoice(Appointment appointment) {
+    var updatedAppointment = appointment.bill(null);
+    return _persistence.update(updatedAppointment).then((_) => updatedAppointment);
   }
 
   Future<Appointment?> getSingle(String id) {

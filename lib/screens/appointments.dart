@@ -32,6 +32,7 @@ class AppointmentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("rebuild appointments");
     final hasClientFilter = client != null;
     return Scaffold(
       appBar: AppBar(

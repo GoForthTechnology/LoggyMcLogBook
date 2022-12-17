@@ -24,14 +24,17 @@ class InvoicesScreen extends StatelessWidget {
       ),
       body: Consumer2<Invoices, Clients>(
           builder: (context, invoiceRepo, clientsModel, child) {
-        final invoices = invoiceRepo.get(sorted: true, clientId: client?.id);
-        return FutureBuilder<Map<String, Client>>(
-          future: clientsModel.getAllIndexed(),
+        final invoicesF = invoiceRepo.get(sorted: true, clientId: client?.id);
+        final clientsF = clientsModel.getAllIndexed();
+        return FutureBuilder(
+          future: Future.wait([invoicesF, clientsF]),
           builder: (context, snapshot) {
             if (snapshot.data == null) {
               return Container();
             }
-            var clients = snapshot.data!;
+            var data = snapshot.data! as List<Object>;
+            var invoices = data[0] as List<Invoice>;
+            var clients = data[1] as Map<String, Client>;
             return ListView.builder(
               itemCount: invoices.length,
               padding: const EdgeInsets.symmetric(vertical: 16),

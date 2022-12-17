@@ -17,10 +17,12 @@ class Invoices extends IndexedRepo<String, Invoice> {
     return initIndex(_persistence.getAll()).then((_) => this);
   }
 
-  List<Invoice> get(
+  Future<List<Invoice>> get(
       {bool? sorted, String? clientId, bool Function(Invoice)? predicate}) {
-    return getFromIndex(
-        keyFilter: clientId, sorted: sorted, predicate: predicate);
+    var generalPredicate = predicate ?? (i) => true;
+    var clientPredicate = (clientId != null) ? (i) => i.clientId == clientId : (i) => true;
+    var combinedPredicate = (i) => generalPredicate(i) && clientPredicate(i);
+    return _persistence.getAll().then((invoices) => invoices.where(combinedPredicate).toList());
   }
 
   Future<Invoice?> getSingle(String? id) async {
@@ -30,25 +32,16 @@ class Invoices extends IndexedRepo<String, Invoice> {
     return _persistence.get(id);
   }
 
-  List<Invoice> getPending({bool? sorted, String? clientId}) {
-    return get(
-        clientId: clientId,
-        sorted: sorted,
-        predicate: (i) => i.dateBilled == null);
+  Future<List<Invoice>> getPending({bool? sorted, String? clientId}) {
+    return get(clientId: clientId, predicate: (i) => i.dateBilled == null);
   }
 
-  List<Invoice> getReceivable({bool? sorted, String? clientId}) {
-    return get(
-        clientId: clientId,
-        sorted: sorted,
-        predicate: (i) => i.dateBilled != null && i.datePaid == null);
+  Future<List<Invoice>> getReceivable({bool? sorted, String? clientId}) {
+    return get(clientId: clientId, predicate: (i) => i.dateBilled != null && i.datePaid == null);
   }
 
-  List<Invoice> getPaid({bool? sorted, String? clientId}) {
-    return get(
-        clientId: clientId,
-        sorted: sorted,
-        predicate: (i) => i.dateBilled != null && i.datePaid != null);
+  Future<List<Invoice>> getPaid({bool? sorted, String? clientId}) {
+    return get(clientId: clientId, predicate: (i) => i.dateBilled != null && i.datePaid != null);
   }
 
   Future<Invoice> add(Invoice invoice) async {

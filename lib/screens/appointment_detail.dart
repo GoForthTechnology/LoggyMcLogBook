@@ -7,6 +7,7 @@ import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
+import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/widgets/client_selector.dart';
 import 'package:lmlb/widgets/input_container.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,7 @@ import 'package:provider/provider.dart';
 class AppointmentDetailModel extends ClientSelectorModel {
   final Appointments appointmentRepo;
   final formKey = GlobalKey<FormState>();
-  final Appointment? appointment;
+  Appointment? appointment;
 
   String? clientId;
   DateTime? appointmentDate;
@@ -31,6 +32,13 @@ class AppointmentDetailModel extends ClientSelectorModel {
       appointmentDate = DateUtils.dateOnly(time);
       appointmentTime = TimeOfDay.fromDateTime(time);
     }
+  }
+
+  Future<void> addToInvoice(Invoice invoice) {
+    return appointmentRepo.addToInvoice(appointment!, invoice).then((a) {
+      appointment = a;
+      notifyListeners();
+    });
   }
 
   void updateClientId(String? value) {
@@ -131,11 +139,44 @@ class AppointmentDetailScreen extends StatelessWidget {
 
   Widget _buildInvoiceId(AppointmentDetailModel model) {
     return Consumer<Invoices>(builder: (context, invoiceRepo, child) {
-      return FutureBuilder<Invoice?>(
-        future: invoiceRepo.getSingle(model.appointment?.invoiceId),
+      var invoiceF = invoiceRepo.getSingle(model.appointment?.invoiceId);
+      var pendingF = invoiceRepo.getPending(clientId: model.clientId);
+      return FutureBuilder(
+        future: Future.wait([invoiceF, pendingF]),
         builder: (context, snapshot) {
-          var invoiceNum = snapshot.data?.invoiceNumStr();
-          var content = invoiceNum == null ? Text("TBD") : Text("#$invoiceNum (${snapshot.data!.status().name})");
+          Invoice? invoice;
+          List<Invoice> pendingInvoices = [];
+          if (snapshot.data != null) {
+            final dataF = snapshot.data! as List<Object?>;
+            invoice = dataF[0] as Invoice?;
+            pendingInvoices = dataF[1] as List<Invoice>;
+          }
+          var invoiceNum = invoice?.invoiceNumStr();
+          Widget content;
+          if (invoiceNum != null) {
+            void viewInvoice() {
+              AutoRouter.of(context).push(InvoiceDetailScreenRoute(clientId: model.clientId, invoiceId: invoice?.id));
+            }
+            content = Row(children: [
+              Text("#$invoiceNum (${invoice!.status().name})"),
+              TextButton(onPressed: viewInvoice, child: Text("View")),
+            ]);
+          } else {
+            if (pendingInvoices.isEmpty) {
+              void createInvoice() {
+                AutoRouter.of(context).push(InvoiceDetailScreenRoute(clientId: model.clientId));
+              }
+              content = ElevatedButton(onPressed: createInvoice, child: Text("Create Invoice"));
+            } else {
+              var pendingInvoice = pendingInvoices.first;
+              void editInvoice() {
+                model.addToInvoice(pendingInvoice).then((_) {
+                  AutoRouter.of(context).push(InvoiceDetailScreenRoute(clientId: model.clientId, invoiceId: pendingInvoice.id));
+                });
+              }
+              content = ElevatedButton(onPressed: editInvoice, child: Text("Add to Invoice #${pendingInvoice.invoiceNumStr()}"));
+            }
+          }
           return InputContainer(title: "Invoice:", content: content);
         },
       );

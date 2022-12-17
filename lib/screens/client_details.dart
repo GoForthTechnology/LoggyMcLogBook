@@ -145,24 +145,45 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
       if (client?.id == null) {
         return Container();
       }
-      return Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-              margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
-              child: Text("Invoice Summary",
-                  style: Theme.of(context).textTheme.titleMedium)),
-          _buildNumInvoices(invoices.getPending(clientId: client?.id), "Pending", InvoicesScreenRoute(client: client)),
-          _buildNumInvoices(invoices.getReceivable(clientId: client?.id), "Receivable", InvoicesScreenRoute(client: client)),
-          _buildNumInvoices(invoices.get(clientId: client?.id), "(Total)", InvoicesScreenRoute(client: client)),
-        ],
+      return FutureBuilder<List<Invoice>>(
+          future: invoices.get(clientId: client?.id),
+          builder: (context, snapshot) {
+            var invoices = snapshot.data ?? [];
+            List<Invoice> pending = [];
+            List<Invoice> receivable = [];
+            invoices.forEach((invoice) {
+              if (invoice.datePaid != null) {
+                return;
+              }
+              if (invoice.dateBilled != null) {
+                receivable.add(invoice);
+              } else {
+                pending.add(invoice);
+              }
+            });
+            return Column(mainAxisSize: MainAxisSize.max, children: [
+              Container(
+                  margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
+                  child: Text("Invoice Summary",
+                      style: Theme.of(context).textTheme.titleMedium)),
+              _buildNumInvoices(pending, "Pending", client),
+              _buildNumInvoices(receivable, "Receivable", client),
+              _buildNumInvoices(invoices, "(Total)", client),
+            ]);
+          }
       );
     });
   }
 
   Widget _buildNumInvoices(
-      List<Invoice> invoices, String title, PageRouteInfo route) {
+      List<Invoice> invoices, String title, Client? client) {
+    PageRouteInfo route;
+    if (invoices.length == 1) {
+      route = InvoiceDetailScreenRoute(invoiceId: invoices.first.id, clientId: client?.id);
+    } else {
+      route = InvoicesScreenRoute(client: client);
+    }
+
     return Row(
       children: [
         _paddedItem(Text(
@@ -251,17 +272,18 @@ class ClientDetailsState extends State<ClientDetailsScreen> {
       future: appointmentRepo.getPending(clientId: client?.id),
       builder: (context, snapshot) {
         var appointments = snapshot.data ?? [];
+        PageRouteInfo route;
+        if (appointments.length == 1) {
+          route = AppointmentDetailScreenRoute(appointmentId: appointments.first.id);
+        } else {
+          route = AppointmentsScreenRoute(view: View.PENDING.name, client: client);
+        }
         return Row(
           children: [
-            _paddedItem(Text(
-                "To Be Invoiced: ${appointments.isEmpty ? "None" : appointments.length}")),
+            _paddedItem(Text("To Be Invoiced: ${appointments.isEmpty ? "None" : appointments.length}")),
             appointments.isEmpty
                 ? Container()
-                : TextButton(
-                child: Text("View"),
-                onPressed: () {
-                  AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.PENDING.name, client: client));
-                }),
+                : TextButton(child: Text("View"), onPressed: () => AutoRouter.of(context).push(route)),
           ],
         );
       },

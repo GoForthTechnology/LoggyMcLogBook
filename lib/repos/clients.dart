@@ -12,8 +12,6 @@ class Clients extends ChangeNotifier {
   }
 
   Future<Clients> init() async {
-    var cs = await _persistence.getAll();
-    print("initialized ${cs.length} clients");
     return this;
   }
 
@@ -35,7 +33,6 @@ class Clients extends ChangeNotifier {
   }
 
   Future<Client?> get(String id) {
-    print("Getting : $id");
     return _persistence.get(id);
   }
 

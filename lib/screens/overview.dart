@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
@@ -34,16 +35,29 @@ class OverviewScreen extends StatelessWidget {
   Widget invoiceOverview(BuildContext context) {
     return overviewContainer(context, "Invoice Overview", InvoicesScreenRoute(),
         Consumer<Invoices>(builder: (context, model, child) {
-      final numPending = model.getPending().length;
-      final numReceivable = model.getReceivable().length;
-      final numPaid = model.getPaid().length;
-      return Column(
-        children: [
-          Text("Num Drafts: $numPending", style: redIfPositive(numPending)),
-          Text("Num Receivable: $numReceivable",
-              style: redIfPositive(numReceivable)),
-          Text("Num Paid: $numPaid", style: redIfPositive(numPaid)),
-        ],
+      return FutureBuilder<List<Invoice>>(
+        future: model.get(),
+        builder: (context, snapshot) {
+          var invoices = snapshot.data ?? [];
+          var numReceivable = 0;
+          var numPending = 0;
+          var numPaid = 0;
+          invoices.forEach((invoice) {
+            if (invoice.datePaid != null) {
+              numPaid++;
+            } else if (invoice.dateBilled != null) {
+              numReceivable++;
+            } else {
+              numPending++;
+            }
+          });
+          return Column(children: [
+            Text("Num Drafts: $numPending", style: redIfPositive(numPending)),
+            Text("Num Receivable: $numReceivable",
+                style: redIfPositive(numReceivable)),
+            Text("Num Paid: $numPaid", style: redIfPositive(numPaid)),
+          ]);
+        },
       );
     }));
   }
