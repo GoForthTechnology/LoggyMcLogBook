@@ -1,10 +1,10 @@
 import 'package:lmlb/entities/invoice.dart';
-import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/appointment.dart';
+import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 import 'package:lmlb/repos/internal/indexed_repo.dart';
 
 class Appointments extends IndexedRepo<String, Appointment> {
-  final CrudInterface<Appointment> _persistence;
+  final StreamingCrudInterface<Appointment> _persistence;
 
   Appointments(this._persistence)
       : super((a) => a.clientId, (v, k) => v.id = k, (a, b) => a.id == b.id,
@@ -12,8 +12,8 @@ class Appointments extends IndexedRepo<String, Appointment> {
     _persistence.addListener(() => init());
   }
 
-  Future<Appointments> init() {
-    return initIndex(_persistence.getAll()).then((_) => this);
+  Future<Appointments> init() async {
+    return this;
   }
 
   Future<Appointment?> getLast(String clientId) async {
@@ -53,8 +53,13 @@ class Appointments extends IndexedRepo<String, Appointment> {
   }
 
   Future<List<Appointment>> get(bool Function(Appointment) predicate) async {
-    var allAppointments = await _persistence.getAll();
+    var allAppointments = await _persistence.getAll().first;
     return allAppointments.where(predicate).toList();
+  }
+
+  Stream<List<Appointment>> streamAll(bool Function(Appointment) predicate) async* {
+    yield* _persistence.getAll().map((appointments) => appointments
+        .where(predicate).toList());
   }
 
   Future<void> add(String clientId, DateTime startTime, Duration duration,
@@ -86,14 +91,14 @@ class Appointments extends IndexedRepo<String, Appointment> {
   }
 
   Future<Appointment?> getSingle(String id) {
-    return _persistence.get(id);
+    return _persistence.get(id).first;
   }
 
   Future<void> update(Appointment appointment) {
     return updateIndex(appointment, _persistence.update(appointment));
   }
 
-  Future<void> remove(Appointment appointment) {
-    return removeFromIndex(appointment, _persistence.remove(appointment));
+  Future<void> remove(String appointmentId) {
+    return _persistence.remove(appointmentId);
   }
 }

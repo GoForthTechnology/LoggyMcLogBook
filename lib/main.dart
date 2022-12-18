@@ -27,17 +27,17 @@ void main() async {
 }
 
 Future<Widget> init(Widget app, bool isWeb) {
-  final clients = Clients(new FirebaseCrud(
+  final clients = Clients(new StreamingFirebaseCrud(
     directory: "clients",
     fromJson: Client.fromJson,
     toJson: (c) => c.toJson(),
   ));
-  final appointments = Appointments(new FirebaseCrud(
+  final appointments = Appointments(new StreamingFirebaseCrud(
     directory: "appointments",
     fromJson: Appointment.fromJson,
     toJson: (a) => a.toJson(),
   ));
-  final invoices = Invoices(new FirebaseCrud(
+  final invoices = Invoices(new StreamingFirebaseCrud(
     directory: "invoices",
     fromJson: Invoice.fromJson,
     toJson: (i) => i.toJson(),

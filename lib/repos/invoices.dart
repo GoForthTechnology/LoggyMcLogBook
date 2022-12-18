@@ -1,10 +1,10 @@
-import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/invoice.dart';
+import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/internal/indexed_repo.dart';
 
 class Invoices extends IndexedRepo<String, Invoice> {
-  final CrudInterface<Invoice> _persistence;
+  final StreamingCrudInterface<Invoice> _persistence;
   final Appointments _appointmentRepo;
 
   Invoices(this._persistence, this._appointmentRepo)
@@ -13,8 +13,8 @@ class Invoices extends IndexedRepo<String, Invoice> {
     _persistence.addListener(() => init());
   }
 
-  Future<Invoices> init() {
-    return initIndex(_persistence.getAll()).then((_) => this);
+  Future<Invoices> init() async {
+    return this;
   }
 
   Future<List<Invoice>> get(
@@ -22,14 +22,14 @@ class Invoices extends IndexedRepo<String, Invoice> {
     var generalPredicate = predicate ?? (i) => true;
     var clientPredicate = (clientId != null) ? (i) => i.clientId == clientId : (i) => true;
     var combinedPredicate = (i) => generalPredicate(i) && clientPredicate(i);
-    return _persistence.getAll().then((invoices) => invoices.where(combinedPredicate).toList());
+    return _persistence.getAll().first.then((invoices) => invoices.where(combinedPredicate).toList());
   }
 
   Future<Invoice?> getSingle(String? id) async {
     if (id == null) {
       return null;
     }
-    return _persistence.get(id);
+    return _persistence.get(id).first;
   }
 
   Future<List<Invoice>> getPending({bool? sorted, String? clientId}) {
@@ -45,7 +45,7 @@ class Invoices extends IndexedRepo<String, Invoice> {
   }
 
   Future<Invoice> add(Invoice invoice) async {
-    var numInvoices = await _persistence.getAll().then((invoices) => invoices.length);
+    var numInvoices = await _persistence.getAll().first.then((invoices) => invoices.length);
     var newInvoiceNum = numInvoices + 1;
     final newInvoice = Invoice(null, newInvoiceNum, invoice.clientId, invoice.currency, invoice.dateCreated, invoice.dateBilled, invoice.datePaid);
     return addToIndex(newInvoice, _persistence.insert(newInvoice))
@@ -64,7 +64,7 @@ class Invoices extends IndexedRepo<String, Invoice> {
       updateOps.add(_appointmentRepo.update(a.bill(null)));
     });
     return Future.wait(updateOps)
-        .then((_) => removeFromIndex(invoice, _persistence.remove(invoice)));
+        .then((_) => removeFromIndex(invoice, _persistence.remove(invoice.id!)));
   }
 
   Future<void> update(Invoice invoice) {

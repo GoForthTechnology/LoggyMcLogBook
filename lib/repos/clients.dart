@@ -1,11 +1,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:lmlb/entities/currency.dart';
-import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 
 class Clients extends ChangeNotifier {
-  CrudInterface<Client> _persistence;
+  StreamingCrudInterface<Client> _persistence;
 
   Clients(this._persistence) {
     _persistence.addListener(() => init());
@@ -16,24 +16,30 @@ class Clients extends ChangeNotifier {
   }
 
   Future<List<Client>> getAll() async {
-    return _persistence.getAll();
+    return _persistence.getAll().first;
   }
 
   Future<Map<String, Client>> getAllIndexed() async {
-    return _persistence.getAll().then((clients) {
-      Map<String, Client> index = {};
-      clients.forEach((client) {
-        if (client.id == null) {
-          return;
-        }
-        index[client.id!] = client;
-      });
-      return index;
+    return _persistence.getAll().first.then(indexClients);
+  }
+
+  Stream<List<Client>> streamAll() {
+    return _persistence.getAll();
+  }
+
+  static Map<String, Client> indexClients(List<Client> clients) {
+    Map<String, Client> index = {};
+    clients.forEach((client) {
+      if (client.id == null) {
+        return;
+      }
+      index[client.id!] = client;
     });
+    return index;
   }
 
   Future<Client?> get(String id) {
-    return _persistence.get(id);
+    return _persistence.get(id).first;
   }
 
   Future<Client?> getForNum(int? clientNum) async {
@@ -53,7 +59,7 @@ class Clients extends ChangeNotifier {
 
   Future<void> assignClientNum(Client client) async {
     var maxClientNum = 0;
-    var clients = await _persistence.getAll();
+    var clients = await _persistence.getAll().first;
     clients.forEach((client) {
       if (client.num == null) {
         return;
@@ -83,9 +89,12 @@ class Clients extends ChangeNotifier {
     });
   }
 
-  Future<void> remove(Client client) {
-    return _persistence.remove(client).then((_) {
-      notifyListeners();
-    });
+  Future<void> remove(Client client) async {
+    final id = client.getId();
+    if (id == null) {
+      throw Exception("Null client id for $client");
+    }
+    await _persistence.remove(id);
+    notifyListeners();
   }
 }

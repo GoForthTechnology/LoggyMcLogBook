@@ -6,6 +6,7 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/routes.gr.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
 enum View { ALL, PENDING }
 
@@ -22,6 +23,23 @@ extension ViewExt on View {
   }
 }
 
+class _ViewModel {
+  final List<_DecoratedAppointment> appointments;
+
+  _ViewModel(this.appointments);
+
+  static _ViewModel create(List<Appointment> appointments, Map<String, Client> clients, bool hasClientFilter) {
+    print("_ViewModel.create");
+    return _ViewModel(appointments.map((appointment) {
+      var client = clients[appointment.clientId];
+      if (client == null) {
+        throw Exception("Could not find client for id: ${appointment.clientId}");
+      }
+      return _DecoratedAppointment.create(appointment, client, hasClientFilter);
+    }).toList());
+  }
+}
+
 class AppointmentsScreen extends StatelessWidget {
   final Client? client;
   late View view;
@@ -34,54 +52,48 @@ class AppointmentsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     print("rebuild appointments");
     final hasClientFilter = client != null;
-    return Scaffold(
-      appBar: AppBar(
-        title: !hasClientFilter
-            ? const Text('Appointments')
-            : Text("${client!.fullName()}'s Appointments"),
-      ),
-      body: Column(children: [
-        buildHeader(context, view),
-        Flexible(child: Consumer2<Appointments, Clients>(
-            builder: (context, appointmentsModel, clientsModel, child) {
-          final appointmentsF = appointmentsModel
-              .get((a) => client == null || a.clientId == client?.id && view.predicate()(a))
-              .then((as) => as.reversed.toList());
-          final clientsF = clientsModel.getAll();
+    return Consumer2<Appointments, Clients>(builder: (context, appointmentRepo, clientRepo, child) {
+      final appointmentsS = appointmentRepo
+          .streamAll((a) => client == null || a.clientId == client?.id && view.predicate()(a))
+          .doOnError((p0, p1) { print("ERROR getting appointments"); })
+          .map((as) => as.reversed.toList());
+      final clientsS = clientRepo
+          .streamAll()
+          .doOnError((p0, p1) { print("ERROR getting clients"); })
+          .map(Clients.indexClients);
 
-          return FutureBuilder(
-            future: Future.wait([appointmentsF, clientsF]),
-            builder: (context, snapshot) {
-              List<Appointment> appointments = [];
-              Map<String, Client> clients = {};
-              if (snapshot.data != null) {
-                final dataF = snapshot.data! as List<Object>;
-                appointments.addAll(dataF[0] as List<Appointment>);
-                (dataF[1] as List<Client>).forEach((client) {
-                  clients[client.id!] = client;
-                });
-              }
-              if (snapshot.data == null) {
-                return Container();
-              }
-              return ListView.builder(
-                  itemCount: appointments.length,
+      final viewModelS = Rx.combineLatest2<List<Appointment>, Map<String, Client>, _ViewModel>(
+          appointmentsS,
+          clientsS,
+          (appointments, clients) => _ViewModel.create(appointments, clients, hasClientFilter));
+      return StreamProvider<_ViewModel>.value(value: viewModelS, initialData: _ViewModel([]), builder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: !hasClientFilter
+                ? const Text('Appointments')
+                : Text("${client!.fullName()}'s Appointments"),
+          ),
+          body: Column(children: [
+            buildHeader(context, view),
+            Flexible(child: Consumer<_ViewModel>(
+              builder: (context, viewModel, child) {
+                print(viewModel);
+                return ListView.builder(
+                  itemCount: viewModel.appointments.length,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   itemBuilder: (context, index) {
-                    final appointment = appointments[index];
-                    return AppointmentTile(
-                      appointment,
-                      clients[appointment.clientId]!,
-                      hasClientFilter,
-                     );
-                  });
-            }
-          );
-        })),
-        buildFooter(context, view),
-      ]),
-      floatingActionButton: buildFab(context, view),
-    );
+                    final appointment = viewModel.appointments[index];
+                    return AppointmentTile(appointment, hasClientFilter);
+                  },
+                );
+              },
+            )),
+            buildFooter(context, view),
+          ]),
+          floatingActionButton: buildFab(context, view),
+        );
+      });
+    });
   }
 
   Widget? buildFab(BuildContext context, View view) {
@@ -133,33 +145,49 @@ class AppointmentsScreen extends StatelessWidget {
   }
 }
 
+class _DecoratedAppointment {
+  final String title;
+  final Color circleColor;
+  final Color textColor;
+  final String id;
+  final bool isInPast;
+
+  _DecoratedAppointment(this.title, this.circleColor, this.textColor, this.id, this.isInPast);
+
+  static _DecoratedAppointment create(Appointment appointment, Client client, bool hasClientFilter) {
+    var title = "${appointment.type.name()} ${appointment.timeStr()}";
+    if (!hasClientFilter) {
+      title = "${client.fullName()} - $title";
+    }
+    if (appointment.id == null) {
+      throw Exception("Appointment ID cannot be null!");
+    }
+    final isInPast = appointment.time.isBefore(DateTime.now());
+    final textColor = isInPast ? Colors.grey : Colors.black;
+    return _DecoratedAppointment(title, appointment.status().color, textColor, appointment.id!, isInPast);
+  }
+}
+
 class AppointmentTile extends StatelessWidget {
-  final Appointment appointment;
-  final Client client;
+  final _DecoratedAppointment appointment;
   final bool hasClientFilter;
 
   AppointmentTile(
     this.appointment,
-    this.client,
     this.hasClientFilter,
   );
 
   @override
   Widget build(BuildContext context) {
-    var title = "${appointment.type.name()} ${appointment.timeStr()}";
-    if (!hasClientFilter) {
-      title = "${client.fullName()} - $title";
-    }
     final showDeleteButton = !hasClientFilter;
-    final isInPast = appointment.time.isBefore(DateTime.now());
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
         leading: CircleAvatar(
           // TODO: make this color blind accessible
-          backgroundColor: appointment.status().color,
+          backgroundColor: appointment.circleColor,
         ),
-        title: Text(title, style: TextStyle(color: isInPast ? Colors.grey : Colors.black)),
+        title: Text(appointment.title, style: TextStyle(color: appointment.textColor)),
         trailing: showDeleteButton ? IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -180,7 +208,7 @@ class AppointmentTile extends StatelessWidget {
     );
   }
 
-  void confirmDeletion(BuildContext context, Appointment appointment) {
+  void confirmDeletion(BuildContext context, _DecoratedAppointment appointment) {
     // set up the buttons
     Widget cancelButton = TextButton(
       child: Text("Cancel"),
@@ -193,7 +221,7 @@ class AppointmentTile extends StatelessWidget {
       onPressed: () {
         Navigator.of(context).pop(); // dismiss dialog
         Provider.of<Appointments>(context, listen: false)
-            .remove(appointment)
+            .remove(appointment.id)
             .then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -207,7 +235,7 @@ class AppointmentTile extends StatelessWidget {
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title: Text("Confirm Deletion"),
-      content: Text("Would you like to remove ${client.fullName()}?"),
+      content: Text("Would you like to remove ${appointment.title}?"),
       actions: [
         cancelButton,
         continueButton,
