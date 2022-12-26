@@ -1,15 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 import 'package:lmlb/repos/appointments.dart';
-import 'package:lmlb/repos/internal/indexed_repo.dart';
 
-class Invoices extends IndexedRepo<String, Invoice> {
+class Invoices extends ChangeNotifier {
   final StreamingCrudInterface<Invoice> _persistence;
   final Appointments _appointmentRepo;
 
-  Invoices(this._persistence, this._appointmentRepo)
-      : super((a) => a.clientId, (v, k) => v.id = k, (a, b) => a.id == b.id,
-            (a, b) => a.dateCreated.compareTo(b.dateCreated)) {
+  Invoices(this._persistence, this._appointmentRepo) {
     _persistence.addListener(() => init());
   }
 
@@ -33,7 +31,15 @@ class Invoices extends IndexedRepo<String, Invoice> {
   }
 
   Future<List<Invoice>> getPending({bool? sorted, String? clientId}) {
-    return get(clientId: clientId, predicate: (i) => i.dateBilled == null);
+    return get(clientId: clientId, predicate: wherePending);
+  }
+
+  static bool wherePending(Invoice invoice) {
+    return invoice.dateBilled == null;
+  }
+
+  Stream<List<Invoice>> stream(bool Function(Invoice)? predicate) {
+    return _persistence.getAll().map((invoices) => invoices.where(predicate ?? (i) => true).toList());
   }
 
   Future<List<Invoice>> getReceivable({bool? sorted, String? clientId}) {
@@ -48,29 +54,23 @@ class Invoices extends IndexedRepo<String, Invoice> {
     var numInvoices = await _persistence.getAll().first.then((invoices) => invoices.length);
     var newInvoiceNum = numInvoices + 1;
     final newInvoice = Invoice(null, newInvoiceNum, invoice.clientId, invoice.currency, invoice.dateCreated, invoice.dateBilled, invoice.datePaid);
-    return addToIndex(newInvoice, _persistence.insert(newInvoice))
-        .then((savedInvoice) {
-      final List<Future<void>> updateOps = [];
-      /*appointments.forEach((appointment) => updateOps
-          .add(_appointmentRepo.update(appointment.bill(savedInvoice))));*/
-      return Future.wait(updateOps).then((_) => savedInvoice);
-    });
+    return _persistence.insert(newInvoice).then((id) => newInvoice.setId(id));
   }
 
   Future<void> remove(Invoice invoice) async {
     final List<Future<void>> updateOps = [];
     var appointments = await _appointmentRepo.getInvoiced(invoice.id!);
     appointments.forEach((a) {
-      updateOps.add(_appointmentRepo.update(a.bill(null)));
+      updateOps.add(_appointmentRepo.removeFromInvoice(a));
     });
     return Future.wait(updateOps)
-        .then((_) => removeFromIndex(invoice, _persistence.remove(invoice.id!)));
+        .then((_) => _persistence.remove(invoice.id!));
   }
 
   Future<void> update(Invoice invoice) {
     if (invoice.id == null) {
       return add(invoice);
     }
-    return updateIndex(invoice, _persistence.update(invoice));
+    return _persistence.update(invoice);
   }
 }

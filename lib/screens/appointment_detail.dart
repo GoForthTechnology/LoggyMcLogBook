@@ -23,7 +23,10 @@ class AppointmentDetailModel extends ClientSelectorModel {
   AppointmentType? appointmentType;
   TextEditingController priceController = new TextEditingController();
 
-  AppointmentDetailModel(this.appointment, this.appointmentRepo) : super(appointment?.clientId) {
+  AppointmentDetailModel({
+    this.appointment,
+    required this.appointmentRepo,
+  }) : super(appointment?.clientId) {
     clientId = appointment?.clientId;
     appointmentType = appointment?.type;
     priceController.text = appointment?.price.toString() ?? "";
@@ -32,6 +35,7 @@ class AppointmentDetailModel extends ClientSelectorModel {
       appointmentDate = DateUtils.dateOnly(time);
       appointmentTime = TimeOfDay.fromDateTime(time);
     }
+    notifyListeners();
   }
 
   Future<void> addToInvoice(Invoice invoice) {
@@ -68,27 +72,50 @@ class AppointmentDetailModel extends ClientSelectorModel {
         appointmentDate!.day,
         appointmentDate!.hour,
         appointmentDate!.minute);
-    return appointmentRepo.add(
-        clientId!, appointmentTime, Duration(hours: 1), appointmentType!, priceController.text as int);
+    if (appointment == null) {
+      return appointmentRepo.add(
+          clientId!, appointmentTime, Duration(hours: 1), appointmentType!, int.parse(priceController.text));
+    } else {
+      var updatedAppointment = Appointment(
+          appointment!.id, appointmentType!, appointmentTime, appointment!.duration, appointment!.clientId, int.parse(priceController.text), appointment!.invoiceId);
+      return appointmentRepo.updateAppointment(updatedAppointment);
+    }
   }
 }
 
 class AppointmentDetailScreen extends StatelessWidget {
   final String? appointmentId;
+  final String? clientId;
+  final AppointmentType? appointmentType;
 
-  const AppointmentDetailScreen({Key? key, @PathParam() this.appointmentId}) : super(key: key);
+  const AppointmentDetailScreen({
+    Key? key,
+    @PathParam() this.appointmentId,
+    this.clientId,
+    this.appointmentType,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<Appointments, Clients>(builder: (context, appointmentRepo, clientRepo, child) => FutureBuilder<Appointment?>(
-      future: appointmentId == null ? Future.value(null) : appointmentRepo.getSingle(appointmentId!),
+    return Consumer2<Appointments, Clients>(builder: (context, appointmentRepo, clientRepo, child) => StreamBuilder<Appointment?>(
+      stream: appointmentId == null ? Stream.value(null) : appointmentRepo.stream(appointmentId!),
       builder: (context, snapshot) {
         var appointment = snapshot.data;
         if (appointmentId != null && appointment == null) {
           return Container();
         }
         return ChangeNotifierProvider(
-          create: (context) => AppointmentDetailModel(appointment, appointmentRepo),
+          create: (context) {
+            var model = AppointmentDetailModel(
+              appointment: appointment,
+              appointmentRepo: appointmentRepo,
+            );
+            if (appointment == null) {
+              model.updateClientId(clientId);
+              model.updateAppointmentType(appointmentType);
+            }
+            return model;
+          },
           child: Consumer<AppointmentDetailModel>(builder: (context, model, child) => body(context, model)),
         );
       },
@@ -191,8 +218,10 @@ class AppointmentDetailScreen extends StatelessWidget {
         title: "Appointment Date:",
         content: FormField(
             autovalidateMode: AutovalidateMode.onUserInteraction,
+            initialValue: model.appointmentDate,
             validator: (value) {
               if (value == null) {
+                print("Invalid date!");
                 return "Date required";
               }
               return null;
@@ -201,7 +230,7 @@ class AppointmentDetailScreen extends StatelessWidget {
                 onTap: () async {
                   final DateTime? picked = await showDatePicker(
                     context: context,
-                    initialDate: DateTime.now(), // Refer step 1
+                    initialDate: model.appointmentDate ?? DateTime.now(), // Refer step 1
                     firstDate: DateTime.now().subtract(Duration(days: 365)),
                     lastDate: DateTime.now().add(Duration(days: 365)),
                   );
@@ -220,6 +249,7 @@ class AppointmentDetailScreen extends StatelessWidget {
       keyboardType: TextInputType.number,
       validator: (value) {
         if (value == null || value.isEmpty) {
+          print("Invalid price!");
           return 'Please enter some text';
         }
         return null;
@@ -242,8 +272,10 @@ class AppointmentDetailScreen extends StatelessWidget {
         title: "Appointment Time:",
         content: FormField(
             autovalidateMode: AutovalidateMode.onUserInteraction,
+            initialValue: model.appointmentTime,
             validator: (value) {
               if (value == null) {
+                print("Invalid time!");
                 return "Value required";
               }
               return null;
@@ -269,10 +301,12 @@ class AppointmentDetailScreen extends StatelessWidget {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
               if (value == null) {
+                print("Invalid type!");
                 return "Select a value";
               }
               return null;
             },
+            initialValue: model.appointmentType,
             builder: (state) => _showErrorOrDisplay(
                 state,
                 DropdownButton<AppointmentType>(
@@ -293,7 +327,7 @@ class AppointmentDetailScreen extends StatelessWidget {
 
   Widget _buildClientSelector(BuildContext context, AppointmentDetailModel model) {
     return ClientSelector(
-      canEdit: model.appointment == null,
+      canEdit: model.appointment != null,
       includeInactive: false,
       selectedClientId: model.clientId,
       onUpdate: model.updateClientId,

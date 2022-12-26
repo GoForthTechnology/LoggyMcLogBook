@@ -39,7 +39,11 @@ class Clients extends ChangeNotifier {
   }
 
   Future<Client?> get(String id) {
-    return _persistence.get(id).first;
+    return stream(id).first;
+  }
+
+  Stream<Client?> stream(String id) {
+    return _persistence.get(id);
   }
 
   Future<Client?> getForNum(int? clientNum) async {
