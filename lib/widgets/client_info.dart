@@ -53,13 +53,6 @@ class ClientInfoModel extends WidgetModel<ClientInfoState> {
   }
 
   Future<void> save(ClientInfoState state) async {
-    if (state.client?.id == null) {
-      return clientRepo.add(
-        state.firstName,
-        state.lastName,
-        state.currency!
-      );
-    }
     return clientRepo.update(Client(
       state.client?.id,
       state.client?.num,
@@ -135,68 +128,6 @@ class ClientInfoWidget extends StreamWidget<ClientInfoModel, ClientInfoState> {
     ]));
   }
 
-  // ignore: unused_element
-  Widget _buildFirstName(ClientInfoModel model, ClientInfoState state) {
-    return _textInput(
-        "First Name:", state.firstName, (text) => model.firstNameStreamController.add(text), true);
-  }
-
-  // ignore: unused_element
-  Widget _buildLastName(ClientInfoModel model, ClientInfoState state) {
-    return _textInput(
-        "Last Name:", state.lastName, (text) => model.lastNameStreamController.add(text), false);
-  }
-
-  // ignore: unused_element
-  Widget _buildCurrencySelector(ClientInfoModel model, ClientInfoState state) {
-    var dropDownButton = DropdownButton<Currency>(
-      hint: Text('Please make a selection'),
-      items: Currency.values.map((enumValue) {
-        return DropdownMenuItem<Currency>(
-          value: enumValue,
-          child: new Text(enumValue.toString().split(".")[1]),
-        );
-      }).toList(),
-      onChanged: (selection) {
-        model.currencyStreamController.add(selection);
-      },
-      value: state.currency,
-    );
-    var formField = FormField(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      builder: (state) => dropDownButton,
-    );
-    return _inputWidget("Currency:", formField);
-  }
-
-  static Widget _inputWidget(String title, Widget child) {
-    return Row(
-      children: [
-        Container(
-          child: Text(title),
-          margin: EdgeInsets.only(right: 10.0),
-        ),
-        Expanded(child: child),
-      ],
-    );
-  }
-
-  static Widget _textInput(String title, String? value,
-      void Function(String) onChanged, bool autoFocus) {
-    print("FOO: $value");
-    Widget child = TextFormField(
-      autofocus: autoFocus && value == null,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter some text';
-        }
-        return null;
-      },
-      initialValue: value,
-      onChanged: onChanged,
-    );
-    return _inputWidget(title, child);
-  }
 
   Widget _paddedItem(Widget child) {
     return Container(

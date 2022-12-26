@@ -13,6 +13,7 @@ class Client extends Indexable<Client> {
   final String lastName;
   final Currency? currency;
   final bool? active;
+
   Client(
       this.id,
       this.num,
