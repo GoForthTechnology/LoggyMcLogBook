@@ -73,7 +73,7 @@ class OverviewScreen extends StatelessWidget {
         ClientsScreenRoute(),
         Consumer<Clients>(builder: (context, model, child) => FutureBuilder<List<Client>>(
           future: model.getAll(),
-          builder: (context, snapshot) => Text("Num Clients: ${snapshot.data?.length}"),
+          builder: (context, snapshot) => Text("Num Clients: ${snapshot.data?.length ?? 0}"),
         )));
   }
 
