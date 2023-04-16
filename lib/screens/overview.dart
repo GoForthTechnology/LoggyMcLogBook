@@ -126,7 +126,7 @@ class OverviewScreen extends StatelessWidget {
           ],
         ),
         child: Column(children: [
-          Text(title, style: Theme.of(context).textTheme.subtitle1),
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
           Container(margin: EdgeInsets.only(top: 10.0), child: contents),
         ]),
       ),
