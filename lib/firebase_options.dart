@@ -53,13 +53,13 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD75jueKxWnMc8fm4xY_cQTp6h7FQrnP3U',
-    appId: '1:794327124452:web:126f06aa779b79a85a1ff1',
-    messagingSenderId: '794327124452',
-    projectId: 'loggy-mclogbook',
-    authDomain: 'loggy-mclogbook.firebaseapp.com',
-    databaseURL: 'https://loggy-mclogbook-default-rtdb.firebaseio.com',
-    storageBucket: 'loggy-mclogbook.appspot.com',
-    measurementId: 'G-HB2V9K94EB',
+    apiKey: 'AIzaSyASA1gsH_HuIeA1Ds5BEGkGA-FuZHu9SP4',
+    appId: '1:582214367176:web:2df965599589bf19c6b2fd',
+    messagingSenderId: '582214367176',
+    projectId: 'fc-logbook',
+    authDomain: 'fc-logbook.firebaseapp.com',
+    databaseURL: 'https://fc-logbook-default-rtdb.firebaseio.com',
+    storageBucket: 'fc-logbook.appspot.com',
+    measurementId: 'G-ZW857HKTXC',
   );
 }

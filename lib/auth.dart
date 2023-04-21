@@ -21,10 +21,10 @@ const authRoutes = [
   ),
 ];
 
-const googleClientId = '103213342463-nmcgbh2qjg5r557uthoj5j045fdnehra.apps.googleusercontent.com';
+const googleClientId = '582214367176-tbs5t9ebp84fvmrieirce557lv0cfmn5.apps.googleusercontent.com';
 
 final List<AuthProvider> authProviders = [
-  EmailAuthProvider(),
+  //EmailAuthProvider(),
   GoogleProvider(clientId: googleClientId),
 ];
 
