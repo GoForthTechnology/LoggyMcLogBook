@@ -60,7 +60,7 @@ class ClientTile extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor:
-              client.id == null
+              client.num == null
                   ? Colors.black
                   : Colors.blue,
                   //: Colors.primaries[client.id! % Colors.primaries.length],
