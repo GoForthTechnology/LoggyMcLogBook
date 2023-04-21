@@ -5,6 +5,12 @@ import 'currency.dart';
 
 part 'client.g.dart';
 
+enum ClientStatus {
+  Prospective,
+  Active,
+  Inactive
+}
+
 @JsonSerializable(explicitToJson: true)
 class Client extends Indexable<Client> {
   final String? id;
@@ -28,8 +34,18 @@ class Client extends Indexable<Client> {
     return id;
   }
 
+  ClientStatus status() {
+    if (num == null) {
+      return ClientStatus.Prospective;
+    }
+    if (active ?? false) {
+      return ClientStatus.Active;
+    }
+    return ClientStatus.Inactive;
+  }
+
   bool isActive() {
-    return num != null && (active ?? false);
+    return status() == ClientStatus.Active;
   }
 
   @override
