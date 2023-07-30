@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/entities/appointment.dart';
+import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 
 class Appointments extends ChangeNotifier {

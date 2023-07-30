@@ -125,6 +125,7 @@ class AppointmentsSummaryWidget extends StreamWidget<AppointmentSummaryModel, Ap
         _buildNextAppointment(state, context),
         _buildLastAppointment(state, context),
         _buildToBeInvoiced(state, context),
+
         _buildNumAppointments(state, context),
       ],
     );

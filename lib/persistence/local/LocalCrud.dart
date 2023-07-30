@@ -1,6 +1,6 @@
-import 'package:uuid/uuid.dart';
 import 'package:lmlb/persistence/CrudInterface.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
+import 'package:uuid/uuid.dart';
 
 class LocalCrud<T extends Indexable> extends CrudInterface<T> {
   final uuid = Uuid();

@@ -22,6 +22,9 @@ class ClientListData {
   static ClientListData from(List<Client> clients) {
     List<ClientData> data = [];
     for (var client in clients) {
+      if (client.status() == ClientStatus.Prospective) {
+        continue;
+      }
       data.add(ClientData.from(client));
     }
     return ClientListData(data);
@@ -36,7 +39,7 @@ class ClientData {
   ClientData(this.tile, this.id, this.icon);
 
   static ClientData from(Client client) {
-    var title = '${client.firstName} ${client.lastName} ${client.num == null ? "" : "#${client.displayNum()}"}';
+    var title = '${client.num == null ? "" : "#${client.displayNum()} - ${client.firstName} ${client.lastName}"}';
     return ClientData(title, client.id, ClientIcon.from(client));
   }
 }
