@@ -30,7 +30,7 @@ class ClientTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Card(child: Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
         key: Key('client_text_${client.id}'),
@@ -38,7 +38,7 @@ class ClientTile extends StatelessWidget {
         leading: ClientIconWidget(data: client.icon),
         onTap: () => Provider.of<ClientListModel>(context, listen: false).onClientTapped(context, client.id),
       ),
-    );
+    ));
   }
 }
 
