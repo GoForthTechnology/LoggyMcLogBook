@@ -64,7 +64,7 @@ class OverviewTile extends StatelessWidget {
       ),
     )).toList();
     var listTile = ListTile(
-      leading: Icon(this.icon),
+      leading: Icon(this.icon, color: attentionLevel.borderColor,),
       title: Text(this.title),
       subtitle: this.subtitle != null ? Text(this.subtitle!) : null,
       trailing: Row(

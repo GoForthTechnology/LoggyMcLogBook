@@ -58,6 +58,7 @@ class ClientInfoModel extends WidgetModel<ClientInfoState> {
       state.client?.num,
       state.firstName,
       state.lastName,
+      "", // TODO: fix this to actually set the spouse name
       state.currency,
       state.client?.active,
     ));
@@ -87,24 +88,15 @@ class ClientInfoState {
     this.currency,
   });
 }
-
 class ClientInfoWidget extends StreamWidget<ClientInfoModel, ClientInfoState> {
 
   @override
-  Widget render(BuildContext context, ClientInfoState state,ClientInfoModel model) {
+  Widget render(BuildContext context, ClientInfoState state, ClientInfoModel model) {
     print("Re-rendering");
-    return Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-      Container(
-        margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
-        child: Text("Client Info", style: Theme.of(context).textTheme.titleMedium),
-      ),
-      _buildClientNum(state, model),
-      _buildTextWidget("First Name:", Text(state.firstName)),
-      _buildTextWidget("Last Name:", Text(state.lastName)),
-      _buildTextWidget("Currency:", Text(state.currency?.name ?? "TBD")),
-    ]);
+    return Column(
+      children: [],
+    );
   }
-
 
   Widget _buildClientNum(ClientInfoState state, ClientInfoModel model) {
     final client = state.client;

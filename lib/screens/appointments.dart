@@ -6,14 +6,14 @@ import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/widgets/appointment_list/appointment_list_model.dart';
 import 'package:lmlb/widgets/appointment_list/appointment_list_widget.dart';
 
-enum View { ALL, PENDING }
+enum AppointmentListView { ALL, PENDING }
 
-extension ViewExt on View {
+extension ViewExt on AppointmentListView {
   bool Function(Appointment) predicate() {
     switch (this) {
-      case View.ALL:
+      case AppointmentListView.ALL:
         return (v) => true;
-      case View.PENDING:
+      case AppointmentListView.PENDING:
         return (v) => v.invoiceId == null;
       default:
         throw Exception("Unsupported View typel");
@@ -23,10 +23,10 @@ extension ViewExt on View {
 
 class AppointmentsScreen extends StatelessWidget {
   final Client? client;
-  final View view;
+  final AppointmentListView view;
 
   AppointmentsScreen({Key? key, this.client, @PathParam() required String view})
-      : this.view = View.values.firstWhere((v) => v.name == view.toUpperCase()),
+      : this.view = AppointmentListView.values.firstWhere((v) => v.name == view.toUpperCase()),
         super(key: key);
 
   @override
@@ -56,8 +56,8 @@ class AppointmentsScreen extends StatelessWidget {
     );
   }
 
-  Widget? buildFab(BuildContext context, View view) {
-    if (view == View.ALL) {
+  Widget? buildFab(BuildContext context, AppointmentListView view) {
+    if (view == AppointmentListView.ALL) {
       return FloatingActionButton(
         // isExtended: true,
         child: Icon(Icons.add),

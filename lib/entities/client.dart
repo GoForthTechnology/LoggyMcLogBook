@@ -17,6 +17,7 @@ class Client extends Indexable<Client> {
   final int? num;
   final String firstName;
   final String lastName;
+  final String spouseName;
   final Currency? currency;
   final bool? active;
 
@@ -25,9 +26,26 @@ class Client extends Indexable<Client> {
       this.num,
       this.firstName,
       this.lastName,
+      this.spouseName,
       this.currency,
       this.active,
       );
+
+  Client copyWith({
+    String? firstName,
+    String? lastName,
+    String? spouseName,
+  }) {
+    return Client(
+      this.id,
+      this.num,
+      firstName ?? this.firstName,
+      lastName ?? this.lastName,
+      spouseName ?? this.spouseName,
+      this.currency,
+      this.active,
+    );
+  }
 
   @override
   String? getId() {
@@ -50,15 +68,15 @@ class Client extends Indexable<Client> {
 
   @override
   Client setId(String id) {
-    return new Client(id, num, firstName, lastName, currency, active);
+    return new Client(id, num, firstName, lastName, spouseName, currency, active);
   }
 
   Client assignNum(int num) {
-    return new Client(id, num, firstName, lastName, currency, active);
+    return new Client(id, num, firstName, lastName, spouseName, currency, active);
   }
 
   Client setActive(bool value) {
-    return new Client(id, num, firstName, lastName, currency, value);
+    return new Client(id, num, firstName, lastName, spouseName, currency, value);
   }
 
   String fullName() {

@@ -180,7 +180,7 @@ class AppointmentsSummaryWidget extends StreamWidget<AppointmentSummaryModel, Ap
   Widget _buildToBeInvoiced(AppointmentSummaryState state,BuildContext context) {
     return Row(children: [
       _paddedItem(Text("To Be Invoiced: ${state.toBeInvoicedAppointments.length}")),
-      TextButton(onPressed: () => AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.PENDING.name)), child: Text("View")),
+      TextButton(onPressed: () => AutoRouter.of(context).push(AppointmentsScreenRoute(view: AppointmentListView.PENDING.name)), child: Text("View")),
     ]);
   }
 
@@ -192,7 +192,7 @@ class AppointmentsSummaryWidget extends StreamWidget<AppointmentSummaryModel, Ap
         !state.hasAppointments() ? Container() : TextButton(
           child: Text("View"),
           onPressed: () {
-            AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.ALL.name, client: state.client));
+            AutoRouter.of(context).push(AppointmentsScreenRoute(view: AppointmentListView.ALL.name, client: state.client));
           },
         ),
       ],

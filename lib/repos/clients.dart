@@ -15,7 +15,10 @@ class Clients extends ChangeNotifier {
   }
 
   Future<List<Client>> getAll() async {
-    return _persistence.getAll().first;
+    return _persistence.getAll().first.onError((error, stackTrace) {
+      print("Error getting Clients: $error");
+      return [];
+    });
   }
 
   Future<Map<String, Client>> getAllIndexed() async {

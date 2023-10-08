@@ -20,7 +20,8 @@ class NewClientModel extends ChangeNotifier {
   }
 
   Client client() {
-    return Client(null, null, firstNameController.text, lastNameController.text, currency, true);
+    // TODO: fix this to actually set the spouse name
+    return Client(null, null, firstNameController.text, lastNameController.text, "", currency, true);
   }
 }
 

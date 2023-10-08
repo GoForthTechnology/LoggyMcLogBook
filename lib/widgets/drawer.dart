@@ -40,7 +40,7 @@ class DrawerWidget extends StatelessWidget {
               title: const Text('Appointments'),
               leading: Icon(Icons.event),
               onTap: () {
-                AutoRouter.of(context).push(AppointmentsScreenRoute(view: View.ALL.name));
+                AutoRouter.of(context).push(AppointmentsScreenRoute(view: AppointmentListView.ALL.name));
                 Navigator.pop(context);
               },
             ),

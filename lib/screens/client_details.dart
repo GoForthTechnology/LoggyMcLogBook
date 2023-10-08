@@ -2,9 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/clients.dart';
-import 'package:lmlb/widgets/appointments_summary.dart';
+import 'package:lmlb/widgets/client_detail/client_detail.dart';
 import 'package:lmlb/widgets/client_info.dart';
-import 'package:lmlb/widgets/invoices_summary.dart';
 import 'package:provider/provider.dart';
 
 class ClientDetailsScreen extends StatelessWidget {
@@ -57,7 +56,8 @@ class ClientDetailsScreen extends StatelessWidget {
                               mainAxisSize: MainAxisSize.max,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                ClientInfoWidget(),
+                                ClientDetailsWidget(clientID: clientId!,),
+                                /*ClientInfoWidget(),
                                 if (model.client?.isActive() ?? false)
                                   Row(
                                       crossAxisAlignment:
@@ -71,7 +71,7 @@ class ClientDetailsScreen extends StatelessWidget {
                                             model.client!),
                                         Spacer(),
                                       ]),
-                                if (model.client != null) _buildActivateDeactivate(model.client!, clientModel),
+                                if (model.client != null) _buildActivateDeactivate(model.client!, clientModel),*/
                               ],
                             ),
                           ),
