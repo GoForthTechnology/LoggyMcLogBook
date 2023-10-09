@@ -5,45 +5,76 @@ import 'currency.dart';
 
 part 'client.g.dart';
 
-enum ClientStatus {
-  Prospective,
-  Active,
-  Inactive
-}
+enum ClientStatus { Prospective, Active, Inactive }
 
 @JsonSerializable(explicitToJson: true)
 class Client extends Indexable<Client> {
-  final String? id;
-  final int? num;
   final String firstName;
   final String lastName;
-  final String spouseName;
+
+  final String? id;
+  final int? num;
+  final String? spouseName;
   final Currency? currency;
   final bool? active;
 
-  Client(
-      this.id,
-      this.num,
-      this.firstName,
-      this.lastName,
-      this.spouseName,
-      this.currency,
-      this.active,
-      );
+  final String? address;
+  final String? city;
+  final String? state;
+  final String? zip;
+  final String? country;
+
+  final String? email;
+  final String? phoneNumber;
+
+  Client({
+    required this.firstName,
+    required this.lastName,
+    this.id,
+    this.num,
+    this.spouseName,
+    this.currency,
+    this.active,
+    this.address,
+    this.city,
+    this.state,
+    this.zip,
+    this.country,
+    this.email,
+    this.phoneNumber,
+  });
 
   Client copyWith({
+    String? id,
+    int? num,
     String? firstName,
     String? lastName,
     String? spouseName,
+    String? address,
+    String? city,
+    String? state,
+    String? zip,
+    String? country,
+    Currency? currency,
+    bool? active,
+    String? email,
+    String? phoneNumber,
   }) {
     return Client(
-      this.id,
-      this.num,
-      firstName ?? this.firstName,
-      lastName ?? this.lastName,
-      spouseName ?? this.spouseName,
-      this.currency,
-      this.active,
+      id: id ?? this.id,
+      num: num ?? this.num,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      spouseName: spouseName ?? this.spouseName,
+      currency: currency ?? this.currency,
+      active: active ?? this.active,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      state: state ?? this.state,
+      zip: zip ?? this.zip,
+      country: country ?? this.country,
+      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
     );
   }
 
@@ -68,15 +99,17 @@ class Client extends Indexable<Client> {
 
   @override
   Client setId(String id) {
-    return new Client(id, num, firstName, lastName, spouseName, currency, active);
+    return copyWith(id: id);
   }
 
+  @deprecated
   Client assignNum(int num) {
-    return new Client(id, num, firstName, lastName, spouseName, currency, active);
+    return copyWith(num: num);
   }
 
+  @deprecated
   Client setActive(bool value) {
-    return new Client(id, num, firstName, lastName, spouseName, currency, value);
+    return copyWith(active: value);
   }
 
   String fullName() {
@@ -88,5 +121,6 @@ class Client extends Indexable<Client> {
   }
 
   factory Client.fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);
+
   Map<String, dynamic> toJson() => _$ClientToJson(this);
 }

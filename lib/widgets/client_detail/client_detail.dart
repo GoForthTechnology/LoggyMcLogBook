@@ -19,7 +19,7 @@ class ClientDetailsWidget extends StatelessWidget {
         Wrap(children: [
           ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: ClientBasicInfoWidget(clientID: clientID)),
           Column(children: [
-            ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: ClientContactInfoWidget()),
+            ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: ClientContactInfoWidget(clientID: clientID,)),
             ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: ClientBillingInfoWidget()),
           ]),
         ],),
@@ -120,7 +120,7 @@ class ClientBasicInfoWidget extends StatelessWidget {
             EditorItem(
               itemName: "Spouse Name",
               clientID: clientID,
-              getItemValue: (client) => client.spouseName,
+              getItemValue: (client) => client.spouseName ?? "",
               setItemValue: (client, value) => client.copyWith(spouseName: value),
             ),
             InfoItem(
@@ -155,22 +155,61 @@ class ClientBillingInfoWidget extends StatelessWidget {
 }
 
 class ClientContactInfoWidget extends StatelessWidget {
+  final String clientID;
+
+  const ClientContactInfoWidget({super.key, required this.clientID});
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ClientDetailModel>(builder: (context, model, child) => _ExpandableInfoWidget(
       title: "Contact Info",
       subtitle: "",
       contents: [
-        /*EditorItem(itemName: "Email"),
-        EditorItem(itemName: "Phone Number"),
-        EditorItem(itemName: "Intention"),
-        EditorItem(itemName: "Age"),
+        //EditorItem(itemName: "Intention"),
+        //EditorItem(itemName: "Age"),
+        EditorItem(
+          itemName: "Email",
+          clientID: clientID,
+          getItemValue: (client) => client.email ?? "",
+          setItemValue: (client, value) => client.copyWith(email: value),
+        ),
+        EditorItem(
+          itemName: "Phone Number",
+          clientID: clientID,
+          getItemValue: (client) => client.phoneNumber ?? "",
+          setItemValue: (client, value) => client.copyWith(phoneNumber: value),
+        ),
         Divider(),
-        EditorItem(itemName: "Address"),
-        EditorItem(itemName: "City"),
-        EditorItem(itemName: "State"),
-        EditorItem(itemName: "Zip"),
-        EditorItem(itemName: "Country"),*/
+        EditorItem(
+          itemName: "Address",
+          clientID: clientID,
+          getItemValue: (client) => client.address ?? "",
+          setItemValue: (client, value) => client.copyWith(address: value),
+        ),
+        EditorItem(
+          itemName: "City",
+          clientID: clientID,
+          getItemValue: (client) => client.city ?? "",
+          setItemValue: (client, value) => client.copyWith(city: value),
+        ),
+        EditorItem(
+          itemName: "State",
+          clientID: clientID,
+          getItemValue: (client) => client.state ?? "",
+          setItemValue: (client, value) => client.copyWith(state: value),
+        ),
+        EditorItem(
+          itemName: "ZIP",
+          clientID: clientID,
+          getItemValue: (client) => client.zip ?? "",
+          setItemValue: (client, value) => client.copyWith(zip: value),
+        ),
+        EditorItem(
+          itemName: "Country",
+          clientID: clientID,
+          getItemValue: (client) => client.country ?? "",
+          setItemValue: (client, value) => client.copyWith(country: value),
+        ),
       ],
     ));
   }
@@ -241,9 +280,10 @@ class _ExpandableInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(child: ExpansionTile(
       title: Text(title, style: Theme.of(context).textTheme.titleLarge),
-      subtitle: Text(subtitle),
+      subtitle: subtitle == "" ? null : Text(subtitle),
       childrenPadding: EdgeInsets.symmetric(horizontal: 20),
       expandedCrossAxisAlignment: CrossAxisAlignment.start,
+      expandedAlignment: Alignment.topLeft,
       children: contents,
     ));
   }

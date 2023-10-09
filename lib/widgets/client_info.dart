@@ -54,13 +54,12 @@ class ClientInfoModel extends WidgetModel<ClientInfoState> {
 
   Future<void> save(ClientInfoState state) async {
     return clientRepo.update(Client(
-      state.client?.id,
-      state.client?.num,
-      state.firstName,
-      state.lastName,
-      "", // TODO: fix this to actually set the spouse name
-      state.currency,
-      state.client?.active,
+      id: state.client?.id,
+      num: state.client?.num,
+      firstName: state.firstName,
+      lastName: state.lastName,
+      currency: state.currency,
+      active: state.client?.active,
     ));
   }
 

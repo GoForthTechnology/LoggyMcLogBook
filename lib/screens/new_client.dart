@@ -7,7 +7,6 @@ import 'package:lmlb/routes.gr.dart';
 import 'package:provider/provider.dart';
 
 class NewClientModel extends ChangeNotifier {
-
   final formKey = GlobalKey<FormState>();
 
   TextEditingController firstNameController = new TextEditingController();
@@ -21,27 +20,37 @@ class NewClientModel extends ChangeNotifier {
 
   Client client() {
     // TODO: fix this to actually set the spouse name
-    return Client(null, null, firstNameController.text, lastNameController.text, "", currency, true);
+    return Client(
+      firstName: firstNameController.text,
+      lastName: lastNameController.text,
+      currency: currency,
+      active: true,
+    );
   }
 }
 
 class NewClientScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(create: (_) => NewClientModel(), child: Scaffold(
-      appBar: AppBar(
-        title: Text("New Client"),
-        actions: [
-          Consumer2<Clients, NewClientModel>(builder: (context, clientRepo, model, child) => TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
-            icon: const Icon(Icons.save),
-            label: const Text('Save'),
-            onPressed: () => onSave(context, clientRepo, model),
-          ))
-        ],
-      ),
-      body: _inputForm(),
-    ));
+    return ChangeNotifierProvider(
+        create: (_) => NewClientModel(),
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text("New Client"),
+            actions: [
+              Consumer2<Clients, NewClientModel>(
+                  builder: (context, clientRepo, model, child) =>
+                      TextButton.icon(
+                        style:
+                            TextButton.styleFrom(foregroundColor: Colors.white),
+                        icon: const Icon(Icons.save),
+                        label: const Text('Save'),
+                        onPressed: () => onSave(context, clientRepo, model),
+                      )),
+            ],
+          ),
+          body: _inputForm(),
+        ));
   }
 
   void onSave(BuildContext context, Clients clientRepo, NewClientModel model) {
@@ -50,19 +59,21 @@ class NewClientScreen extends StatelessWidget {
       return;
     }
     clientRepo.add(model.client()).then((client) {
-      AutoRouter.of(context).popAndPush(ClientDetailsScreenRoute(clientId: client.id));
+      AutoRouter.of(context)
+          .popAndPush(ClientDetailsScreenRoute(clientId: client.id));
     });
   }
 
   Widget _inputForm() {
-    return Consumer<NewClientModel>(builder: (context, model, child) => Form(
-      key: model.formKey,
-      child: Column(children: [
-        _buildFirstName(model),
-        _buildLastName(model),
-        _buildCurrencySelector(model),
-      ]),
-    ));
+    return Consumer<NewClientModel>(
+        builder: (context, model, child) => Form(
+              key: model.formKey,
+              child: Column(children: [
+                _buildFirstName(model),
+                _buildLastName(model),
+                _buildCurrencySelector(model),
+              ]),
+            ));
   }
 
   Widget _buildFirstName(NewClientModel model) {

@@ -7,23 +7,33 @@ part of 'client.dart';
 // **************************************************************************
 
 Client _$ClientFromJson(Map<String, dynamic> json) => Client(
-      json['id'] as String?,
-      json['num'] as int?,
-      json['firstName'] as String,
-      json['lastName'] as String,
-      json['spouseName'] as String,
-      $enumDecodeNullable(_$CurrencyEnumMap, json['currency']),
-      json['active'] as bool?,
+      firstName: json['firstName'] as String,
+      lastName: json['lastName'] as String,
+      id: json['id'] as String?,
+      num: json['num'] as int?,
+      spouseName: json['spouseName'] as String?,
+      currency: $enumDecodeNullable(_$CurrencyEnumMap, json['currency']),
+      active: json['active'] as bool?,
+      address: json['address'] as String?,
+      city: json['city'] as String?,
+      state: json['state'] as String?,
+      zip: json['zip'] as String?,
+      country: json['country'] as String?,
     );
 
 Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
-      'id': instance.id,
-      'num': instance.num,
       'firstName': instance.firstName,
       'lastName': instance.lastName,
+      'id': instance.id,
+      'num': instance.num,
       'spouseName': instance.spouseName,
       'currency': _$CurrencyEnumMap[instance.currency],
       'active': instance.active,
+      'address': instance.address,
+      'city': instance.city,
+      'state': instance.state,
+      'zip': instance.zip,
+      'country': instance.country,
     };
 
 const _$CurrencyEnumMap = {
