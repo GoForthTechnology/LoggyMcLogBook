@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 
 class MyEditableText extends StatefulWidget {
   final Future<String> initialText;
@@ -60,12 +62,21 @@ class _EditableTextState extends State<MyEditableText> {
   }
 
   Widget editMode(String text) {
+    var confirm = () => setState(() {
+      editing = false;
+      hovering = false;
+      widget.onSave(tmpText).catchError((error) => widget.onError(error));
+    });
+    var handler = (event) {
+      if (event.physicalKey == PhysicalKeyboardKey.enter) {
+        confirm();
+      }
+      return false;
+    };
+    ServicesBinding.instance.keyboard.addHandler(handler);
+    // TODO: figure out a way to remove the handler
     var buttons = [
-      _ConfirmIcon(onClick: () => setState(() {
-        editing = false;
-        hovering = false;
-        widget.onSave(tmpText).catchError((error) => widget.onError(error));
-      })),
+      _ConfirmIcon(onClick: confirm),
       _CancelIcon(onClick: () => setState(() {
         editing = false;
         hovering = false;
