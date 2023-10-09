@@ -107,16 +107,6 @@ class Client extends Indexable<Client> {
     return copyWith(id: id);
   }
 
-  @deprecated
-  Client assignNum(int num) {
-    return copyWith(num: num);
-  }
-
-  @deprecated
-  Client setActive(bool value) {
-    return copyWith(active: value);
-  }
-
   String fullName() {
     return "$firstName $lastName";
   }

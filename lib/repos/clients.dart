@@ -74,16 +74,16 @@ class Clients extends ChangeNotifier {
         maxClientNum = client.num!;
       }
     });
-    return _persistence.update(client.assignNum(maxClientNum + 1))
+    return _persistence.update(client.copyWith(num: maxClientNum + 1))
         .then((_) => notifyListeners());
   }
 
   Future<void> activate(Client client) {
-    return _persistence.update(client.setActive(true)).then((_) => notifyListeners());
+    return _persistence.update(client.copyWith(active: true)).then((_) => notifyListeners());
   }
 
   Future<void> deactivate(Client client) {
-    return _persistence.update(client.setActive(false)).then((_) => notifyListeners());
+    return _persistence.update(client.copyWith(active: false)).then((_) => notifyListeners());
   }
 
   Future<void> update(Client client) {
