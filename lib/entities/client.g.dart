@@ -19,6 +19,9 @@ Client _$ClientFromJson(Map<String, dynamic> json) => Client(
       state: json['state'] as String?,
       zip: json['zip'] as String?,
       country: json['country'] as String?,
+      email: json['email'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+      referralNotes: json['referralNotes'] as String?,
     );
 
 Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
@@ -34,6 +37,9 @@ Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
       'state': instance.state,
       'zip': instance.zip,
       'country': instance.country,
+      'email': instance.email,
+      'phoneNumber': instance.phoneNumber,
+      'referralNotes': instance.referralNotes,
     };
 
 const _$CurrencyEnumMap = {

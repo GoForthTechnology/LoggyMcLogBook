@@ -27,6 +27,8 @@ class Client extends Indexable<Client> {
   final String? email;
   final String? phoneNumber;
 
+  final String? referralNotes;
+
   Client({
     required this.firstName,
     required this.lastName,
@@ -42,6 +44,7 @@ class Client extends Indexable<Client> {
     this.country,
     this.email,
     this.phoneNumber,
+    this.referralNotes,
   });
 
   Client copyWith({
@@ -59,6 +62,7 @@ class Client extends Indexable<Client> {
     bool? active,
     String? email,
     String? phoneNumber,
+    String? referralNotes,
   }) {
     return Client(
       id: id ?? this.id,
@@ -75,6 +79,7 @@ class Client extends Indexable<Client> {
       country: country ?? this.country,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
+      referralNotes: referralNotes ?? this.referralNotes,
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/widgets/client_list/client_list_model.dart';
 import 'package:lmlb/widgets/client_list/client_list_widget.dart';
+import 'package:lmlb/widgets/new_client_dialog.dart';
 import 'package:provider/provider.dart';
 
 class ClientsScreen extends StatelessWidget {
@@ -42,13 +43,6 @@ class ClientsScreen extends StatelessWidget {
   }
 
   void addClient(BuildContext context) {
-    AutoRouter.of(context).push(NewClientScreenRoute())
-        .then((updated) {
-      if (updated as bool) {
-        ScaffoldMessenger.of(context)
-          ..removeCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text('Client added')));
-      }
-    });
+    showDialog(context: context, builder: (context) => NewClientDialog());
   }
 }

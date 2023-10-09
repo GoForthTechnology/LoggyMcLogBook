@@ -56,7 +56,10 @@ class Clients extends ChangeNotifier {
     return clients.firstWhere((client) => client.num == clientNum, orElse: null);
   }
 
-  Future<Client> add(Client client) async {
+  Future<Client> newClient(Client client) async {
+    if (client.id != null) {
+      throw Exception("New clients cannot have IDs already assigned ${client.id}");
+    }
     return _persistence.insert(client).then((id) => client.setId(id));
   }
 
