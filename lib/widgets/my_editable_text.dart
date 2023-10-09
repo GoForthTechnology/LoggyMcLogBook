@@ -29,6 +29,32 @@ class _EditableTextState extends State<MyEditableText> {
     );
   }
 
+  void _confirmEdit() {
+    setState(() {
+      editing = false;
+      hovering = false;
+      widget.onSave(tmpText).catchError((error) => widget.onError(error));
+      ServicesBinding.instance.keyboard.removeHandler(_keyboardListener);
+    });
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      editing = false;
+      hovering = false;
+      ServicesBinding.instance.keyboard.removeHandler(_keyboardListener);
+    });
+  }
+
+  bool _keyboardListener(KeyEvent event) {
+    if (event.physicalKey == PhysicalKeyboardKey.enter) {
+      _confirmEdit();
+    } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
+      _cancelEdit();
+    }
+    return false;
+  }
+
   Widget readOnlyMode(String text) {
     Widget widget = Padding(
       padding: EdgeInsets.symmetric(vertical: 4),
@@ -62,25 +88,10 @@ class _EditableTextState extends State<MyEditableText> {
   }
 
   Widget editMode(String text) {
-    var confirm = () => setState(() {
-      editing = false;
-      hovering = false;
-      widget.onSave(tmpText).catchError((error) => widget.onError(error));
-    });
-    var handler = (event) {
-      if (event.physicalKey == PhysicalKeyboardKey.enter) {
-        confirm();
-      }
-      return false;
-    };
-    ServicesBinding.instance.keyboard.addHandler(handler);
-    // TODO: figure out a way to remove the handler
+    ServicesBinding.instance.keyboard.addHandler(_keyboardListener);
     var buttons = [
-      _ConfirmIcon(onClick: confirm),
-      _CancelIcon(onClick: () => setState(() {
-        editing = false;
-        hovering = false;
-      })),
+      _ConfirmIcon(onClick: _confirmEdit),
+      _CancelIcon(onClick: _cancelEdit),
     ];
     return Expanded(child: TextFormField(
       initialValue: text,
