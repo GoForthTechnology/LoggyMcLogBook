@@ -8,8 +8,9 @@ class ExpandableInfoPanel extends StatelessWidget {
   final String title;
   final String subtitle;
   final List<Widget> contents;
+  final Widget? trailing;
 
-  const ExpandableInfoPanel({required this.title, required this.subtitle, required this.contents});
+  const ExpandableInfoPanel({required this.title, required this.subtitle, required this.contents, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +21,7 @@ class ExpandableInfoPanel extends StatelessWidget {
       expandedCrossAxisAlignment: CrossAxisAlignment.start,
       expandedAlignment: Alignment.topLeft,
       children: contents,
+      trailing: trailing,
     ));
   }
 }
@@ -32,15 +34,12 @@ class InfoPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(child: Padding(padding: EdgeInsets.all(20), child: ConstrainedBox(
-      constraints: BoxConstraints(minWidth: 300),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          ...contents.map((w) => Padding(padding: EdgeInsets.symmetric(vertical: 4), child: w)),
-        ],
-      ),
+    return Card(child: Padding(padding: EdgeInsets.all(20), child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
+        ...contents.map((w) => Padding(padding: EdgeInsets.symmetric(vertical: 4), child: w)),
+      ],
     )));
   }
 }
@@ -54,7 +53,7 @@ class InfoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(padding: EdgeInsets.all(2), child: Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Text("$itemName:", style: Theme.of(context).textTheme.titleMedium?.apply(fontWeightDelta: 2)),

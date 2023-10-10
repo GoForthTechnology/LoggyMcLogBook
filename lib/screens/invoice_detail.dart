@@ -71,9 +71,10 @@ class InvoiceDetailModel extends ChangeNotifier {
   void _updateCurrency() {
     // Only update currency based on the client info if the invoice has not been
     // saved.
-    if (clientId != null && invoiceId == null) {
+    // TODO: reenable
+    /*if (clientId != null && invoiceId == null) {
       clientRepo.get(clientId!).then((client) => currency = client?.currency);
-    }
+    }*/
   }
 
   void _updateAppointments() {

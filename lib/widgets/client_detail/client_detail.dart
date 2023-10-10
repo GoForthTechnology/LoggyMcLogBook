@@ -3,6 +3,7 @@ import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/widgets/client_detail/client_detail_model.dart';
 import 'package:lmlb/widgets/currency_selector.dart';
+import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
@@ -17,11 +18,11 @@ class ClientDetailsWidget extends StatelessWidget {
     return Consumer<Clients>(builder: (context, clientRepo, child) {
       List<Widget> contents = [
         Wrap(children: [
-          ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: ClientBasicInfoWidget(clientID: clientID)),
-          Column(children: [
+          ClientBasicInfoWidget(clientID: clientID),
+          /*Column(children: [
             ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: ClientContactInfoWidget(clientID: clientID,)),
             ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: ClientBillingInfoWidget()),
-          ]),
+          ]),*/
         ],),
         Padding(padding: EdgeInsets.all(20), child: Row(
           children: [
@@ -85,6 +86,7 @@ class ClientDetailsWidget extends StatelessWidget {
               OverviewAction("Edit"),
             ],
           ),
+          GifForm(),
         ],)
       ];
       return ChangeNotifierProvider<ClientDetailModel>(
@@ -120,12 +122,12 @@ class ClientBasicInfoWidget extends StatelessWidget {
               getItemValue: (client) => client.lastName,
               setItemValue: (client, value) => client.copyWith(lastName: value),
             ),
-            EditorItem(
+            /*EditorItem(
               itemName: "Spouse Name",
               clientID: clientID,
               getItemValue: (client) => client.spouseName ?? "",
               setItemValue: (client, value) => client.copyWith(spouseName: value),
-            ),
+            ),*/
             InfoItem(
               itemName: "Next Appointment", itemValue: Text("Not Scheduled"),
             ),
@@ -170,7 +172,7 @@ class ClientContactInfoWidget extends StatelessWidget {
       contents: [
         //EditorItem(itemName: "Intention"),
         //EditorItem(itemName: "Age"),
-        EditorItem(
+        /*EditorItem(
           itemName: "Email",
           clientID: clientID,
           getItemValue: (client) => client.email ?? "",
@@ -212,7 +214,7 @@ class ClientContactInfoWidget extends StatelessWidget {
           clientID: clientID,
           getItemValue: (client) => client.country ?? "",
           setItemValue: (client, value) => client.copyWith(country: value),
-        ),
+        ),*/
       ],
     ));
   }

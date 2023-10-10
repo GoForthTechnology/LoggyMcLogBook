@@ -17,7 +17,7 @@ class StreamingFirebaseCrud<T extends Indexable> extends StreamingCrudInterface<
     FirebaseAuth.instance
         .authStateChanges()
         .listen((user) {
-      if (user != null) {
+      if (user != null && !userCompleter.isCompleted) {
         userCompleter.complete(user);
         notifyListeners();
       }

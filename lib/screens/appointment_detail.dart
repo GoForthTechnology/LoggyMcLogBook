@@ -258,7 +258,7 @@ class AppointmentDetailScreen extends StatelessWidget {
     return Consumer<Clients>(builder: (context, clients, child) => FutureBuilder<Client?>(
       future: model.clientId == null ? Future.value(null) : clients.get(model.clientId!),
       builder: (context, snapshot) {
-        var currency = snapshot.data?.currency?.name ?? "TBD";
+        var currency = "TBD";
         return InputContainer(title: "Appointment Price ($currency):", content: formField);
       },
     ));

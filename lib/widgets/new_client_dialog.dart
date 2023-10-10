@@ -14,7 +14,6 @@ class _NewClientDialogState extends State<NewClientDialog> {
 
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _referralNoteController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,6 @@ class _NewClientDialogState extends State<NewClientDialog> {
             var client = Client(
               firstName: _firstNameController.text,
               lastName: _lastNameController.text,
-              referralNotes: _referralNoteController.text,
             );
             await clientRepo.newClient(client).then((client) {
               Navigator.of(context).pop();
@@ -69,14 +67,6 @@ class _NewClientDialogState extends State<NewClientDialog> {
           ),
           validator: _valueMustNotBeEmpty,
           controller: _lastNameController,
-        ),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: "Referral Notes",
-            icon: Icon(Icons.note),
-          ),
-          maxLines: null,
-          controller: _referralNoteController,
         ),
       ],),
     );
