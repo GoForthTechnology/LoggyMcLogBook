@@ -9,15 +9,25 @@ class ExpandableInfoPanel extends StatelessWidget {
   final String subtitle;
   final List<Widget> contents;
   final Widget? trailing;
+  final bool initiallyExpanded;
+  final double childrenHorizontalPadding;
 
-  const ExpandableInfoPanel({required this.title, required this.subtitle, required this.contents, this.trailing});
+  const ExpandableInfoPanel({
+    required this.title,
+    required this.subtitle,
+    required this.contents,
+    this.trailing,
+    this.initiallyExpanded = false,
+    this.childrenHorizontalPadding = 20,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(child: ExpansionTile(
+      initiallyExpanded: initiallyExpanded,
       title: Text(title, style: Theme.of(context).textTheme.titleLarge),
       subtitle: subtitle == "" ? null : Text(subtitle),
-      childrenPadding: EdgeInsets.symmetric(horizontal: 20),
+      childrenPadding: EdgeInsets.symmetric(horizontal: childrenHorizontalPadding),
       expandedCrossAxisAlignment: CrossAxisAlignment.start,
       expandedAlignment: Alignment.topLeft,
       children: contents,

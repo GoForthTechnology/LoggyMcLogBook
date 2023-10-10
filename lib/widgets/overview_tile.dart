@@ -86,16 +86,5 @@ class OverviewTile extends StatelessWidget {
       card = GestureDetector(onTap: onClick, child: card);
     }
     return card;
-    /*return GestureDetector(onTap: onClick, child: Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(color: attentionLevel.borderColor, width: 2),
-        color: attentionLevel.fillColor,
-      ),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-        const Spacer(),
-      ] + content),
-    ));*/
   }
 }

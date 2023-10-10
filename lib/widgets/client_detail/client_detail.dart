@@ -19,81 +19,117 @@ class ClientDetailsWidget extends StatelessWidget {
       List<Widget> contents = [
         Wrap(children: [
           ClientBasicInfoWidget(clientID: clientID),
-          /*Column(children: [
-            ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: ClientContactInfoWidget(clientID: clientID,)),
-            ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: ClientBillingInfoWidget()),
-          ]),*/
         ],),
-        Padding(padding: EdgeInsets.all(20), child: Row(
-          children: [
-            Text("Action Items", style: Theme.of(context).textTheme.titleLarge,),
-            Spacer(),
-            TextButton(onPressed: () {}, child: Text("Add New"))
-          ],
-        )),
-        ListView(shrinkWrap: true, children: [
-          OverviewTile(
-            attentionLevel: OverviewAttentionLevel.RED,
-            title: "Overdue Bill",
-            subtitle: "Invoice #01120 is 13 days overdue.",
-            icon: Icons.receipt_long,
-            actions: [
-              OverviewAction("View"),
-            ],
-          ),
-          OverviewTile(
-            attentionLevel: OverviewAttentionLevel.YELLOW,
-            title: "Unbilled Appointment",
-            subtitle: "FUP 2 on June 12 2023 has not yet been billed.",
-            icon: Icons.receipt_long,
-            actions: [
-              OverviewAction("Create Invoice"),
-            ],
-          ),
-          OverviewTile(
-            attentionLevel: OverviewAttentionLevel.GREY,
-            title: "Schedule Next Appointment",
-            subtitle: "Previous appointment was FUP 5 on May 8 2023",
-            icon: Icons.event,
-            actions: [
-              OverviewAction("Schedule"),
-            ],
-          ),
-        ]),
-        Padding(padding: EdgeInsets.all(20), child: Row(
-          children: [
-            Text("Recent Notes", style: Theme.of(context).textTheme.titleLarge,),
-            Spacer(),
-            TextButton(onPressed: () {}, child: Text("Add New"))
-          ],
-        )),
-        ListView(shrinkWrap: true, children: [
-          OverviewTile(
-            attentionLevel: OverviewAttentionLevel.GREY,
-            title: "FUP 2 Notes",
-            subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-            icon: Icons.note,
-            actions: [
-              OverviewAction("Edit"),
-            ],
-          ),
-          OverviewTile(
-            attentionLevel: OverviewAttentionLevel.GREY,
-            title: "FUP 1 Notes",
-            subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-            icon: Icons.note,
-            actions: [
-              OverviewAction("Edit"),
-            ],
-          ),
-          GifForm(),
-        ],)
+        ActionItemsPanel(clientID: clientID,),
+        NotesPanel(clientID: clientID,),
+        GifForm(),
       ];
       return ChangeNotifierProvider<ClientDetailModel>(
         create: (context) => ClientDetailModel(clientID, clientRepo),
         child: ListView(children: contents),
       );
     });
+  }
+}
+
+class NotesPanel extends StatelessWidget {
+  final String? clientID;
+
+  const NotesPanel({super.key, this.clientID});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<Clients>(builder: (context, clientRepo, child) => FutureBuilder<Client?>(
+      future: clientRepo.get(clientID!),
+      builder: (context, snapshot) {
+        if (snapshot.data?.num == null) {
+          return Container();
+        }
+        return ExpandableInfoPanel(
+          title: "Notes",
+          subtitle: "",
+          initiallyExpanded: false,
+          contents: [
+            OverviewTile(
+              attentionLevel: OverviewAttentionLevel.GREY,
+              title: "FUP 2 Notes",
+              subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+              icon: Icons.note,
+              actions: [
+                OverviewAction("Edit"),
+              ],
+            ),
+            OverviewTile(
+              attentionLevel: OverviewAttentionLevel.GREY,
+              title: "FUP 1 Notes",
+              subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+              icon: Icons.note,
+              actions: [
+                OverviewAction("Edit"),
+              ],
+            ),
+          ],
+        );
+      }));
+  }
+}
+
+class ActionItemsPanel extends StatelessWidget {
+  final String? clientID;
+
+  const ActionItemsPanel({super.key, this.clientID});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<Clients>(builder: (context, clientRepo, child) => FutureBuilder<Client?>(
+      future: clientRepo.get(clientID!),
+      builder: (context, snapshot) {
+        List<Widget> actionItems;
+        if (snapshot.data?.num == null) {
+          actionItems = [
+            OverviewTile(
+              attentionLevel: OverviewAttentionLevel.GREEN,
+              title: "Assign Client Number",
+              subtitle: "Assigning a client number will enable more functionality",
+              icon: Icons.approval,
+              actions: [
+                OverviewAction("Assign"),
+              ],
+            ),
+          ];
+        } else {
+          actionItems = [
+            OverviewTile(
+              attentionLevel: OverviewAttentionLevel.RED,
+              title: "Overdue Bill",
+              subtitle: "Invoice #01120 is 13 days overdue.",
+              icon: Icons.receipt_long,
+              actions: [
+                OverviewAction("View"),
+              ],
+            ),
+            OverviewTile(
+              attentionLevel: OverviewAttentionLevel.YELLOW,
+              title: "Unbilled Appointment",
+              subtitle: "FUP 2 on June 12 2023 has not yet been billed.",
+              icon: Icons.receipt_long,
+              actions: [
+                OverviewAction("Create Invoice"),
+              ],
+            ),
+            OverviewTile(
+              attentionLevel: OverviewAttentionLevel.GREY,
+              title: "Schedule Next Appointment",
+              subtitle: "Previous appointment was FUP 5 on May 8 2023",
+              icon: Icons.event,
+              actions: [
+                OverviewAction("Schedule"),
+              ],
+            ),
+          ];
+        }
+        return ExpandableInfoPanel(title: "Action Items", subtitle: "", contents: actionItems, initiallyExpanded: true);
+      },));
   }
 }
 
