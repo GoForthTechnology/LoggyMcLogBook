@@ -32,7 +32,7 @@ class ClientsScreen extends StatelessWidget {
   }
 
   void goToClientDetail(BuildContext context, String? clientId) {
-    AutoRouter.of(context).push(ClientDetailsScreenRoute(clientId: clientId))
+    AutoRouter.of(context).push(ClientDetailsScreenRoute(clientId: clientId!))
         .then((result) {
       if (result != null && result as bool) {
         ScaffoldMessenger.of(context)

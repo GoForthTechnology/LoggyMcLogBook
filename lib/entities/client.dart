@@ -33,6 +33,7 @@ class Client extends Indexable<Client> {
     return Client(
       id: id ?? this.id,
       num: num ?? this.num,
+      active: active ?? this.active,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
     );

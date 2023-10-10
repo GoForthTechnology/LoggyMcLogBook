@@ -79,7 +79,7 @@ class AppRouter extends _i9.RootStackRouter {
       final pathParams = routeData.inheritedPathParams;
       final args = routeData.argsAs<ClientDetailsScreenRouteArgs>(
           orElse: () => ClientDetailsScreenRouteArgs(
-              clientId: pathParams.optString('clientId')));
+              clientId: pathParams.getString('clientId')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
         child: _i5.ClientDetailsScreen(
@@ -313,7 +313,7 @@ class ClientDetailsScreenRoute
     extends _i9.PageRouteInfo<ClientDetailsScreenRouteArgs> {
   ClientDetailsScreenRoute({
     _i10.Key? key,
-    String? clientId,
+    required String clientId,
   }) : super(
           ClientDetailsScreenRoute.name,
           path: '/client/:clientId',
@@ -330,12 +330,12 @@ class ClientDetailsScreenRoute
 class ClientDetailsScreenRouteArgs {
   const ClientDetailsScreenRouteArgs({
     this.key,
-    this.clientId,
+    required this.clientId,
   });
 
   final _i10.Key? key;
 
-  final String? clientId;
+  final String clientId;
 
   @override
   String toString() {
