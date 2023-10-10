@@ -28,15 +28,31 @@ class GifForm extends StatelessWidget {
   }
 }
 
-class GeneralInfoPanel extends StatelessWidget {
-  final bool enabled = false;
+class GeneralInfoPanel extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => GeneralInfoPanelState();
+}
+
+class GeneralInfoPanelState extends State<GeneralInfoPanel> {
+  bool enabled = false;
+
+  Widget trailingWidget() {
+    if (enabled) {
+      return IconButton(onPressed: () => setState(() {
+        enabled = false;
+      }), icon: Icon(Icons.save),);
+    }
+    return IconButton(onPressed: () => setState(() {
+      enabled = true;
+    }), icon: Icon(Icons.edit),);
+  }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return ExpandableInfoPanel(
       title: "General Information",
       subtitle: "",
+      trailing: trailingWidget(),
       contents: [
         Row(children: [
           Flexible(child: TextFormField(
