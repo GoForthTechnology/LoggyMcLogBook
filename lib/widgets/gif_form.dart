@@ -1,6 +1,6 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lmlb/entities/client_demographic_info.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 
 class GifForm extends StatelessWidget {
@@ -154,20 +154,74 @@ class DemographicInfoPanel extends StatelessWidget {
                 labelText: "Man's Age"
             ),
             enabled: false,
-          ))
+          )),
         ],),
-        /*Row(children: [
-          TextFormField(
+        Row(children: [
+          Flexible(child: DropdownButtonFormField<int>(
+            items: Ethnicity.values.map((ethnicity) => DropdownMenuItem<int>(
+              child: Text(ethnicity.name),
+              value: ethnicity.code,
+            )).toList(),
+            onChanged: (value) {},
             decoration: InputDecoration(
-                labelText: "Woman's Ethnic Background"
+              labelText: "Woman's Ethnic Background",
             ),
-          ),
-          TextFormField(
+          )),
+        Flexible(child: DropdownButtonFormField<int>(
+            items: Ethnicity.values.map((ethnicity) => DropdownMenuItem<int>(
+              child: Text(ethnicity.name),
+              value: ethnicity.code,
+            )).toList(),
+            onChanged: (value) {},
             decoration: InputDecoration(
                 labelText: "Man's Ethnic Background"
             ),
-          )
-        ],),*/
+          )),
+        ],),
+        Row(children: [
+          Flexible(child: DropdownButtonFormField<int>(
+            items: Religion.values.map((e) => DropdownMenuItem<int>(
+              child: Text(e.name),
+              value: e.code,
+            )).toList(),
+            onChanged: (value) {},
+            decoration: InputDecoration(
+              labelText: "Woman's Religion",
+            ),
+          )),
+          Flexible(child: DropdownButtonFormField<int>(
+            items: Religion.values.map((e) => DropdownMenuItem<int>(
+              child: Text(e.name),
+              value: e.code,
+            )).toList(),
+            onChanged: (value) {},
+            decoration: InputDecoration(
+                labelText: "Man's Religion"
+            ),
+          )),
+        ],),
+        Row(children: [
+          Flexible(child: DropdownButtonFormField<int>(
+            items: MaritalStatus.values.map((e) => DropdownMenuItem<int>(
+              child: Text(e.name),
+              value: e.code,
+            )).toList(),
+            onChanged: (value) {},
+            decoration: InputDecoration(
+              labelText: "Woman's Marital Status",
+            ),
+          )),
+          Flexible(child: DropdownButtonFormField<int>(
+            items: MaritalStatus.values.map((e) => DropdownMenuItem<int>(
+              child: Text(e.name),
+              value: e.code,
+            )).toList(),
+            onChanged: (value) {},
+            decoration: InputDecoration(
+                labelText: "Man's Marital Status"
+            ),
+          )),
+        ],),
       ],
     );
   }
