@@ -19,7 +19,7 @@ class OverviewScreen extends StatelessWidget {
             subtitle: "Jane Doe was billed 40 days ago",
             icon: Icons.receipt_long,
             actions: [
-              OverviewAction("View Invoice")
+              OverviewAction(title: "View Invoice")
             ],
           ),
           OverviewTile(
@@ -41,8 +41,8 @@ class OverviewScreen extends StatelessWidget {
             icon: Icons.contact_support,
             onClick: () => {},
             actions: [
-              OverviewAction("View All"),
-              OverviewAction("Add New"),
+              OverviewAction(title: "View All"),
+              OverviewAction(title: "Add New"),
             ],
           )
         ],

@@ -14,8 +14,8 @@ class InquiryOverviewWidget extends StatelessWidget {
       icon: Icons.contact_support,
       onClick: () => {},
       actions: [
-        OverviewAction("View All"),
-        OverviewAction("Add New"),
+        OverviewAction(title: "View All"),
+        OverviewAction(title: "Add New"),
       ],
     );
   }

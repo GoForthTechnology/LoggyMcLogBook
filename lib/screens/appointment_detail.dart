@@ -273,6 +273,7 @@ class AppointmentDetailScreen extends StatelessWidget {
         content: FormField(
             autovalidateMode: AutovalidateMode.onUserInteraction,
             initialValue: model.appointmentTime,
+
             validator: (value) {
               if (value == null) {
                 print("Invalid time!");
@@ -281,17 +282,18 @@ class AppointmentDetailScreen extends StatelessWidget {
               return null;
             },
             builder: (state) => GestureDetector(
-                onTap: () async {
-                  final TimeOfDay? picked = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                  );
-                  if (picked != null) {
-                    state.didChange(picked);
-                    model.updateAppointmentTime(picked);
-                  }
-                },
-                child: _showErrorOrDisplay(state, display))));
+              onTap: () async {
+                final TimeOfDay? picked = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                );
+                if (picked != null) {
+                  state.didChange(picked);
+                  model.updateAppointmentTime(picked);
+                }
+              },
+              child: _showErrorOrDisplay(state, display)),
+        ));
   }
 
   Widget _buildTypeSelector(BuildContext context, AppointmentDetailModel model) {

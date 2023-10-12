@@ -32,8 +32,9 @@ enum OverviewAttentionLevel {
 
 class OverviewAction {
   final String title;
+  final Function()? onPress;
 
-  OverviewAction(this.title);
+  OverviewAction({required this.title, this.onPress});
 }
 
 class OverviewTile extends StatelessWidget {
@@ -60,7 +61,7 @@ class OverviewTile extends StatelessWidget {
       margin: EdgeInsets.only(left: 8),
       child: TextButton(
         child: Text(a.title.toUpperCase()),
-        onPressed: () => {},
+        onPressed: a.onPress,
       ),
     )).toList();
     var listTile = ListTile(
