@@ -8,19 +8,45 @@ class Filter<T> {
   Filter({required this.label, required this.predicate});
 
   bool operator==(Object other) => other is Filter && label == other.label;
+  int get hashCode => label.hashCode;
+}
 
+class Sort<T> {
+  final String label;
+  final Comparator<T> comparator;
+
+  Sort({required this.label, required this.comparator});
+
+  bool operator==(Object other) => other is Sort && label == other.label;
   int get hashCode => label.hashCode;
 }
 
 class FilterBarModel<T> extends ChangeNotifier {
   final Map<Filter<T>, bool> filters = {};
+  final List<Sort<T>> additionalSortingOptions;
+  final Sort<T> defaultSort;
+
+  Sort<T> _activeSort;
   final _queryController = TextEditingController();
 
-  FilterBarModel(List<Filter<T>> filters) {
+  FilterBarModel({
+    required List<Filter<T>> filters,
+    required this.defaultSort,
+    required this.additionalSortingOptions,
+  }) : _activeSort = defaultSort {
     for (var filter in filters) {
       this.filters.putIfAbsent(filter, () => true);
     }
     _queryController.addListener(() => notifyListeners());
+  }
+
+  List<T> getSorted(List<T> items) {
+    items.sort(_activeSort.comparator);
+    return items;
+  }
+
+  List<Sort<T>> sortingOptions() {
+    return [defaultSort, ...additionalSortingOptions];
   }
 
   List<Filter<T>> activeFilters() {
@@ -29,6 +55,11 @@ class FilterBarModel<T> extends ChangeNotifier {
 
   List<Filter<T>> inactiveFilters() {
     return filters.entries.where((e) => !e.value).map((e) => e.key).toList();
+  }
+
+  void setSort(Sort<T> sort) {
+    _activeSort = sort;
+    notifyListeners();
   }
 
   void activateFilter(Filter<T> filter) {
@@ -62,18 +93,24 @@ class FilterBar<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<FilterBarModel<T>>(builder: (context, model, child) {
-      return Padding(padding: EdgeInsets.all(4), child: TextField(
-        controller: model._queryController,
-        decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search),
-          hintText: "Query",
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+      return Padding(padding: EdgeInsets.all(4), child: Row(children: [
+        Expanded(child: TextField(
+          controller: model._queryController,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search),
+            hintText: "Query",
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+            ),
+            suffixIcon: _filterWidgets(context, model),
           ),
-          suffixIcon: _filterWidgets(context, model),
+        )),
+        IconButton(
+          icon: Icon(Icons.sort),
+          onPressed: () => showDialog(context: context, builder: (context) => _changeSortingDialog(model, context)),
         ),
-      ));
+      ],));
     });
   }
 
@@ -84,12 +121,12 @@ class FilterBar<T> extends StatelessWidget {
           .toList(),
       if (model.inactiveFilters().isNotEmpty) IconButton(
         icon: Icon(Icons.add_circle_outline),
-        onPressed: () => showDialog(context: context, builder: (context) => _alertDialog(model, context)),
+        onPressed: () => showDialog(context: context, builder: (context) => _addFilterDialog(model, context)),
       ),
     ],);
   }
 
-  AlertDialog _alertDialog(FilterBarModel<T> model, BuildContext context) {
+  AlertDialog _addFilterDialog(FilterBarModel<T> model, BuildContext context) {
     return AlertDialog(
       title: Text("Add Filter"),
       content: Column(
@@ -100,6 +137,22 @@ class FilterBar<T> extends StatelessWidget {
             Navigator.of(context).pop();
           },
           child: Text(f.label),
+        )).toList(),
+      ),
+    );
+  }
+
+  AlertDialog _changeSortingDialog(FilterBarModel<T> model, BuildContext context) {
+    return AlertDialog(
+      title: Text("List Sorting"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: model.sortingOptions().map((o) => TextButton(
+          onPressed: () {
+            model.setSort(o);
+            Navigator.of(context).pop();
+          },
+          child: Text(o.label),
         )).toList(),
       ),
     );
