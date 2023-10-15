@@ -74,7 +74,9 @@ class Clients extends ChangeNotifier {
         maxClientNum = client.num!;
       }
     });
-    return _persistence.update(client.copyWith(num: maxClientNum + 1))
+    var updatedClient = client.copyWith(num: maxClientNum + 1);
+    return _persistence.update(updatedClient)
+        .then((_) => activate(updatedClient))
         .then((_) => notifyListeners());
   }
 

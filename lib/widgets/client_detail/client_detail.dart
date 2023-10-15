@@ -132,7 +132,7 @@ class ActionItemsPanel extends StatelessWidget {
               subtitle: "Assigning a client number will enable more functionality",
               icon: Icons.approval,
               actions: [
-                OverviewAction(title: "Assign"),
+                OverviewAction(title: "Assign", onPress: () => clientRepo.assignClientNum(snapshot.data!)),
               ],
             ),
           ];
