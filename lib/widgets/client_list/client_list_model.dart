@@ -34,15 +34,21 @@ class ClientData {
   final String tile;
   final String? id;
   final ClientIcon icon;
+  final Client client;
 
-  ClientData(this.tile, this.id, this.icon);
+  ClientData(this.tile, this.id, this.icon, this.client);
 
   static ClientData from(Client client) {
     var title = "${client.firstName} ${client.lastName}";
     if (client.num != null) {
       title = "#${client.displayNum()} - $title";
     }
-    return ClientData(title, client.id, ClientIcon.from(client));
+    return ClientData(title, client.id, ClientIcon.from(client), client);
+  }
+
+  @override
+  String toString() {
+    return tile;
   }
 }
 

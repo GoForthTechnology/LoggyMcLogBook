@@ -39,7 +39,8 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
               _appointmentDate!.day,
               _appointmentTime!.hour,
               _appointmentTime!.minute);
-            repo.add(widget.clientID, time, Duration(hours: 1), _appointmentType!, 0);
+            await repo.add(widget.clientID, time, Duration(hours: 1), _appointmentType!, 0);
+            Navigator.of(context).pop();
           }
         }, child: Text("Submit")),
       ],
@@ -47,64 +48,78 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
   }
 
   Widget form() {
-    return Form(
-      key: _formKey,
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        DropdownButtonFormField<AppointmentType>(
-          decoration: InputDecoration(
-            labelText: "Appointment Type *",
-          ),
-          validator: _valueMustNotBeNull,
-          items: AppointmentType.values.map((t) => DropdownMenuItem<AppointmentType>(
-            child: Text(t.name()),
-            value: t,
-          )).toList(),
-          onChanged: (value) => setState(() {
-            _appointmentType = value;
-          }),
-        ),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: "Appointment Date *",
-          ),
-          validator: _valueMustNotBeEmpty,
-          controller: _appointmentDateController,
-          onTap: () async {
-            final DateTime? picked = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime.now(),
-              lastDate: DateTime.now().add(Duration(days: 365)),
-            );
-            if (picked != null) {
-              setState(() {
-                _appointmentDate = picked;
-                _appointmentDateController.text = picked.toIso8601String();
-              });
-            }
-          },
-        ),
-        TextFormField(
-          decoration: InputDecoration(
-            labelText: "Appointment Time *",
-          ),
-          validator: _valueMustNotBeEmpty,
-          controller: _appointmentTimeController,
-          onTap: () async {
-            final TimeOfDay? picked = await showTimePicker(
-              context: context,
-              initialTime: TimeOfDay.now(),
-            );
-            if (picked != null) {
-              setState(() {
-                _appointmentTime = picked;
-                _appointmentTimeController.text = picked.format(context);
-              });
-            }
-          },
-        ),
-      ],),
-    );
+    return Consumer<Appointments>(builder: (context, repo, child) => FutureBuilder<Appointment>(
+      future: repo.get((a) => a.clientId == widget.clientID).then((as) {
+        as.sort((a, b) => a.type.index.compareTo(b.type.index));
+        return as.last;
+      }),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Container();
+        }
+        Appointment appointment = snapshot.data!;
+        return Form(
+          key: _formKey,
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            DropdownButtonFormField<AppointmentType>(
+              decoration: InputDecoration(
+                labelText: "Appointment Type *",
+              ),
+              validator: _valueMustNotBeNull,
+              items: AppointmentType.values
+                  .where((t) => t.index > appointment.type.index)
+                  .map((t) => DropdownMenuItem<AppointmentType>(
+                child: Text(t.name()),
+                value: t,
+              )).toList(),
+              onChanged: (value) => setState(() {
+                _appointmentType = value;
+              }),
+            ),
+            TextFormField(
+              decoration: InputDecoration(
+                labelText: "Appointment Date *",
+              ),
+              validator: _valueMustNotBeEmpty,
+              controller: _appointmentDateController,
+              onTap: () async {
+                final DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: appointment.time.add(Duration(days: 1)),
+                  firstDate: appointment.time.add(Duration(days: 1)),
+                  lastDate: DateTime.now().add(Duration(days: 365)),
+                );
+                if (picked != null) {
+                  setState(() {
+                    _appointmentDate = picked;
+                    _appointmentDateController.text = picked.toIso8601String();
+                  });
+                }
+              },
+            ),
+            TextFormField(
+              decoration: InputDecoration(
+                labelText: "Appointment Time *",
+              ),
+              validator: _valueMustNotBeEmpty,
+              controller: _appointmentTimeController,
+              onTap: () async {
+                final TimeOfDay? picked = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                );
+                if (picked != null) {
+                  setState(() {
+                    _appointmentTime = picked;
+                    _appointmentTimeController.text = picked.format(context);
+                  });
+                }
+              },
+            ),
+          ],),
+        );
+      },
+    ));
   }
 
   String? _valueMustNotBeNull(Object? value) {

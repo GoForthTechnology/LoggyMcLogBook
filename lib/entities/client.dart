@@ -40,6 +40,11 @@ class Client extends Indexable<Client> {
   }
 
   @override
+  String toString() {
+    return fullName();
+  }
+
+  @override
   String? getId() {
     return id;
   }
