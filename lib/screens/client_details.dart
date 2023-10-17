@@ -2,7 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/clients.dart';
-import 'package:lmlb/widgets/client_detail/client_detail.dart';
+import 'package:lmlb/widgets/action_items_panel.dart';
+import 'package:lmlb/widgets/appointments_panel.dart';
+import 'package:lmlb/widgets/gif_form.dart';
+import 'package:lmlb/widgets/notes_panel.dart';
 import 'package:provider/provider.dart';
 
 class ClientDetailsScreen extends StatelessWidget {
@@ -39,7 +42,12 @@ class ClientDetailsScreen extends StatelessWidget {
             title: Text('Details for ${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
             actions: actions,
           ),
-          body: ClientDetailsWidget(clientID: clientId,),
+          body: ListView(children: [
+            ActionItemsPanel(clientID: clientId,),
+            AppointmentsPanel(clientID: clientId,),
+            NotesPanel(clientID: clientId,),
+            GifForm(),
+          ]),
         );
       },
     ));
