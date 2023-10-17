@@ -3,7 +3,6 @@ import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
-import 'package:lmlb/widgets/client_detail/client_detail_model.dart';
 import 'package:lmlb/widgets/currency_selector.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
@@ -18,21 +17,15 @@ class ClientDetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Clients>(builder: (context, clientRepo, child) {
-      List<Widget> contents = [
-        Wrap(children: [
-          ClientBasicInfoWidget(clientID: clientID),
-        ],),
-        ActionItemsPanel(clientID: clientID,),
-        AppointmentsPanel(clientID: clientID,),
-        NotesPanel(clientID: clientID,),
-        GifForm(),
-      ];
-      return ChangeNotifierProvider<ClientDetailModel>(
-        create: (context) => ClientDetailModel(clientID, clientRepo),
-        child: ListView(children: contents),
-      );
-    });
+    return ListView(children: [
+      Wrap(children: [
+        ClientBasicInfoWidget(clientID: clientID),
+      ],),
+      ActionItemsPanel(clientID: clientID,),
+      AppointmentsPanel(clientID: clientID,),
+      NotesPanel(clientID: clientID,),
+      GifForm(),
+    ]);
   }
 }
 
@@ -49,9 +42,10 @@ class AppointmentsPanel extends StatelessWidget {
           if (snapshot.data == null) {
             return Container();
           }
+          var numAppointments = snapshot.data!.length;
           return ExpandableInfoPanel(
             title: "Appointments",
-            subtitle: "",
+            subtitle: numAppointments == 0 ? "None Scheduled" : "Next on... TODO",
             initiallyExpanded: false,
             contents: snapshot.data!.map((a) => OverviewTile(
               attentionLevel: OverviewAttentionLevel.GREY,
@@ -64,7 +58,9 @@ class AppointmentsPanel extends StatelessWidget {
             )).toList(),
             trailing: TextButton(
               child: Text("Add Next"),
-              onPressed: () {},
+              onPressed: () => showDialog(
+                context: context, builder: (context) => NewAppointmentDialog(clientID: clientID!,),
+              ),
             ),
           );
         }));
@@ -156,17 +152,6 @@ class ActionItemsPanel extends StatelessWidget {
                 OverviewAction(title: "Create Invoice"),
               ],
             ),
-            OverviewTile(
-              attentionLevel: OverviewAttentionLevel.GREY,
-              title: "Schedule Next Appointment",
-              subtitle: "Previous appointment was FUP 5 on May 8 2023",
-              icon: Icons.event,
-              actions: [
-                OverviewAction(title: "Schedule", onPress: () => showDialog(
-                  context: context, builder: (context) => NewAppointmentDialog(clientID: clientID!,),
-                )),
-              ],
-            ),
           ];
         }
         return ExpandableInfoPanel(title: "Action Items", subtitle: "", contents: actionItems, initiallyExpanded: true);
@@ -181,39 +166,34 @@ class ClientBasicInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ClientDetailModel>(builder: (context, model, child) => StreamBuilder<Client?>(
-      stream: model.clientStream(),
-      builder: (context, snapshot) {
-        return InfoPanel(
-          title: "Basic Info",
-          contents: [
-            EditorItem(
-              itemName: "First Name",
-              clientID: clientID,
-              getItemValue: (client) => client.firstName,
-              setItemValue: (client, value) => client.copyWith(firstName: value),
-            ),
-            EditorItem(
-              itemName: "Last Name",
-              clientID: clientID,
-              getItemValue: (client) => client.lastName,
-              setItemValue: (client, value) => client.copyWith(lastName: value),
-            ),
-            InfoItem(
-              itemName: "Next Appointment", itemValue: Text("Not Scheduled"),
-            ),
-            InfoItem(
-              itemName: "Previous Appointment",
-              itemValue: Text("FUP 5 on May 8 2023"),
-            ),
-            InfoItem(
-              itemName: "Days Since Last Appointment",
-              itemValue: Text("100"),
-            ),
-          ],
-        );
-      } ,
-    ));
+    return InfoPanel(
+      title: "Basic Info",
+      contents: [
+        EditorItem(
+          itemName: "First Name",
+          clientID: clientID,
+          getItemValue: (client) => client.firstName,
+          setItemValue: (client, value) => client.copyWith(firstName: value),
+        ),
+        EditorItem(
+          itemName: "Last Name",
+          clientID: clientID,
+          getItemValue: (client) => client.lastName,
+          setItemValue: (client, value) => client.copyWith(lastName: value),
+        ),
+        InfoItem(
+          itemName: "Next Appointment", itemValue: Text("Not Scheduled"),
+        ),
+        InfoItem(
+          itemName: "Previous Appointment",
+          itemValue: Text("FUP 5 on May 8 2023"),
+        ),
+        InfoItem(
+          itemName: "Days Since Last Appointment",
+          itemValue: Text("100"),
+        ),
+      ],
+    );
   }
 }
 
