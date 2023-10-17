@@ -14,8 +14,7 @@
 import 'package:auto_route/auto_route.dart' as _i9;
 import 'package:flutter/material.dart' as _i10;
 import 'package:lmlb/auth.dart' as _i8;
-import 'package:lmlb/entities/appointment.dart' as _i11;
-import 'package:lmlb/entities/client.dart' as _i12;
+import 'package:lmlb/entities/client.dart' as _i11;
 import 'package:lmlb/screens/appointment_detail.dart' as _i2;
 import 'package:lmlb/screens/appointments.dart' as _i3;
 import 'package:lmlb/screens/client_details.dart' as _i5;
@@ -44,14 +43,12 @@ class AppRouter extends _i9.RootStackRouter {
       final pathParams = routeData.inheritedPathParams;
       final args = routeData.argsAs<AppointmentDetailScreenRouteArgs>(
           orElse: () => AppointmentDetailScreenRouteArgs(
-              appointmentId: pathParams.optString('appointmentId')));
+              appointmentID: pathParams.getString('appointmentID')));
       return _i9.AdaptivePage<dynamic>(
         routeData: routeData,
         child: _i2.AppointmentDetailScreen(
           key: args.key,
-          appointmentId: args.appointmentId,
-          clientId: args.clientId,
-          appointmentType: args.appointmentType,
+          appointmentID: args.appointmentID,
         ),
       );
     },
@@ -142,7 +139,7 @@ class AppRouter extends _i9.RootStackRouter {
         ),
         _i9.RouteConfig(
           AppointmentDetailScreenRoute.name,
-          path: '/appointment/:appointmentId',
+          path: '/appointment/:appointmentID',
           guards: [authGuard],
         ),
         _i9.RouteConfig(
@@ -214,19 +211,15 @@ class AppointmentDetailScreenRoute
     extends _i9.PageRouteInfo<AppointmentDetailScreenRouteArgs> {
   AppointmentDetailScreenRoute({
     _i10.Key? key,
-    String? appointmentId,
-    String? clientId,
-    _i11.AppointmentType? appointmentType,
+    required String appointmentID,
   }) : super(
           AppointmentDetailScreenRoute.name,
-          path: '/appointment/:appointmentId',
+          path: '/appointment/:appointmentID',
           args: AppointmentDetailScreenRouteArgs(
             key: key,
-            appointmentId: appointmentId,
-            clientId: clientId,
-            appointmentType: appointmentType,
+            appointmentID: appointmentID,
           ),
-          rawPathParams: {'appointmentId': appointmentId},
+          rawPathParams: {'appointmentID': appointmentID},
         );
 
   static const String name = 'AppointmentDetailScreenRoute';
@@ -235,22 +228,16 @@ class AppointmentDetailScreenRoute
 class AppointmentDetailScreenRouteArgs {
   const AppointmentDetailScreenRouteArgs({
     this.key,
-    this.appointmentId,
-    this.clientId,
-    this.appointmentType,
+    required this.appointmentID,
   });
 
   final _i10.Key? key;
 
-  final String? appointmentId;
-
-  final String? clientId;
-
-  final _i11.AppointmentType? appointmentType;
+  final String appointmentID;
 
   @override
   String toString() {
-    return 'AppointmentDetailScreenRouteArgs{key: $key, appointmentId: $appointmentId, clientId: $clientId, appointmentType: $appointmentType}';
+    return 'AppointmentDetailScreenRouteArgs{key: $key, appointmentID: $appointmentID}';
   }
 }
 
@@ -260,7 +247,7 @@ class AppointmentsScreenRoute
     extends _i9.PageRouteInfo<AppointmentsScreenRouteArgs> {
   AppointmentsScreenRoute({
     _i10.Key? key,
-    _i12.Client? client,
+    _i11.Client? client,
     required String view,
   }) : super(
           AppointmentsScreenRoute.name,
@@ -285,7 +272,7 @@ class AppointmentsScreenRouteArgs {
 
   final _i10.Key? key;
 
-  final _i12.Client? client;
+  final _i11.Client? client;
 
   final String view;
 
@@ -348,7 +335,7 @@ class ClientDetailsScreenRouteArgs {
 class InvoicesScreenRoute extends _i9.PageRouteInfo<InvoicesScreenRouteArgs> {
   InvoicesScreenRoute({
     _i10.Key? key,
-    _i12.Client? client,
+    _i11.Client? client,
   }) : super(
           InvoicesScreenRoute.name,
           path: '/invoices',
@@ -369,7 +356,7 @@ class InvoicesScreenRouteArgs {
 
   final _i10.Key? key;
 
-  final _i12.Client? client;
+  final _i11.Client? client;
 
   @override
   String toString() {

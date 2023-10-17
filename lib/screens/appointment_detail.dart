@@ -1,18 +1,76 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:fc_forms/fc_forms.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
-import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
-import 'package:lmlb/repos/invoices.dart';
-import 'package:lmlb/routes.gr.dart';
-import 'package:lmlb/widgets/client_selector.dart';
-import 'package:lmlb/widgets/input_container.dart';
+import 'package:lmlb/widgets/appointment_info_panel.dart';
+import 'package:lmlb/widgets/gif_form.dart';
+import 'package:lmlb/widgets/info_panel.dart';
 import 'package:provider/provider.dart';
 
-class AppointmentDetailModel extends ClientSelectorModel {
+class AppointmentDetailScreen extends StatelessWidget {
+
+  final String appointmentID;
+
+  const AppointmentDetailScreen({super.key, @PathParam() required this.appointmentID});
+
+  @override
+  Widget build(BuildContext context) {
+    return appointmentWidget(appointmentID, (appointment) => Scaffold(
+      appBar: AppBar(
+        title: clientWidget(appointment!.clientId, (client) => Text("${appointment.type.name()} for ${client!.fullName()}")),
+      ),
+      body: ListView(
+        children: [
+          AppointmentInfoPanel(appointment: appointment,),
+          FollowUpForm(),
+          GifForm(),
+        ],
+      ),
+    ));
+  }
+}
+
+class FollowUpForm extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ExpandableInfoPanel(
+      title: "Follow Up Form",
+      subtitle: "",
+      contents: [
+        SingleChildScrollView(scrollDirection: Axis.vertical, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: FollowUpFormWidget(),)),
+      ],
+    );
+  }
+}
+
+Widget appointmentWidget(String appointmentID, Widget Function(Appointment?) build) {
+  return Consumer<Appointments>(builder: (context, repo, child) => StreamBuilder<Appointment?>(
+    stream: repo.stream(appointmentID),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) {
+        return Container();
+      }
+      return build(snapshot.data);
+    },
+  ));
+}
+
+Widget clientWidget(String clientID, Widget Function(Client?) build) {
+  return Consumer<Clients>(builder: (context, repo, child) => StreamBuilder<Client?>(
+    stream: repo.stream(clientID),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) {
+        return Container();
+      }
+      return build(snapshot.data);
+    },
+  ));
+}
+
+/*class AppointmentDetailModel extends ClientSelectorModel {
   final Appointments appointmentRepo;
   final formKey = GlobalKey<FormState>();
   Appointment? appointment;
@@ -349,4 +407,4 @@ class AppointmentDetailScreen extends StatelessWidget {
       ],
     );
   }
-}
+}*/

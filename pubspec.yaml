@@ -42,6 +42,11 @@ dependencies:
   uuid: ^3.0.7
   rxdart: ^0.27.7
 
+  fc_forms:
+    git:
+      url: git@github.com:GoForthTechnology/fc_forms.git
+      ref: main
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

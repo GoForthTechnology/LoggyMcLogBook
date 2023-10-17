@@ -35,7 +35,7 @@ class AppointmentsScreen extends StatelessWidget {
     return AppointmentListModel.provide(
       clientFilter: null,
       onClientTapped: (context, id) {
-        AutoRouter.of(context).push(AppointmentDetailScreenRoute(appointmentId: id))
+        AutoRouter.of(context).push(AppointmentDetailScreenRoute(appointmentID: id!))
             .then((result) {
           if (result != null && result as bool) {
             ScaffoldMessenger.of(context)
@@ -62,21 +62,12 @@ class AppointmentsScreen extends StatelessWidget {
         // isExtended: true,
         child: Icon(Icons.add),
         backgroundColor: Colors.green,
-        onPressed: () => addAppointment(context),
+        // TODO: Re-enable
+        //onPressed: () => addAppointment(context),
+        onPressed:  () {},
       );
     }
     return null;
-  }
-
-  void addAppointment(BuildContext context) {
-    AutoRouter.of(context).push(AppointmentDetailScreenRoute())
-        .then((updated) {
-      if (updated != null && updated as bool) {
-        ScaffoldMessenger.of(context)
-          ..removeCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text('Appointment added')));
-      }
-    });
   }
 }
 

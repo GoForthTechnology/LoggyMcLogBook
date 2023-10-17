@@ -1,7 +1,9 @@
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/repos/appointments.dart';
+import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/new_appointment_dialog.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
@@ -26,7 +28,7 @@ class AppointmentsPanel extends StatelessWidget {
           title: "Appointments",
           subtitle: _subtitle(sortedAppointments),
           initiallyExpanded: false,
-          contents: sortedAppointments.map((a) => _appointmentTile(a)).toList(),
+          contents: sortedAppointments.map((a) => _appointmentTile(context, a)).toList(),
           trailing: TextButton(
             child: Text("Add Next"),
             onPressed: () => showDialog(
@@ -58,7 +60,7 @@ class AppointmentsPanel extends StatelessWidget {
     return "No appointments scheduled";
   }
 
-  Widget _appointmentTile(Appointment a) {
+  Widget _appointmentTile(BuildContext context, Appointment a) {
     return OverviewTile(
       attentionLevel: a.time.isBefore(DateTime.now())
           ? OverviewAttentionLevel.GREY : OverviewAttentionLevel.GREEN,
@@ -66,7 +68,8 @@ class AppointmentsPanel extends StatelessWidget {
       subtitle: a.timeStr(),
       icon: Icons.event,
       actions: [
-        OverviewAction(title: "View"),
+        OverviewAction(title: "View", onPress: () => AutoRouter.of(context).push(
+            AppointmentDetailScreenRoute(appointmentID: a.id!))),
       ],
     );
   }
