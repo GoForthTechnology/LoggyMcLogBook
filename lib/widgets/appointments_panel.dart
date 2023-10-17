@@ -15,32 +15,59 @@ class AppointmentsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<Appointments>(builder: (context, repo, child) => StreamBuilder<List<Appointment>>(
-        stream: repo.streamAll((a) => a.clientId == clientID),
-        builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return Container();
-          }
-          var numAppointments = snapshot.data!.length;
-          return ExpandableInfoPanel(
-            title: "Appointments",
-            subtitle: numAppointments == 0 ? "None Scheduled" : "Next on... TODO",
-            initiallyExpanded: false,
-            contents: snapshot.data!.map((a) => OverviewTile(
-              attentionLevel: OverviewAttentionLevel.GREY,
-              title: a.type.name(),
-              subtitle: a.timeStr(),
-              icon: Icons.event,
-              actions: [
-                OverviewAction(title: "View"),
-              ],
-            )).toList(),
-            trailing: TextButton(
-              child: Text("Add Next"),
-              onPressed: () => showDialog(
-                context: context, builder: (context) => NewAppointmentDialog(clientID: clientID!,),
-              ),
+      stream: repo.streamAll((a) => a.clientId == clientID),
+      builder: (context, snapshot) {
+        if (snapshot.data == null) {
+          return Container();
+        }
+        List<Appointment> sortedAppointments = List.from(snapshot.data!);
+        sortedAppointments.sort((a, b) => b.time.compareTo(a.time));
+        return ExpandableInfoPanel(
+          title: "Appointments",
+          subtitle: _subtitle(sortedAppointments),
+          initiallyExpanded: false,
+          contents: sortedAppointments.map((a) => _appointmentTile(a)).toList(),
+          trailing: TextButton(
+            child: Text("Add Next"),
+            onPressed: () => showDialog(
+              context: context, builder: (context) => NewAppointmentDialog(clientID: clientID!,),
             ),
-          );
-        }));
+          ),
+        );
+      }),
+    );
+  }
+
+  String _subtitle(List<Appointment> appointments) {
+    List<Appointment> sortedAppointments = List.from(appointments);
+    sortedAppointments.sort((a, b) => a.time.compareTo(b.time));
+    var previousAppointments =
+        sortedAppointments.where((a) => a.time.isBefore(DateTime.now()));
+    var nextAppointments =
+        sortedAppointments.where((a) => a.time.isAfter(DateTime.now()));
+    List<String> parts = [];
+    if (previousAppointments.isNotEmpty) {
+      parts.add("Previous ${previousAppointments.last.toString()}");
+    }
+    if (nextAppointments.isNotEmpty) {
+      parts.add("Next ${nextAppointments.first.toString()}");
+    }
+    if (parts.isNotEmpty) {
+      return parts.join(", ");
+    }
+    return "No appointments scheduled";
+  }
+
+  Widget _appointmentTile(Appointment a) {
+    return OverviewTile(
+      attentionLevel: a.time.isBefore(DateTime.now())
+          ? OverviewAttentionLevel.GREY : OverviewAttentionLevel.GREEN,
+      title: a.type.name(),
+      subtitle: a.timeStr(),
+      icon: Icons.event,
+      actions: [
+        OverviewAction(title: "View"),
+      ],
+    );
   }
 }
