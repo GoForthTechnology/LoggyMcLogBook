@@ -44,6 +44,7 @@ class OverviewTile extends StatelessWidget {
   final IconData icon;
   final Function()? onClick;
   final List<OverviewAction> actions;
+  final List<Widget> additionalTrailing;
 
   const OverviewTile({
     super.key,
@@ -53,11 +54,12 @@ class OverviewTile extends StatelessWidget {
     this.onClick,
     this.subtitle,
     this.actions = const [],
+    this.additionalTrailing = const [],
   });
 
   @override
   Widget build(BuildContext context) {
-    var actions = this.actions.map((a) => Container(
+    List<Widget> actions = this.actions.map((a) => Container(
       margin: EdgeInsets.only(left: 8),
       child: TextButton(
         child: Text(a.title.toUpperCase()),
@@ -70,7 +72,7 @@ class OverviewTile extends StatelessWidget {
       subtitle: this.subtitle != null ? Text(this.subtitle!) : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
-        children: actions,
+        children: [...additionalTrailing, ...actions],
       )
     );
     Widget card = Card(

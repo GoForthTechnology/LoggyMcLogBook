@@ -8,6 +8,8 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/widgets/appointment_info_panel.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
+import 'package:lmlb/widgets/new_appointment_dialog.dart';
+import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
@@ -25,11 +27,63 @@ class AppointmentDetailScreen extends StatelessWidget {
       body: ListView(
         children: [
           AppointmentInfoPanel(appointment: appointment,),
+          PreviousAppointmentPanel(),
           FollowUpForm(),
+          NextStepsPanel(appointment: appointment,),
+          Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Center(child: Text("Additional Info", style: Theme.of(context).textTheme.titleMedium))),
           GifForm(),
         ],
       ),
     ));
+  }
+}
+
+class PreviousAppointmentPanel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ExpandableInfoPanel(title: "Previous Appointment", subtitle: "FUP 1 on 5 Oct", contents: [
+      OverviewTile(
+        attentionLevel: OverviewAttentionLevel.GREY,
+        title: "Notes",
+        subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+        icon: Icons.note,
+        actions: [
+          OverviewAction(title: "Edit"),
+        ],
+      ),
+    ]);
+  }
+}
+
+class NextStepsPanel extends StatelessWidget {
+  final Appointment appointment;
+
+  const NextStepsPanel({super.key, required this.appointment});
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpandableInfoPanel(title: "Next Steps", subtitle: "Not yet scheduled", contents: [
+      OverviewTile(
+        attentionLevel: OverviewAttentionLevel.GREEN,
+        title: "Schedule FUP 3",
+        icon: Icons.event,
+        actions: [
+          OverviewAction(title: "Set Reminder", onPress: () {}),
+          OverviewAction(title: "Schedule", onPress: () => showDialog(
+            context: context,
+            builder: (context) => NewAppointmentDialog(clientID: appointment.clientId),
+          )),
+        ],
+      ),
+      OverviewTile(
+        attentionLevel: OverviewAttentionLevel.GREEN,
+        title: "Order Materials",
+        icon: Icons.palette,
+        actions: [
+          OverviewAction(title: "Order", onPress: () {}),
+        ],
+      ),
+    ]);
   }
 }
 
@@ -38,11 +92,40 @@ class FollowUpForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExpandableInfoPanel(
       title: "Follow Up Form",
-      subtitle: "",
-      contents: [
-        SingleChildScrollView(scrollDirection: Axis.vertical, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: FollowUpFormWidget(),)),
-      ],
+      subtitle: "0% Complete",
+      contents: contents(context),
     );
+  }
+
+  List<Widget> contents(BuildContext context) {
+    var itemsPerSection = itemsForFollowUp(2);
+
+    List<Widget> out = [];
+    for (var sectionNum in sectionTitles.keys) {
+      List<Widget> contents = [];
+      var items = itemsPerSection[sectionNum] ?? [];
+      for (var item in items) {
+        for (var question in item.questions) {
+          contents.add(OverviewTile(
+            attentionLevel: OverviewAttentionLevel.GREY,
+            title: "${item.id().code} - ${question.description}",
+            icon: Icons.checklist,
+            additionalTrailing: question.acceptableInputs
+                .map((i) => ElevatedButton(onPressed: () {}, child: Text(i))).toList(),
+            actions: [
+              OverviewAction(title: "Add Comment", onPress: () {}),
+            ],
+          ));
+        }
+      }
+      out.add(ExpandableInfoPanel(
+        title: sectionTitles[sectionNum]!,
+        titleStyle: Theme.of(context).textTheme.titleMedium,
+        subtitle: "0% Complete",
+        contents: contents,
+      ));
+    }
+    return out;
   }
 }
 
