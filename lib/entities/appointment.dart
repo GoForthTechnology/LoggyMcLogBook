@@ -26,7 +26,7 @@ enum AppointmentStatus {
 }
 
 @JsonSerializable(explicitToJson: true)
-class Appointment extends Indexable<Appointment>{
+class Appointment extends Indexable<Appointment> {
   late String? id;
   final AppointmentType type;
   final DateTime time;
@@ -43,6 +43,26 @@ class Appointment extends Indexable<Appointment>{
       this.price,
       this.invoiceId,
       );
+
+  Appointment copyWith({
+    String? id,
+    AppointmentType? type,
+    DateTime? time,
+    Duration? duration,
+    String? clientID,
+    int? price,
+    String? invoiceID,
+  }) {
+    return Appointment(
+      id ?? this.id,
+      type ?? this.type,
+      time ?? this.time,
+      duration ?? this.duration,
+      clientID ?? this.clientId,
+      price ?? this.price,
+      invoiceID ?? this.invoiceId,
+    );
+  }
 
   AppointmentStatus status() {
     if (time.isAfter(DateTime.now())) {

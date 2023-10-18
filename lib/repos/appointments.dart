@@ -12,32 +12,24 @@ class Appointments extends ChangeNotifier {
     return this;
   }
 
-  Future<Appointment?> getLast(String clientId) async {
-    final appointments = await get((a) => a.clientId == clientId);
-    var lastAppointment;
-    for (int i = 0; i < appointments.length; i++) {
-      var appointment = appointments[i];
-      if (!appointment.time.isBefore(DateTime.now())) {
-        // Appointment is in the future...
-        continue;
+  Future<Appointment?> getNext(Appointment appointment) {
+    return get((a) => a.clientId == appointment.clientId && a.time.isAfter(appointment.time)).then((as) {
+      if (as.isEmpty) {
+        return null;
       }
-      if (lastAppointment == null || appointment.time.isAfter(lastAppointment.time)) {
-        lastAppointment = appointments[i];
-      }
-    }
-    return lastAppointment;
+      as.sort((a, b) => a.time.compareTo(b.time));
+      return as.first;
+    });
   }
 
-  Future<Appointment?> getNext(String clientId) async {
-    final appointments = await getUpcoming(sorted: true, clientId: clientId);
-    if (appointments.isEmpty) {
-      return null;
-    }
-    return appointments[0];
-  }
-
-  Future<List<Appointment>> getUpcoming({bool? sorted, String? clientId}) {
-    return get((a) => a.clientId == clientId && !a.time.isBefore(DateTime.now()));
+  Future<Appointment?> getPrevious(Appointment appointment) {
+    return get((a) => a.clientId == appointment.clientId && a.time.isBefore(appointment.time)).then((as) {
+      if (as.isEmpty) {
+        return null;
+      }
+      as.sort((a, b) => a.time.compareTo(b.time));
+      return as.last;
+    });
   }
 
   Future<List<Appointment>> getPending({bool? sorted, String? clientId}) async {
