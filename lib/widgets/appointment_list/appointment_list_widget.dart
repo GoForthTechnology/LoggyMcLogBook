@@ -1,25 +1,24 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:lmlb/widgets/filter_bar.dart';
 import 'package:provider/provider.dart';
 
 import 'appointment_list_model.dart';
 
+final _appointmentFilters = [
+  Filter<AppointmentData>(label: "Past Appointments", predicate: (a) => a.isInPast),
+  Filter<AppointmentData>(label: "Upcoming Appointments", predicate: (a) => !a.isInPast),
+];
+
 class AppointmentListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<AppointmentListData>(
-      stream: Provider.of<AppointmentListModel>(context).data,
-      initialData: new AppointmentListData([]),
-      builder: (context, snapshot) {
-        var clients = snapshot.data?.appointmentData ?? [];
-        print("FOO: found ${clients.length} clients");
-        return ListView.builder(
-          itemCount: clients.length,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          itemBuilder: (context, index) => AppointmentTile(clients[index], false),
-        );
-      },
+    return FilterableListView<AppointmentData>(
+      itemStream: Provider.of<AppointmentListModel>(context).data.map((ald) => ald.appointmentData),
+      filters: _appointmentFilters,
+      defaultSort: Sort<AppointmentData>(label: "By Date", comparator: (a, b) => a.time.compareTo(b.time)),
+      buildTile: (a) => AppointmentTile(a, false),
     );
   }
 }

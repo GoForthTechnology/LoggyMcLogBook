@@ -45,31 +45,12 @@ final _additionalClientSorts = [
 class ClientListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<ClientListData>(
-      stream: Provider.of<ClientListModel>(context).data,
-      initialData: new ClientListData([]),
-      builder: (context, snapshot) {
-        var clients = snapshot.data?.clientData ?? [];
-        return ChangeNotifierProvider<FilterBarModel<ClientData>>(
-          create: (context) => FilterBarModel<ClientData>(
-            filters: _clientFilters,
-            defaultSort: _defaultClientSort,
-            additionalSortingOptions: _additionalClientSorts,
-          ),
-          builder: (context, child) => Column(children: [
-            FilterBar<ClientData>(),
-            Consumer<FilterBarModel<ClientData>>(builder: (context, model, child) {
-              var filteredClients = clients.where((cd) => model.filter(cd)).toList();
-              var sortedClients = model.getSorted(filteredClients);
-              return Expanded(child: ListView.builder(
-                itemCount: sortedClients.length,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                itemBuilder: (context, index) => ClientTile(sortedClients[index]),
-              ));
-            }),
-          ]),
-        );
-      },
+    return FilterableListView<ClientData>(
+      itemStream: Provider.of<ClientListModel>(context).data.map((cld) => cld.clientData),
+      filters: _clientFilters,
+      defaultSort: _defaultClientSort,
+      additionalSortingOptions: _additionalClientSorts,
+      buildTile: (cd) => ClientTile(cd),
     );
   }
 }

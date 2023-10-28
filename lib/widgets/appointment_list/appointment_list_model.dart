@@ -73,9 +73,10 @@ class AppointmentData {
   final Color textColor;
   final String id;
   final bool isInPast;
+  final DateTime time;
   final List<String> warnings;
 
-  AppointmentData(this.title, this.circleColor, this.textColor, this.id, this.isInPast, this.warnings);
+  AppointmentData(this.title, this.circleColor, this.textColor, this.id, this.isInPast, this.time, this.warnings);
 
   static AppointmentData create(Appointment appointment, Client client, bool hasClientFilter) {
     var title = "${appointment.type.name()} ${appointment.timeStr()}";
@@ -91,6 +92,6 @@ class AppointmentData {
     if (appointment.time.isBefore(DateTime.now()) && appointment.invoiceId == null) {
       warnings.add("Not yet invoiced");
     }
-    return AppointmentData(title, appointment.status().color, textColor, appointment.id!, isInPast, warnings);
+    return AppointmentData(title, appointment.status().color, textColor, appointment.id!, isInPast, appointment.time, warnings);
   }
 }

@@ -32,6 +32,9 @@ class AppointmentDetailScreen extends StatelessWidget {
           NextStepsPanel(appointment: appointment,),
           Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Center(child: Text("Additional Info", style: Theme.of(context).textTheme.titleMedium))),
           GifForm(),
+          ExpandableInfoPanel(title: "Real Follow Up Form", subtitle: "", contents: [
+            SingleChildScrollView(scrollDirection: Axis.horizontal, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: FollowUpFormWidget(),),),
+          ]),
         ],
       ),
     ));
@@ -92,7 +95,7 @@ class FollowUpForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExpandableInfoPanel(
       title: "Follow Up Form",
-      subtitle: "0% Complete",
+      subtitle: "",
       contents: contents(context),
     );
   }
@@ -102,27 +105,17 @@ class FollowUpForm extends StatelessWidget {
 
     List<Widget> out = [];
     for (var sectionNum in sectionTitles.keys) {
-      List<Widget> contents = [];
       var items = itemsPerSection[sectionNum] ?? [];
-      for (var item in items) {
-        for (var question in item.questions) {
-          contents.add(OverviewTile(
-            attentionLevel: OverviewAttentionLevel.GREY,
-            title: "${item.id().code} - ${question.description}",
-            icon: Icons.checklist,
-            additionalTrailing: question.acceptableInputs
-                .map((i) => ElevatedButton(onPressed: () {}, child: Text(i))).toList(),
-            actions: [
-              OverviewAction(title: "Add Comment", onPress: () {}),
-            ],
-          ));
-        }
-      }
       out.add(ExpandableInfoPanel(
-        title: sectionTitles[sectionNum]!,
+        title: "$sectionNum) ${sectionTitles[sectionNum]!}",
         titleStyle: Theme.of(context).textTheme.titleMedium,
-        subtitle: "0% Complete",
-        contents: contents,
+        subtitle: "",
+        contents: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 20),
+            child: FollowUpFormSectionWidget.createSingle([items], groupIndex: 0, ignoreStyles: true),
+          ),
+        ],
       ));
     }
     return out;

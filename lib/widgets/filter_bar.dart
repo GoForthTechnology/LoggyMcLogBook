@@ -1,6 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+class FilterableListView<T> extends StatelessWidget {
+  final Stream<List<T>> itemStream;
+  final List<Filter<T>> filters;
+  final Sort<T> defaultSort;
+  final List<Sort<T>> additionalSortingOptions;
+  final Widget Function(T) buildTile;
+
+  const FilterableListView({super.key, required this.itemStream, required this.filters, required this.defaultSort, this.additionalSortingOptions =  const [], required this.buildTile});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<T>>(stream: itemStream, initialData: [], builder: (context, snapshot) {
+      var items = snapshot.data ?? [];
+      return ChangeNotifierProvider<FilterBarModel<T>>(
+        create: (BuildContext context) => FilterBarModel(
+          filters: filters,
+          defaultSort: defaultSort,
+          additionalSortingOptions: additionalSortingOptions,
+        ),
+        builder: (context, child) => Column(children: [
+          FilterBar<T>(),
+          Consumer<FilterBarModel<T>>(builder: (context, model, child) {
+            var filteredItems = items.where((cd) => model.filter(cd)).toList();
+            var sortedItems = model.getSorted(filteredItems);
+            return Expanded(child: ListView.builder(
+              itemCount: sortedItems.length,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemBuilder: (context, index) => buildTile(sortedItems[index]),
+            ));
+          }),
+        ],),
+      );
+    });
+  }
+}
+
 class Filter<T> {
   final String label;
   final bool Function(T) predicate;
@@ -21,12 +57,17 @@ class Sort<T> {
   int get hashCode => label.hashCode;
 }
 
+enum SortDirection {
+  ASC, DESC;
+}
+
 class FilterBarModel<T> extends ChangeNotifier {
   final Map<Filter<T>, bool> filters = {};
   final List<Sort<T>> additionalSortingOptions;
   final Sort<T> defaultSort;
 
   Sort<T> _activeSort;
+  SortDirection _sortDirection = SortDirection.ASC;
   final _queryController = TextEditingController();
 
   FilterBarModel({
@@ -42,7 +83,10 @@ class FilterBarModel<T> extends ChangeNotifier {
 
   List<T> getSorted(List<T> items) {
     items.sort(_activeSort.comparator);
-    return items;
+    if (_sortDirection == SortDirection.DESC) {
+      return List.from(items.reversed);
+    }
+    return List.from(items);
   }
 
   List<Sort<T>> sortingOptions() {
@@ -57,8 +101,9 @@ class FilterBarModel<T> extends ChangeNotifier {
     return filters.entries.where((e) => !e.value).map((e) => e.key).toList();
   }
 
-  void setSort(Sort<T> sort) {
+  void setSort(Sort<T> sort, SortDirection direction) {
     _activeSort = sort;
+    _sortDirection = direction;
     notifyListeners();
   }
 
@@ -147,13 +192,23 @@ class FilterBar<T> extends StatelessWidget {
       title: Text("List Sorting"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
-        children: model.sortingOptions().map((o) => TextButton(
-          onPressed: () {
-            model.setSort(o);
-            Navigator.of(context).pop();
-          },
-          child: Text(o.label),
-        )).toList(),
+        children: model.sortingOptions().map((o) => Row(mainAxisSize: MainAxisSize.min, children: [
+          Text(o.label),
+          TextButton(
+            onPressed: () {
+              model.setSort(o, SortDirection.ASC);
+              Navigator.of(context).pop();
+            },
+            child: Text("ASC"),
+          ),
+          TextButton(
+            onPressed: () {
+              model.setSort(o, SortDirection.DESC);
+              Navigator.of(context).pop();
+            },
+            child: Text("DESC"),
+          ),
+        ],)).toList(),
       ),
     );
   }

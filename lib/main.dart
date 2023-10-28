@@ -1,3 +1,4 @@
+import 'package:fc_forms/fc_forms.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
@@ -49,6 +50,7 @@ Future<Widget> init(Widget app, bool isWeb) {
     ChangeNotifierProvider.value(value: clients),
     ChangeNotifierProvider.value(value: appointments),
     ChangeNotifierProvider.value(value: invoices),
+    ChangeNotifierProvider.value(value: FollowUpFormViewModel(),),
   ], child: app));
 }
 
