@@ -31,7 +31,7 @@ class AppointmentDetailScreen extends StatelessWidget {
           FollowUpForm(),
           NextStepsPanel(appointment: appointment,),
           Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Center(child: Text("Additional Info", style: Theme.of(context).textTheme.titleMedium))),
-          GifForm(),
+          GifForm(clientID: appointment.clientId,),
           ExpandableInfoPanel(title: "Real Follow Up Form", subtitle: "", contents: [
             SingleChildScrollView(scrollDirection: Axis.horizontal, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: FollowUpFormWidget(),),),
           ]),

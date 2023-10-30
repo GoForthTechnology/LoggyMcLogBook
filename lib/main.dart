@@ -8,6 +8,7 @@ import 'package:lmlb/auth.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/gif_repo.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:provider/provider.dart';
 
@@ -44,12 +45,17 @@ Future<Widget> init(Widget app, bool isWeb) {
     fromJson: Invoice.fromJson,
     toJson: (i) => i.toJson(),
   ), appointments);
+  final gifRepo = GifRepo(FirebaseFormCrud<void>(
+    parseExtras: (Map<String, dynamic> m) => [],
+    serializeExtras: (List<void> es) => [],
+  ));
   //final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
   final init = Future.value(null);
   return init.then((_) => MultiProvider(providers: [
     ChangeNotifierProvider.value(value: clients),
     ChangeNotifierProvider.value(value: appointments),
     ChangeNotifierProvider.value(value: invoices),
+    ChangeNotifierProvider.value(value: gifRepo),
     ChangeNotifierProvider.value(value: FollowUpFormViewModel(),),
   ], child: app));
 }

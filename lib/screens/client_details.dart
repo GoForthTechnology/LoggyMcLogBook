@@ -46,7 +46,7 @@ class ClientDetailsScreen extends StatelessWidget {
             ActionItemsPanel(clientID: clientId,),
             AppointmentsPanel(clientID: clientId,),
             NotesPanel(clientID: clientId,),
-            GifForm(),
+            GifForm(clientID: clientId,),
           ]),
         );
       },
