@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client_general_info.dart';
 import 'package:lmlb/repos/gif_repo.dart';
@@ -150,8 +152,15 @@ class FormSectionState extends State<FormSection> {
   Widget _itemWidget(GifItem item) {
     var initialValue = initialValues[item.name] ?? "";
     var controller = controllers.putIfAbsent(item, () => TextEditingController(text: initialValue));
+    Widget inputWidget = TextFormField(
+      decoration: InputDecoration(
+        labelText: item.label,
+      ),
+      enabled: editEnabled,
+      controller: controller,
+    );
     if (item.optionsEnum != null) {
-      return DropdownButtonFormField<String>(
+      inputWidget = DropdownButtonFormField<String>(
         items: item.optionsEnum!.map((v) => DropdownMenuItem<String>(
           child: Text(v.name),
           value: v.name,
@@ -165,12 +174,15 @@ class FormSectionState extends State<FormSection> {
         value: initialValue.isEmpty ? null : initialValue,
       );
     }
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: item.label,
-      ),
-      enabled: editEnabled,
-      controller: controller,
+    List<Widget> children = [Expanded(child: inputWidget)];
+    if (editEnabled) {
+      children.add(AddCommentButton());
+    } else if (Random.secure().nextDouble() < 0.3) {
+      children.add(ViewCommentsButton(numComments: 1));
+    }
+    return Padding(
+      padding: EdgeInsets.only(right: 8),
+      child: Row(mainAxisSize: MainAxisSize.min, children: children,),
     );
   }
 
@@ -188,5 +200,75 @@ class FormSectionState extends State<FormSection> {
     return IconButton(onPressed: () => setState(() {
       editEnabled = true;
     }), icon: Icon(Icons.edit),);
+  }
+}
+
+class CommentDialog extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => CommentDialogState();
+}
+
+class CommentDialogState extends State<CommentDialog> {
+  List<String> comments = [];
+
+  @override
+  Widget build(BuildContext context) {
+    var commentWidgets = comments.map((c) => TextFormField(initialValue: c,));
+    var contents = Column(children: [...commentWidgets, TextButton(onPressed: () {}, child: Text("Add Comment"))],);
+    return AlertDialog(
+      title: Text("Comments"),
+      content: contents,
+      actions: [
+        TextButton(onPressed: () {}, child: Text("Cancel")),
+        TextButton(onPressed: () {}, child: Text("Save")),
+      ],
+    );
+  }
+}
+
+class AddCommentButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(message: "Add Comment", child: IconButton(icon: Icon(Icons.add_comment), onPressed: () {
+      showDialog(context: context, builder: (context) => CommentDialog(),);
+    },));
+  }
+}
+
+class ViewCommentsButton extends StatelessWidget {
+  final int numComments;
+
+  const ViewCommentsButton({super.key, required this.numComments});
+
+  @override
+  Widget build(BuildContext context) {
+    var icon = Stack(
+      children: <Widget>[
+        new Icon(Icons.comment),
+        new Positioned(
+          right: 0,
+          child: new Container(
+            padding: EdgeInsets.all(1),
+            decoration: new BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            constraints: BoxConstraints(
+              minWidth: 12,
+              minHeight: 12,
+            ),
+            child: new Text(
+              '$numComments',
+              style: new TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        )
+      ],
+    );
+    return Tooltip(message: "View Comments", child: IconButton(onPressed: () {}, icon: icon));
   }
 }
