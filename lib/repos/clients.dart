@@ -1,4 +1,5 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/persistence/StreamingCrudInterface.dart';
@@ -56,10 +57,18 @@ class Clients extends ChangeNotifier {
     return clients.firstWhere((client) => client.num == clientNum, orElse: null);
   }
 
-  Future<Client> newClient(Client client) async {
-    if (client.id != null) {
-      throw Exception("New clients cannot have IDs already assigned ${client.id}");
+  Future<Client> newClient(String firstName, String lastName) async {
+    print("FOO");
+    var currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      throw Exception("Must be signed in to create clients.");
     }
+    var client = Client(
+      firstName: firstName,
+      lastName: lastName,
+      active: true,
+      practitionerID: currentUser.uid,
+    );
     return _persistence.insert(client).then((id) => client.setId(id));
   }
 

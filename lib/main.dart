@@ -6,16 +6,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/auth.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/persistence/firebase/firestore_crud.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/gif_repo.dart';
-import 'package:lmlb/repos/invoices.dart';
 import 'package:provider/provider.dart';
 
 import 'entities/appointment.dart';
-import 'entities/invoice.dart';
 import 'firebase_options.dart';
-import 'persistence/firebase/firebase_crud.dart';
 import 'routes.gr.dart';
 
 void main() async {
@@ -30,21 +28,16 @@ void main() async {
 }
 
 Future<Widget> init(Widget app, bool isWeb) {
-  final clients = Clients(new StreamingFirebaseCrud(
+  final clients = Clients(FirestoreCrud(
     directory: "clients",
     fromJson: Client.fromJson,
     toJson: (c) => c.toJson(),
   ));
-  final appointments = Appointments(new StreamingFirebaseCrud(
+  final appointments = Appointments(FirestoreCrud(
     directory: "appointments",
     fromJson: Appointment.fromJson,
     toJson: (a) => a.toJson(),
   ));
-  final invoices = Invoices(new StreamingFirebaseCrud(
-    directory: "invoices",
-    fromJson: Invoice.fromJson,
-    toJson: (i) => i.toJson(),
-  ), appointments);
   final gifRepo = GifRepo(FirebaseFormCrud<void>(
     parseExtras: (Map<String, dynamic> m) => [],
     serializeExtras: (List<void> es) => [],
@@ -54,7 +47,6 @@ Future<Widget> init(Widget app, bool isWeb) {
   return init.then((_) => MultiProvider(providers: [
     ChangeNotifierProvider.value(value: clients),
     ChangeNotifierProvider.value(value: appointments),
-    ChangeNotifierProvider.value(value: invoices),
     ChangeNotifierProvider.value(value: gifRepo),
     ChangeNotifierProvider.value(value: FollowUpFormViewModel(),),
   ], child: app));

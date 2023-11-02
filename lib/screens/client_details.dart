@@ -26,6 +26,8 @@ class ClientDetailsScreen extends StatelessWidget {
         bool hasClientNum = snapshot.data?.num != null;
         bool isActive = snapshot.data?.active ?? false;
         List<Widget> actions = [];
+        print("Has Client Number: $hasClientNum");
+        print("Is Active: $isActive");
         if (hasClientNum && isActive) {
           actions.add(Tooltip(message: "Deactivate Client", child: IconButton(
             icon: Icon(Icons.cancel),

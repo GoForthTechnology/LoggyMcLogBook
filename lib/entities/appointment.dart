@@ -27,22 +27,21 @@ enum AppointmentStatus {
 
 @JsonSerializable(explicitToJson: true)
 class Appointment extends Indexable<Appointment> {
-  late String? id;
+  @JsonKey(includeFromJson: false, includeToJson: false) final String? id;
   final AppointmentType type;
   final DateTime time;
   final Duration duration;
   final String clientId;
-  final int price;
   final String? invoiceId;
-  Appointment(
-      this.id,
-      this.type,
-      this.time,
-      this.duration,
-      this.clientId,
-      this.price,
-      this.invoiceId,
-      );
+
+  Appointment({
+    required this.type,
+    required this.time,
+    required this.duration,
+    required this.clientId,
+    this.id,
+    this.invoiceId,
+  });
 
   Appointment copyWith({
     String? id,
@@ -50,17 +49,15 @@ class Appointment extends Indexable<Appointment> {
     DateTime? time,
     Duration? duration,
     String? clientID,
-    int? price,
     String? invoiceID,
   }) {
     return Appointment(
-      id ?? this.id,
-      type ?? this.type,
-      time ?? this.time,
-      duration ?? this.duration,
-      clientID ?? this.clientId,
-      price ?? this.price,
-      invoiceID ?? this.invoiceId,
+      id: id ?? this.id,
+      type: type ?? this.type,
+      time: time ?? this.time,
+      duration: duration ?? this.duration,
+      clientId: clientID ?? this.clientId,
+      invoiceId: invoiceID ?? this.invoiceId,
     );
   }
 
@@ -88,7 +85,7 @@ class Appointment extends Indexable<Appointment> {
   }
 
   Appointment bill(Invoice? invoice) {
-    return Appointment(this.id, this.type, this.time, this.duration, this.clientId, this.price, invoice?.id);
+    return copyWith(invoiceID: invoice?.id);
   }
 
   @override
@@ -98,7 +95,7 @@ class Appointment extends Indexable<Appointment> {
 
   @override
   Appointment setId(String id) {
-    return new Appointment(id, type, time, duration, clientId, price, invoiceId);
+    return copyWith(id: id);
   }
 
   factory Appointment.fromJson(Map<String, dynamic> json) => _$AppointmentFromJson(json);

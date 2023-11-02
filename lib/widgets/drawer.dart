@@ -47,10 +47,7 @@ class DrawerWidget extends StatelessWidget {
             ListTile(
               title: const Text('Billing'),
               leading: Icon(Icons.receipt_long),
-              onTap: () {
-                AutoRouter.of(context).push(InvoicesScreenRoute());
-                Navigator.pop(context);
-              },
+              onTap: () => showComingSoon(context),
             ),
             ListTile(
               title: const Text('Materials'),

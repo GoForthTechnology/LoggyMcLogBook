@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:provider/provider.dart';
 
@@ -26,11 +25,7 @@ class _NewClientDialogState extends State<NewClientDialog> {
         }, child: Text("Cancel")),
         TextButton(onPressed: () async {
           if (_formKey.currentState?.validate() ?? false) {
-            var client = Client(
-              firstName: _firstNameController.text,
-              lastName: _lastNameController.text,
-            );
-            await clientRepo.newClient(client).then((client) {
+            await clientRepo.newClient(_firstNameController.text, _lastNameController.text).then((client) {
               Navigator.of(context).pop();
 
               ScaffoldMessenger.of(context).showSnackBar(

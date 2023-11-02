@@ -19,10 +19,8 @@ class AppointmentsPanel extends StatelessWidget {
     return Consumer<Appointments>(builder: (context, repo, child) => StreamBuilder<List<Appointment>>(
       stream: repo.streamAll((a) => a.clientId == clientID),
       builder: (context, snapshot) {
-        if (snapshot.data == null) {
-          return Container();
-        }
-        List<Appointment> sortedAppointments = List.from(snapshot.data!);
+        List<Appointment> appointments = snapshot.data ?? [];
+        List<Appointment> sortedAppointments = List.from(appointments);
         sortedAppointments.sort((a, b) => b.time.compareTo(a.time));
         return ExpandableInfoPanel(
           title: "Appointments",

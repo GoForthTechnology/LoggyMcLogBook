@@ -9,15 +9,17 @@ enum ClientStatus { Prospective, Active, Inactive }
 
 @JsonSerializable(explicitToJson: true)
 class Client extends Indexable<Client> {
-  final String? id;
+  @JsonKey(includeFromJson: false, includeToJson: false) final String? id;
   final int? num;
   final bool? active;
   final String firstName;
   final String lastName;
+  final String practitionerID;
 
   Client({
     required this.firstName,
     required this.lastName,
+    required this.practitionerID,
     this.id,
     this.num,
     this.active,
@@ -29,6 +31,7 @@ class Client extends Indexable<Client> {
     bool? active,
     String? firstName,
     String? lastName,
+    String? practitionerID,
   }) {
     return Client(
       id: id ?? this.id,
@@ -36,6 +39,7 @@ class Client extends Indexable<Client> {
       active: active ?? this.active,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
+      practitionerID: practitionerID ?? this.practitionerID,
     );
   }
 
@@ -79,26 +83,6 @@ class Client extends Indexable<Client> {
   factory Client.fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);
 
   Map<String, dynamic> toJson() => _$ClientToJson(this);
-}
-
-class DemographicInformation {
-
-}
-
-class PregnancyHistory {
-
-}
-
-class MedicalHistory {
-
-}
-
-class FamilyPlanningHistory {
-
-}
-
-class IntentionsAndExpectations {
-
 }
 
 class BillingInformation {

@@ -46,6 +46,7 @@ dependencies:
     git:
       url: git@github.com:GoForthTechnology/fc_forms.git
       ref: main
+  cloud_firestore: ^4.12.1
 
 dev_dependencies:
   flutter_test:

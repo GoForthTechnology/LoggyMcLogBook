@@ -11,7 +11,7 @@ class ClientListModel extends ChangeNotifier {
   ClientListModel({
     required this.onClientTapped,
     required Clients clients,
-  }) : data = clients.streamAll().map((clients) => ClientListData.from(clients));
+  }) : data = clients.streamAll().map((clients) => ClientListData.from(clients)).asBroadcastStream();
 }
 
 class ClientListData {

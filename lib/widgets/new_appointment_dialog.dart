@@ -39,7 +39,7 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
               _appointmentDate!.day,
               _appointmentTime!.hour,
               _appointmentTime!.minute);
-            await repo.add(widget.clientID, time, Duration(hours: 1), _appointmentType!, 0);
+            await repo.add(widget.clientID, time, Duration(hours: 1), _appointmentType!);
             Navigator.of(context).pop();
           }
         }, child: Text("Submit")),
@@ -49,15 +49,14 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
 
   Widget form() {
     return Consumer<Appointments>(builder: (context, repo, child) => FutureBuilder<Appointment>(
-      future: repo.get((a) => a.clientId == widget.clientID).then((as) {
+      future: repo.streamAll((a) => a.clientId == widget.clientID).first.then((as) {
         as.sort((a, b) => a.type.index.compareTo(b.type.index));
         return as.last;
       }),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Container();
-        }
-        Appointment appointment = snapshot.data!;
+        Appointment? appointment = snapshot.data;
+        AppointmentType previousType = appointment?.type ?? AppointmentType.INFO;
+        DateTime previousAppointmentTime = appointment?.time ?? DateTime.now();
         return Form(
           key: _formKey,
           child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -67,7 +66,7 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
               ),
               validator: _valueMustNotBeNull,
               items: AppointmentType.values
-                  .where((t) => t.index > appointment.type.index)
+                  .where((t) => t.index > previousType.index)
                   .map((t) => DropdownMenuItem<AppointmentType>(
                 child: Text(t.name()),
                 value: t,
@@ -85,8 +84,8 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
               onTap: () async {
                 final DateTime? picked = await showDatePicker(
                   context: context,
-                  initialDate: appointment.time.add(Duration(days: 1)),
-                  firstDate: appointment.time.add(Duration(days: 1)),
+                  initialDate: previousAppointmentTime.add(Duration(days: 1)),
+                  firstDate: previousAppointmentTime.add(Duration(days: 1)),
                   lastDate: DateTime.now().add(Duration(days: 365)),
                 );
                 if (picked != null) {

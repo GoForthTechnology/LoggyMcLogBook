@@ -27,7 +27,7 @@ class AppointmentDetailScreen extends StatelessWidget {
       body: ListView(
         children: [
           AppointmentInfoPanel(appointment: appointment,),
-          PreviousAppointmentPanel(),
+          PreviousAppointmentPanel(currentAppointment: appointment,),
           FollowUpForm(),
           NextStepsPanel(appointment: appointment,),
           Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Center(child: Text("Additional Info", style: Theme.of(context).textTheme.titleMedium))),
@@ -42,9 +42,29 @@ class AppointmentDetailScreen extends StatelessWidget {
 }
 
 class PreviousAppointmentPanel extends StatelessWidget {
+  final Appointment currentAppointment;
+
+  const PreviousAppointmentPanel({super.key, required this.currentAppointment});
+
   @override
   Widget build(BuildContext context) {
-    return ExpandableInfoPanel(title: "Previous Appointment", subtitle: "FUP 1 on 5 Oct", contents: [
+    return Consumer<Appointments>(builder: (context, repo, child) => FutureBuilder<Appointment?>(
+      future: repo.getPrevious(currentAppointment),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return emptyPanel();
+        }
+        return panelForAppointment(snapshot.data!);
+      }),
+    );
+  }
+
+  Widget emptyPanel() {
+    return ExpandableInfoPanel(title: "Previous Appointment", subtitle: "None", contents: []);
+  }
+
+  Widget panelForAppointment(Appointment appointment) {
+    return ExpandableInfoPanel(title: "Previous Appointment", subtitle: appointment.toString(), contents: [
       OverviewTile(
         attentionLevel: OverviewAttentionLevel.GREY,
         title: "Notes",

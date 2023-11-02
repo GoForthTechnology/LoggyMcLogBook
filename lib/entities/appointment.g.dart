@@ -7,23 +7,19 @@ part of 'appointment.dart';
 // **************************************************************************
 
 Appointment _$AppointmentFromJson(Map<String, dynamic> json) => Appointment(
-      json['id'] as String?,
-      $enumDecode(_$AppointmentTypeEnumMap, json['type']),
-      DateTime.parse(json['time'] as String),
-      Duration(microseconds: json['duration'] as int),
-      json['clientId'] as String,
-      json['price'] as int,
-      json['invoiceId'] as String?,
+      type: $enumDecode(_$AppointmentTypeEnumMap, json['type']),
+      time: DateTime.parse(json['time'] as String),
+      duration: Duration(microseconds: json['duration'] as int),
+      clientId: json['clientId'] as String,
+      invoiceId: json['invoiceId'] as String?,
     );
 
 Map<String, dynamic> _$AppointmentToJson(Appointment instance) =>
     <String, dynamic>{
-      'id': instance.id,
       'type': _$AppointmentTypeEnumMap[instance.type]!,
       'time': instance.time.toIso8601String(),
       'duration': instance.duration.inMicroseconds,
       'clientId': instance.clientId,
-      'price': instance.price,
       'invoiceId': instance.invoiceId,
     };
 
