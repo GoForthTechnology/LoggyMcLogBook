@@ -8,6 +8,7 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/widgets/appointment_info_panel.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
+import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/new_appointment_dialog.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,7 @@ class AppointmentDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: clientWidget(appointment!.clientId, (client) => Text("${appointment.type.name()} for ${client!.fullName()}")),
       ),
-      body: ListView(
+      body: NavigationRailScreen(item: NavigationItem.APPOINTMENTS, content: ListView(
         children: [
           AppointmentInfoPanel(appointment: appointment,),
           PreviousAppointmentPanel(currentAppointment: appointment,),
@@ -36,7 +37,7 @@ class AppointmentDetailScreen extends StatelessWidget {
             SingleChildScrollView(scrollDirection: Axis.horizontal, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: FollowUpFormWidget(),),),
           ]),
         ],
-      ),
+      )),
     ));
   }
 }

@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/routes.gr.dart';
-import 'package:lmlb/screens/appointments.dart';
 
 class DrawerWidget extends StatelessWidget {
 
@@ -40,7 +39,7 @@ class DrawerWidget extends StatelessWidget {
               title: const Text('Appointments'),
               leading: Icon(Icons.event),
               onTap: () {
-                AutoRouter.of(context).push(AppointmentsScreenRoute(view: AppointmentListView.ALL.name));
+                AutoRouter.of(context).push(AppointmentsScreenRoute());
                 Navigator.pop(context);
               },
             ),

@@ -5,6 +5,7 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/widgets/action_items_panel.dart';
 import 'package:lmlb/widgets/appointments_panel.dart';
 import 'package:lmlb/widgets/gif_form.dart';
+import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/notes_panel.dart';
 import 'package:provider/provider.dart';
 
@@ -44,12 +45,12 @@ class ClientDetailsScreen extends StatelessWidget {
             title: Text('Details for ${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
             actions: actions,
           ),
-          body: ListView(children: [
+          body: NavigationRailScreen(item: NavigationItem.CLIENTS, content: ListView(children: [
             ActionItemsPanel(clientID: clientId,),
             AppointmentsPanel(clientID: clientId,),
             NotesPanel(clientID: clientId,),
             GifForm(clientID: clientId,),
-          ]),
+          ])),
         );
       },
     ));

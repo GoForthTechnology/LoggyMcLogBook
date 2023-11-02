@@ -5,6 +5,7 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/widgets/client_list/client_list_model.dart';
 import 'package:lmlb/widgets/client_list/client_list_widget.dart';
+import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/new_client_dialog.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +21,7 @@ class ClientsScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Clients'),
         ),
-        body: ClientListWidget(),
+        body: NavigationRailScreen(item: NavigationItem.CLIENTS, content: ClientListWidget()),
         floatingActionButton: FloatingActionButton(
           // isExtended: true,
           child: Icon(Icons.add),

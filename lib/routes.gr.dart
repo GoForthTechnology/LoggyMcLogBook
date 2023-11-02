@@ -14,7 +14,6 @@
 import 'package:auto_route/auto_route.dart' as _i7;
 import 'package:flutter/material.dart' as _i8;
 import 'package:lmlb/auth.dart' as _i6;
-import 'package:lmlb/entities/client.dart' as _i9;
 import 'package:lmlb/screens/appointment_detail.dart' as _i2;
 import 'package:lmlb/screens/appointments.dart' as _i3;
 import 'package:lmlb/screens/client_details.dart' as _i5;
@@ -51,17 +50,9 @@ class AppRouter extends _i7.RootStackRouter {
       );
     },
     AppointmentsScreenRoute.name: (routeData) {
-      final pathParams = routeData.inheritedPathParams;
-      final args = routeData.argsAs<AppointmentsScreenRouteArgs>(
-          orElse: () =>
-              AppointmentsScreenRouteArgs(view: pathParams.getString('view')));
       return _i7.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i3.AppointmentsScreen(
-          key: args.key,
-          client: args.client,
-          view: args.view,
-        ),
+        child: _i3.AppointmentsScreen(),
       );
     },
     ClientsScreenRoute.name: (routeData) {
@@ -117,7 +108,7 @@ class AppRouter extends _i7.RootStackRouter {
         ),
         _i7.RouteConfig(
           AppointmentsScreenRoute.name,
-          path: '/appointments/:view',
+          path: '/appointments',
           guards: [authGuard],
         ),
         _i7.RouteConfig(
@@ -206,43 +197,14 @@ class AppointmentDetailScreenRouteArgs {
 
 /// generated route for
 /// [_i3.AppointmentsScreen]
-class AppointmentsScreenRoute
-    extends _i7.PageRouteInfo<AppointmentsScreenRouteArgs> {
-  AppointmentsScreenRoute({
-    _i8.Key? key,
-    _i9.Client? client,
-    required String view,
-  }) : super(
+class AppointmentsScreenRoute extends _i7.PageRouteInfo<void> {
+  const AppointmentsScreenRoute({_i8.Key? key})
+      : super(
           AppointmentsScreenRoute.name,
-          path: '/appointments/:view',
-          args: AppointmentsScreenRouteArgs(
-            key: key,
-            client: client,
-            view: view,
-          ),
-          rawPathParams: {'view': view},
+          path: '/appointments',
         );
 
   static const String name = 'AppointmentsScreenRoute';
-}
-
-class AppointmentsScreenRouteArgs {
-  const AppointmentsScreenRouteArgs({
-    this.key,
-    this.client,
-    required this.view,
-  });
-
-  final _i8.Key? key;
-
-  final _i9.Client? client;
-
-  final String view;
-
-  @override
-  String toString() {
-    return 'AppointmentsScreenRouteArgs{key: $key, client: $client, view: $view}';
-  }
 }
 
 /// generated route for

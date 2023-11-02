@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lmlb/widgets/drawer.dart';
+import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 
 class OverviewScreen extends StatelessWidget {
@@ -10,8 +10,8 @@ class OverviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Your Overview'),
       ),
-      drawer: const DrawerWidget(),
-      body: ListView(
+      //drawer: const DrawerWidget(),
+      body: NavigationRailScreen(item: NavigationItem.HOME, content: ListView(
         children: [
           OverviewTile(
             attentionLevel: OverviewAttentionLevel.RED,
@@ -47,6 +47,6 @@ class OverviewScreen extends StatelessWidget {
           )
         ],
       ),
-    );
+    ));
   }
 }
