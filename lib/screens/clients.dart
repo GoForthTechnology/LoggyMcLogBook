@@ -17,12 +17,11 @@ class ClientsScreen extends StatelessWidget {
           onClientTapped: goToClientDetail,
           clients: clients,
       ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Clients'),
-        ),
-        body: NavigationRailScreen(item: NavigationItem.CLIENTS, content: ClientListWidget()),
-        floatingActionButton: FloatingActionButton(
+      child: NavigationRailScreen(
+        item: NavigationItem.CLIENTS,
+        title: const Text('Clients'),
+        content: ClientListWidget(),
+        fab: FloatingActionButton(
           // isExtended: true,
           child: Icon(Icons.add),
           backgroundColor: Colors.green,

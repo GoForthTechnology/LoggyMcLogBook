@@ -20,12 +20,10 @@ class ClientListData {
   ClientListData(this.clientData);
 
   static ClientListData from(List<Client> clients) {
-    print("Found ${clients.length} clients");
     List<ClientData> data = [];
     for (var client in clients) {
       data.add(ClientData.from(client));
     }
-    print("Parsed ${data.length} clients");
     return ClientListData(data);
   }
 }

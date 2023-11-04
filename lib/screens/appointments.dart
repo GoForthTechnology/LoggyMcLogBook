@@ -21,12 +21,10 @@ class AppointmentsScreen extends StatelessWidget {
           }
         });
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Appointments'),
-        ),
-        body: NavigationRailScreen(item: NavigationItem.APPOINTMENTS, content: AppointmentListWidget()),
-        floatingActionButton: buildFab(context),
+      child: NavigationRailScreen(
+        item: NavigationItem.APPOINTMENTS,
+        title: const Text('Appointments'),
+        content: AppointmentListWidget(),
       ),
     );
   }

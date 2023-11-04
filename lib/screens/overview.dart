@@ -6,12 +6,10 @@ class OverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Overview'),
-      ),
-      //drawer: const DrawerWidget(),
-      body: NavigationRailScreen(item: NavigationItem.HOME, content: ListView(
+    return NavigationRailScreen(
+      item: NavigationItem.HOME,
+      title: const Text('Your Overview'),
+      content: ListView(
         children: [
           OverviewTile(
             attentionLevel: OverviewAttentionLevel.RED,
@@ -47,6 +45,6 @@ class OverviewScreen extends StatelessWidget {
           )
         ],
       ),
-    ));
+    );
   }
 }

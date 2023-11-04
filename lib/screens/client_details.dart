@@ -17,7 +17,6 @@ class ClientDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("Loading details for client $clientId");
     return Consumer<Clients>(builder: (context, clientRepo, child) => FutureBuilder<Client?>(
       future: clientRepo.get(clientId),
       builder: (context, snapshot) {
@@ -27,8 +26,6 @@ class ClientDetailsScreen extends StatelessWidget {
         bool hasClientNum = snapshot.data?.num != null;
         bool isActive = snapshot.data?.active ?? false;
         List<Widget> actions = [];
-        print("Has Client Number: $hasClientNum");
-        print("Is Active: $isActive");
         if (hasClientNum && isActive) {
           actions.add(Tooltip(message: "Deactivate Client", child: IconButton(
             icon: Icon(Icons.cancel),
@@ -40,19 +37,17 @@ class ClientDetailsScreen extends StatelessWidget {
             onPressed: () => clientRepo.activate(snapshot.data!).ignore(),
           )));
         }
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Details for ${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
-            actions: actions,
-          ),
-          body: NavigationRailScreen(item: NavigationItem.CLIENTS, content: ListView(children: [
+        return NavigationRailScreen(
+          item: NavigationItem.CLIENTS,
+          title: Text('Details for ${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
+          content: ListView(children: [
             ActionItemsPanel(clientID: clientId,),
             AppointmentsPanel(clientID: clientId,),
             NotesPanel(clientID: clientId,),
             GifForm(clientID: clientId,),
-          ])),
+          ]),
         );
-      },
-    ));
+      }),
+    );
   }
 }

@@ -21,11 +21,10 @@ class AppointmentDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return appointmentWidget(appointmentID, (appointment) => Scaffold(
-      appBar: AppBar(
-        title: clientWidget(appointment!.clientId, (client) => Text("${appointment.type.name()} for ${client!.fullName()}")),
-      ),
-      body: NavigationRailScreen(item: NavigationItem.APPOINTMENTS, content: ListView(
+    return appointmentWidget(appointmentID, (appointment) => NavigationRailScreen(
+      item: NavigationItem.APPOINTMENTS,
+      title: clientWidget(appointment!.clientId, (client) => Text("${appointment.type.name()} for ${client!.fullName()}")),
+      content: ListView(
         children: [
           AppointmentInfoPanel(appointment: appointment,),
           PreviousAppointmentPanel(currentAppointment: appointment,),
@@ -37,7 +36,7 @@ class AppointmentDetailScreen extends StatelessWidget {
             SingleChildScrollView(scrollDirection: Axis.horizontal, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: FollowUpFormWidget(),),),
           ]),
         ],
-      )),
+      ),
     ));
   }
 }

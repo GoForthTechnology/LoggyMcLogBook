@@ -148,7 +148,7 @@ class FilterBar<T> extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
             ),
-            suffixIcon: _filterWidgets(context, model),
+            suffixIcon: SingleChildScrollView(scrollDirection: Axis.horizontal, child: _filterWidgets(context, model)),
           ),
         )),
         IconButton(

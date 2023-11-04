@@ -81,15 +81,11 @@ class FirebaseFormCrud<E> extends StreamingFormCrud<E> {
   @override
   Stream<Map<String, FormValue<E>>> getAllValues(FormKey key) async* {
     var ref = await _formRef(key);
-    print("A: ${ref.path}");
     yield* ref.onValue
         .map((e) {
-          print("FOO");
           if (e.snapshot.exists) {
-            print("BAR");
             return e.snapshot.value as Map<String, dynamic>;
           }
-          print("BAZ");
           return {};
         })
         .map((m) => m.map((k, v) => MapEntry(k, _parseValue(v))));

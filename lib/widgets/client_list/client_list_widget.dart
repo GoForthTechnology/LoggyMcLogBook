@@ -69,7 +69,6 @@ class ClientTile extends StatelessWidget {
         title: Text(client.tile),
         leading: ClientIconWidget(data: client.icon),
         onTap: () {
-          print("AAAA ${client.id}");
           Provider.of<ClientListModel>(context, listen: false).onClientTapped(context, client.id);
         },
       ),

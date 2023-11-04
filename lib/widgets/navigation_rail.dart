@@ -5,7 +5,6 @@ import 'package:lmlb/routes.gr.dart';
 
 enum NavigationItem {
   HOME(label: "Home", icon: Icons.home, route: OverviewScreenRoute()),
-  INQUIRIES(label: "Inquiries", icon: Icons.contact_support),
   CLIENTS(label: "Clients", icon: Icons.contacts, route: ClientsScreenRoute()),
   APPOINTMENTS(label: "Appointments", icon: Icons.event, route: AppointmentsScreenRoute()),
   BILLING(label: "Billing", icon: Icons.receipt_long),
@@ -21,12 +20,29 @@ enum NavigationItem {
 
 class NavigationRailScreen extends StatelessWidget {
   final NavigationItem item;
+  final Widget title;
+  final Widget? fab;
   final Widget content;
 
-  const NavigationRailScreen({super.key, required this.item, required this.content});
+  const NavigationRailScreen({super.key, required this.item, required this.content, required this.title, this.fab});
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: title,
+      ),
+      body: _showRail(context) ? _railLayout(context) : content,
+      floatingActionButton: fab,
+      bottomNavigationBar: _bottomNavBar(context),
+    );
+  }
+
+  bool _showRail(BuildContext context) {
+    return MediaQuery.of(context).size.width >= 640;
+  }
+
+  Widget _railLayout(BuildContext context) {
     return Row(children: [
       NavigationRail(
         selectedIndex: item.index,
@@ -34,14 +50,28 @@ class NavigationRailScreen extends StatelessWidget {
           icon: Icon(i.icon),
           label: Text(i.label),
         )).toList(),
-        onDestinationSelected: ((index) {
-          var item = NavigationItem.values[index];
-          if (item.route != null) {
-            AutoRouter.of(context).push(item.route!);
-          }
-        }),
+        onDestinationSelected: (index) => _onSelect(context, index),
       ),
       Expanded(child: content),
     ],);
+  }
+
+  Widget? _bottomNavBar(BuildContext context) {
+    if (_showRail(context)) {
+      return null;
+    }
+    return NavigationBar(
+      onDestinationSelected: (index) => _onSelect(context, index),
+      destinations: NavigationItem.values
+          .map((i) => NavigationDestination(icon: Icon(i.icon), label: i.label))
+          .toList(),
+    );
+  }
+
+  void _onSelect(BuildContext context, int index) {
+    var item = NavigationItem.values[index];
+    if (item.route != null) {
+      AutoRouter.of(context).push(item.route!);
+    }
   }
 }

@@ -58,7 +58,6 @@ class Clients extends ChangeNotifier {
   }
 
   Future<Client> newClient(String firstName, String lastName) async {
-    print("FOO");
     var currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       throw Exception("Must be signed in to create clients.");
