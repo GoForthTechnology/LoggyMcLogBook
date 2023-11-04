@@ -85,19 +85,35 @@ class NextStepsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppointmentType nextType = AppointmentType.values[appointment.type.index + 1];
     return ExpandableInfoPanel(title: "Next Steps", subtitle: "Not yet scheduled", contents: [
-      OverviewTile(
-        attentionLevel: OverviewAttentionLevel.GREEN,
-        title: "Schedule FUP 3",
-        icon: Icons.event,
-        actions: [
-          OverviewAction(title: "Set Reminder", onPress: () {}),
-          OverviewAction(title: "Schedule", onPress: () => showDialog(
-            context: context,
-            builder: (context) => NewAppointmentDialog(clientID: appointment.clientId),
-          )),
-        ],
-      ),
+      Consumer<Appointments>(builder: (context, repo, child) => StreamBuilder<Appointment?>(
+        stream: repo.getNext(appointment).asStream(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return OverviewTile(
+              attentionLevel: OverviewAttentionLevel.GREY,
+              title: "Schedule ${nextType.name()}",
+              icon: Icons.event,
+              actions: [
+                OverviewAction(title: "Scheduled for ${snapshot.data!.timeStr()}"),
+              ],
+            );
+          }
+          return OverviewTile(
+            attentionLevel: OverviewAttentionLevel.GREEN,
+            title: "Schedule ${nextType.name()}",
+            icon: Icons.event,
+            actions: [
+              OverviewAction(title: "Set Reminder", onPress: () {}),
+              OverviewAction(title: "Schedule", onPress: () => showDialog(
+                context: context,
+                builder: (context) => NewAppointmentDialog(clientID: appointment.clientId),
+              )),
+            ],
+          );
+        },
+      ),),
       OverviewTile(
         attentionLevel: OverviewAttentionLevel.GREEN,
         title: "Order Materials",

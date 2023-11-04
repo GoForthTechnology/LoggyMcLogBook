@@ -60,21 +60,7 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
         return Form(
           key: _formKey,
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            DropdownButtonFormField<AppointmentType>(
-              decoration: InputDecoration(
-                labelText: "Appointment Type *",
-              ),
-              validator: _valueMustNotBeNull,
-              items: AppointmentType.values
-                  .where((t) => t.index > previousType.index)
-                  .map((t) => DropdownMenuItem<AppointmentType>(
-                child: Text(t.name()),
-                value: t,
-              )).toList(),
-              onChanged: (value) => setState(() {
-                _appointmentType = value;
-              }),
-            ),
+            _typeField(previousType),
             TextFormField(
               decoration: InputDecoration(
                 labelText: "Appointment Date *",
@@ -119,6 +105,26 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
         );
       },
     ));
+  }
+
+  Widget _typeField(AppointmentType previousType) {
+    _appointmentType = AppointmentType.values[previousType.index + 1];
+    return DropdownButtonFormField<AppointmentType>(
+      value: _appointmentType,
+      decoration: InputDecoration(
+        labelText: "Appointment Type *",
+      ),
+      validator: _valueMustNotBeNull,
+      items: AppointmentType.values
+          .where((t) => t.index > previousType.index)
+          .map((t) => DropdownMenuItem<AppointmentType>(
+        child: Text(t.name()),
+        value: t,
+      )).toList(),
+      onChanged: (value) => setState(() {
+        _appointmentType = value;
+      }),
+    );
   }
 
   String? _valueMustNotBeNull(Object? value) {
