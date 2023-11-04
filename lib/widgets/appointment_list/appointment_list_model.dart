@@ -17,7 +17,7 @@ class AppointmentListModel extends ChangeNotifier {
     required Appointments appointments,
     required Clients clients,
     required Client? clientFilter,
-  }) : data = AppointmentListData.stream(appointments, clients, clientFilter);
+  }) : data = AppointmentListData.stream(appointments, clients, clientFilter).asBroadcastStream();
 
   static Widget provide({
     required Function(BuildContext context, String? clientID) onClientTapped,

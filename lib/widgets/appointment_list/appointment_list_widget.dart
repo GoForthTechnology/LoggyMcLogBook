@@ -34,7 +34,7 @@ class AppointmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Card(child: Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
         leading: CircleAvatar(
@@ -45,7 +45,7 @@ class AppointmentTile extends StatelessWidget {
         trailing: appointment.warnings.isNotEmpty ? WarningWidget(warnings: appointment.warnings) : null,
         onTap: () => Provider.of<AppointmentListModel>(context, listen: false).onClientTapped(context, appointment.id),
       ),
-    );
+    ));
   }
 }
 
