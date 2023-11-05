@@ -47,6 +47,23 @@ class FirestoreCrud<T extends Indexable> extends StreamingCrudInterface<T> {
     yield* ref.doc(id).snapshots().map((s) => s.data()?.setId(s.id));
   }
 
+
+  @override
+  Stream<List<T>> getWhere(Object field, {
+    Object? isEqualTo,
+    Object? isNotEqualTo,
+    bool? isNull,
+  }) async* {
+    var ref = await _ref();
+    yield* ref
+        .where(field, isEqualTo: isEqualTo, isNotEqualTo: isNotEqualTo, isNull: isNull)
+        .snapshots()
+        .map((s) => s.docs.map((ds) {
+          T t = ds.data().setId(ds.id);
+          return t;
+        }).toList());
+  }
+
   @override
   Stream<List<T>> getAll() async* {
     var ref = await _ref();

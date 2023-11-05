@@ -90,7 +90,7 @@ class NextStepsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppointmentType nextType = AppointmentType.values[appointment.type.index + 1];
-    return ExpandableInfoPanel(title: "Next Steps", subtitle: "Not yet scheduled", contents: [
+    return ExpandableInfoPanel(title: "Next Steps", subtitle: "", contents: [
       Consumer<Appointments>(builder: (context, repo, child) => StreamBuilder<Appointment?>(
         stream: repo.getNext(appointment).asStream(),
         builder: (context, snapshot) {
@@ -127,6 +127,7 @@ class NextStepsPanel extends StatelessWidget {
                   OverviewAction(title: "Set Reminder", onPress: () => showDialog(
                     context: context,
                     builder: (context) => NewReminderDialog(
+                      reminderType: ReminderType.SCHEDULE_APPOINTMENT,
                       defaultTriggerDaysAway: 30,
                       defaultTitle: "$title for ${client.fullName()}",
                       appointmentID: appointment.id,

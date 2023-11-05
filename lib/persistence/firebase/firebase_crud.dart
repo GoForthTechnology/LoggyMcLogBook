@@ -80,4 +80,9 @@ class StreamingFirebaseCrud<T extends Indexable> extends StreamingCrudInterface<
     var ref = await _ref(id: t.getId());
     return db.ref(ref).set(toJson(t));
   }
+
+  @override
+  Stream<List<T>> getWhere(Object field, {Object? isEqualTo, Object? isNotEqualTo, bool? isNull}) {
+    throw UnimplementedError();
+  }
 }

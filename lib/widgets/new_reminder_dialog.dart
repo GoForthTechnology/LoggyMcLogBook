@@ -1,15 +1,17 @@
 
 import 'package:flutter/material.dart';
+import 'package:lmlb/entities/reminder.dart';
 import 'package:lmlb/repos/reminders.dart';
 import 'package:provider/provider.dart';
 
 class NewReminderDialog extends StatefulWidget {
   final String defaultTitle;
+  final ReminderType reminderType;
   final int defaultTriggerDaysAway;
   final String? appointmentID;
   final String? clientID;
 
-  const NewReminderDialog({super.key, this.appointmentID, this.clientID, required this.defaultTriggerDaysAway, required this.defaultTitle});
+  const NewReminderDialog({super.key, this.appointmentID, this.clientID, required this.defaultTriggerDaysAway, required this.defaultTitle, required this.reminderType});
 
   @override
   State<StatefulWidget> createState() => _NewReminderDialogState();
@@ -47,11 +49,14 @@ class _NewReminderDialogState extends State<NewReminderDialog> {
               0, 0);
             repo.addReminder(
               title: _titleController.text,
+              type: widget.reminderType,
               triggerTime: time,
               notes: _notesController.text,
               appointmentID: widget.appointmentID,
               clientID: widget.clientID,
-            ).then((_) => Navigator.of(context).pop());
+            ).then((_) => Navigator.of(context).pop()).onError((error, stackTrace) {
+              print(error);
+            });
           }
         }, child: Text("Submit")),
       ],

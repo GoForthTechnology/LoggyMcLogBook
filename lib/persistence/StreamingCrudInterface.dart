@@ -5,6 +5,12 @@ abstract class StreamingCrudInterface<T> with ChangeNotifier {
 
   Stream<T?> get(String id);
 
+  Stream<List<T>> getWhere(Object field, {
+    Object? isEqualTo,
+    Object? isNotEqualTo,
+    bool? isNull,
+  });
+
   Future<String> insert(T appointment);
 
   Future<void> update(T appointment);
