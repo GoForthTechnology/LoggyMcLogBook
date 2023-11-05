@@ -6,10 +6,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/auth.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/reminder.dart';
 import 'package:lmlb/persistence/firebase/firestore_crud.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/gif_repo.dart';
+import 'package:lmlb/repos/reminders.dart';
 import 'package:provider/provider.dart';
 
 import 'entities/appointment.dart';
@@ -38,6 +40,11 @@ Future<Widget> init(Widget app, bool isWeb) {
     fromJson: Appointment.fromJson,
     toJson: (a) => a.toJson(),
   ));
+  final reminderRepo = Reminders(FirestoreCrud(
+    directory: "reminders",
+    fromJson: Reminder.fromJson,
+    toJson: (r) => r.toJson()),
+  );
   final gifRepo = GifRepo(FirebaseFormCrud<void>(
     parseExtras: (Map<String, dynamic> m) => [],
     serializeExtras: (List<void> es) => [],
@@ -48,6 +55,7 @@ Future<Widget> init(Widget app, bool isWeb) {
     ChangeNotifierProvider.value(value: clients),
     ChangeNotifierProvider.value(value: appointments),
     ChangeNotifierProvider.value(value: gifRepo),
+    ChangeNotifierProvider.value(value: reminderRepo),
     ChangeNotifierProvider.value(value: FollowUpFormViewModel(),),
   ], child: app));
 }

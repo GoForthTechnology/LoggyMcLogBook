@@ -43,7 +43,7 @@ class Appointment extends Indexable<Appointment> {
     this.invoiceId,
   });
 
-  Appointment copyWith({
+ Appointment copyWith({
     String? id,
     AppointmentType? type,
     DateTime? time,

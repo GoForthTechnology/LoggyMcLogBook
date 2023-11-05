@@ -3,13 +3,16 @@ import 'package:fc_forms/fc_forms.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/reminder.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/reminders.dart';
 import 'package:lmlb/widgets/appointment_info_panel.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/new_appointment_dialog.dart';
+import 'package:lmlb/widgets/new_reminder_dialog.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -21,15 +24,15 @@ class AppointmentDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return appointmentWidget(appointmentID, (appointment) => NavigationRailScreen(
+    return appointmentWidget(appointmentID, (appointment) => clientWidget(appointment!.clientId, (client) => NavigationRailScreen(
       item: NavigationItem.APPOINTMENTS,
-      title: clientWidget(appointment!.clientId, (client) => Text("${appointment.type.name()} for ${client!.fullName()}")),
+      title: Text("${appointment.type.name()} for ${client!.fullName()}"),
       content: ListView(
         children: [
           AppointmentInfoPanel(appointment: appointment,),
           PreviousAppointmentPanel(currentAppointment: appointment,),
           FollowUpForm(),
-          NextStepsPanel(appointment: appointment,),
+          NextStepsPanel(client: client, appointment: appointment,),
           Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Center(child: Text("Additional Info", style: Theme.of(context).textTheme.titleMedium))),
           GifForm(clientID: appointment.clientId,),
           ExpandableInfoPanel(title: "Real Follow Up Form", subtitle: "", contents: [
@@ -37,7 +40,7 @@ class AppointmentDetailScreen extends StatelessWidget {
           ]),
         ],
       ),
-    ));
+    )));
   }
 }
 
@@ -79,9 +82,10 @@ class PreviousAppointmentPanel extends StatelessWidget {
 }
 
 class NextStepsPanel extends StatelessWidget {
+  final Client client;
   final Appointment appointment;
 
-  const NextStepsPanel({super.key, required this.appointment});
+  const NextStepsPanel({super.key, required this.appointment, required this.client});
 
   @override
   Widget build(BuildContext context) {
@@ -100,17 +104,42 @@ class NextStepsPanel extends StatelessWidget {
               ],
             );
           }
-          return OverviewTile(
-            attentionLevel: OverviewAttentionLevel.GREEN,
-            title: "Schedule ${nextType.name()}",
-            icon: Icons.event,
-            actions: [
-              OverviewAction(title: "Set Reminder", onPress: () {}),
-              OverviewAction(title: "Schedule", onPress: () => showDialog(
-                context: context,
-                builder: (context) => NewAppointmentDialog(clientID: appointment.clientId),
-              )),
-            ],
+          return Consumer<Reminders>(builder: (context, repo, child) => StreamBuilder<List<Reminder>>(
+            stream: repo.forAppointment(appointment.id!),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                var reminder = snapshot.data!.first;
+                return OverviewTile(
+                  attentionLevel: OverviewAttentionLevel.GREY,
+                  title: "Schedule ${nextType.name()}",
+                  icon: Icons.event,
+                  actions: [
+                    OverviewAction(title: "Reminder set for ${reminder.triggerTime.toString()}"),
+                  ],
+                );
+              }
+              var title = "Schedule ${nextType.name()}";
+              return OverviewTile(
+                attentionLevel: OverviewAttentionLevel.GREEN,
+                title: title,
+                icon: Icons.event,
+                actions: [
+                  OverviewAction(title: "Set Reminder", onPress: () => showDialog(
+                    context: context,
+                    builder: (context) => NewReminderDialog(
+                      defaultTriggerDaysAway: 30,
+                      defaultTitle: "$title for ${client.fullName()}",
+                      appointmentID: appointment.id,
+                      clientID: client.id,
+                    ),
+                  )),
+                  OverviewAction(title: "Schedule", onPress: () => showDialog(
+                    context: context,
+                    builder: (context) => NewAppointmentDialog(clientID: appointment.clientId),
+                  )),
+                ],
+              );
+            },),
           );
         },
       ),),

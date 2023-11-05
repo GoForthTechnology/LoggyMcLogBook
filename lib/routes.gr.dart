@@ -198,7 +198,7 @@ class AppointmentDetailScreenRouteArgs {
 /// generated route for
 /// [_i3.AppointmentsScreen]
 class AppointmentsScreenRoute extends _i7.PageRouteInfo<void> {
-  const AppointmentsScreenRoute({_i8.Key? key})
+  const AppointmentsScreenRoute()
       : super(
           AppointmentsScreenRoute.name,
           path: '/appointments',
