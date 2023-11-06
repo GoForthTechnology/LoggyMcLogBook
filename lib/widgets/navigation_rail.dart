@@ -71,7 +71,7 @@ class NavigationRailScreen extends StatelessWidget {
   void _onSelect(BuildContext context, int index) {
     var item = NavigationItem.values[index];
     if (item.route != null) {
-      AutoRouter.of(context).push(item.route!);
+      AutoRouter.of(context).popAndPush(item.route!);
     }
   }
 }
