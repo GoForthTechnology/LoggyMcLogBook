@@ -62,6 +62,7 @@ class NavigationRailScreen extends StatelessWidget {
     }
     return NavigationBar(
       onDestinationSelected: (index) => _onSelect(context, index),
+      selectedIndex: item.index,
       destinations: NavigationItem.values
           .map((i) => NavigationDestination(icon: Icon(i.icon), label: i.label))
           .toList(),
