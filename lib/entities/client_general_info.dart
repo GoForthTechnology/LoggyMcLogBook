@@ -14,6 +14,7 @@ abstract class GifItem extends Enum {
   InputType get inputType;
   String get label;
   List<Enum>? get optionsEnum;
+  Set<Enum> get explainOptions;
 }
 
 enum GeneralInfoItem implements GifItem {
@@ -61,6 +62,7 @@ enum GeneralInfoItem implements GifItem {
   final String label;
   final List<Enum>? optionsEnum;
   final InputType inputType;
+  final Set<Enum> explainOptions = const {};
 
   const GeneralInfoItem({required this.label, this.optionsEnum, this.inputType = InputType.TEXT});
 }
@@ -131,6 +133,7 @@ enum DemographicInfoItem implements GifItem {
   final String label;
   final List<Enum>? optionsEnum;
   final InputType inputType = InputType.TEXT;
+  final Set<Enum> explainOptions = const {};
 
   const DemographicInfoItem({required this.label, this.optionsEnum});
 }
@@ -170,8 +173,217 @@ enum PregnancyHistoryItem implements GifItem {
   final String label;
   final List<Enum>? optionsEnum;
   final InputType inputType = InputType.TEXT;
+  final Set<Enum> explainOptions = const {};
 
   const PregnancyHistoryItem({required this.label, this.optionsEnum});
+}
+
+enum MedicalHistoryItem implements GifItem {
+  AGE_AT_FIRST_MENSTRUATION(
+    label: "Age at 1st menstruation",
+  ),
+  NATURE_OF_CYCLES(
+    label: "Nature of Cycles",
+    optionsEnum: NatureOfCycles.values,
+  ),
+  AVERAGE_LENGTH_OF_MENSTRUAL_FLOW(
+    label: "Average length of menstrual flow (days)",
+  ),
+  MENSTRUAL_CRAMPS(
+    label: "Menstrual cramps",
+    optionsEnum: MenstrualCrampSeverity.values,
+  ),
+  HIGH_BLOOD_PRESSURE(
+    label: "High blood pressure",
+    optionsEnum: YesNo.values,
+  ),
+  HEART_DISEASE(
+    label: "Heart disease",
+    optionsEnum: YesNo.values,
+  ),
+  DIABETES(
+    label: "Diabetes",
+    optionsEnum: YesNo.values,
+  ),
+  CONVULSIONS(
+    label: "Convulsions",
+    optionsEnum: YesNo.values,
+  ),
+  MIGRAINE_HEADACHES(
+    label: "Migraine headaches",
+    optionsEnum: YesNo.values,
+  ),
+  THYROID_PROBLEMS(
+    label: "Thyroid problems",
+    optionsEnum: YesNo.values,
+  ),
+  CANCER(
+    label: "Cancer",
+    optionsEnum: YesNo.values,
+    explainOptions: {YesNo.YES},
+  ),
+  URINARY_TRACT_INFECTION(
+    label: "Urinary tract infection",
+    optionsEnum: YesNo.values,
+  ),
+  VARICOSE_VEINS(
+    label: "Varicose veins",
+    optionsEnum: YesNo.values,
+  ),
+  BLOOD_CLOTS(
+    label: "Blood clots",
+    optionsEnum: YesNo.values,
+  ),
+  ANEMIA(
+    label: "Anemia",
+    optionsEnum: YesNo.values,
+  ),
+  ALLERGIES(
+    label: "Allergies",
+    optionsEnum: YesNo.values,
+    explainOptions: {YesNo.YES},
+  ),
+  DRUG_ALLERGIES(
+    label: "Drug allergies",
+    optionsEnum: YesNo.values,
+    explainOptions: {YesNo.YES},
+  ),
+  STDS(
+    label: "Sexually transmitted diseases",
+    optionsEnum: YesNo.values,
+    explainOptions: {YesNo.YES},
+  ),
+  NON_GYN_SURGERY(
+    label: "Non-GYN surgery",
+    optionsEnum: YesNo.values,
+    explainOptions: {YesNo.YES},
+  ),
+  VAGINAL_INFECTIONS(
+    label: "Vaginal infections",
+    optionsEnum: YesNo.values,
+  ),
+  CERVICITIS(
+    label: "Cervicitis",
+    optionsEnum: YesNo.values,
+  ),
+  CERVICAL_TREATMENT(
+    label: "Cervical treatment",
+    optionsEnum: YesNo.values,
+    explainOptions: {YesNo.YES},
+  ),
+  INFERTILITY_TREATMENT(
+    label: "Infertility treatment",
+    optionsEnum: YesNo.values,
+  ),
+  ENDOMETRIOSIS(
+    label: "Endometriosis",
+    optionsEnum: YesNo.values,
+  ),
+  PCOD(
+    label: "Polycystic-ovarian disease",
+    optionsEnum: YesNo.values,
+  ),
+  PELVIC_INFECTION(
+    label: "Pelvic infection",
+    optionsEnum: YesNo.values,
+  ),
+  PMS(
+    label: "Premenstrual syndrome",
+    optionsEnum: YesNo.values,
+  ),
+  BREAST_SURGERY(
+    label: "Breast surgery",
+    optionsEnum: YesNo.values,
+    explainOptions: {YesNo.YES},
+  ),
+  GYN_SURGERY(
+    label: "GYN surgery",
+    optionsEnum: YesNo.values,
+    explainOptions: {YesNo.YES},
+  ),
+  ;
+
+  final String label;
+  final List<Enum>? optionsEnum;
+  final InputType inputType = InputType.TEXT;
+  final Set<Enum> explainOptions;
+
+  const MedicalHistoryItem({required this.label, this.optionsEnum, this.explainOptions = const {}});
+}
+
+enum NatureOfCycles {
+  REGULAR,
+  IRREGULAR,
+  BOTH
+}
+
+enum MenstrualCrampSeverity {
+  NONE,
+  MILD,
+  MODERATE,
+  SEVERE,
+}
+
+enum FamilyPlanningHistoryItem implements GifItem {
+  FIRST_MOST_RECENT_METHOD(
+    label: "Most recent method",
+    optionsEnum: FamilyPlanningMethod.values,
+  ),
+  SECOND_MOST_RECENT_METHOD(
+    label: "Second most recent",
+    optionsEnum: FamilyPlanningMethod.values,
+  ),
+  THIRD_MOST_RECENT_METHOD(
+    label: "Third most recent",
+    optionsEnum: FamilyPlanningMethod.values,
+  ),
+  FOURTH_MOST_RECENT_METHOD(
+    label: "Fourth most recent",
+    optionsEnum: FamilyPlanningMethod.values,
+  ),
+  ;
+
+  final String label;
+  final List<Enum>? optionsEnum;
+  final InputType inputType = InputType.TEXT;
+  final Set<Enum> explainOptions = const {};
+
+  const FamilyPlanningHistoryItem({required this.label, this.optionsEnum});
+}
+
+enum FamilyPlanningMethod {
+  BIRTH_CONTROL_PILL,
+  IUD,
+  CONDOM,
+  CONDOM_FOAM,
+  DIAPHRAGM_ONLY,
+  DIAPHRAGM_FOAM_JELLY,
+  FOAM_JELLY,
+  CALENDAR_RHYTHM,
+  BASAL_TEMP_BBT,
+  CALENDAR_THERMAL,
+  SYMPTO_THERMAL,
+  OVULATION_METHOD_BILLINGS,
+  SELF_DEVISED_NATURAL_METHOD,
+  TOTAL_BREASTFEEDING,
+  WITHDRAWAL,
+  DOUCHING,
+  MORNING_AFTER_PILL,
+  DEPO_PROVERA,
+  INDUCED_ABORTION,
+  NONE,
+  OTHER,
+  CREIGHTON_METHOD,
+  NORPLANT,
+  TUBAL_LIGATION,
+  VASECTOMY,
+}
+
+enum DiscontinueReason {
+  NOT_APPLICABLE,
+  PREGNANCY_METHOD_RELATED,
+  PREGNANCY_NON_METHOD_RELATED,
+  TO_ACHIEVE_PREGNANCY,
 }
 
 @JsonSerializable(explicitToJson: true)

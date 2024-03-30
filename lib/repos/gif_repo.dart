@@ -114,35 +114,82 @@ class FirebaseFormCrud<E> extends StreamingFormCrud<E> {
   }
 }
 
+class ItemConfig {
+  final String formID;
+  final List<GifItem> items;
+
+  const ItemConfig({required this.formID, required this.items});
+}
+
 class GifRepo extends ChangeNotifier {
   final StreamingFormCrud<void> _persistence;
-  static const  Map<Type, String> _formIDs = {
-    GeneralInfoItem: "GIF-1",
-    DemographicInfoItem: "GIF-2",
-    PregnancyHistoryItem: "GIF-3",
+  static const  Map<Type, ItemConfig> _itemConfigs = {
+    GeneralInfoItem: ItemConfig(
+      formID: "GIF-GENERAL-INFO",
+      items: GeneralInfoItem.values,
+    ),
+    DemographicInfoItem: ItemConfig(
+      formID: "GIF-DEMOGRAPHIC-INFO",
+      items: DemographicInfoItem.values,
+    ),
+    PregnancyHistoryItem: ItemConfig(
+      formID: "GIF-PREGNANCY-HIST",
+      items: PregnancyHistoryItem.values,
+    ),
+    MedicalHistoryItem: ItemConfig(
+      formID: "GIF-MED-HIST",
+      items: MedicalHistoryItem.values,
+    ),
+    FamilyPlanningHistoryItem: ItemConfig(
+      formID: "GIF-FAMPLAN-HIST",
+      items: FamilyPlanningHistoryItem.values,
+    ),
   };
 
   GifRepo(this._persistence);
 
   String _formID(Type enumType) {
-    var formID = _formIDs[enumType];
-    if (formID == null) {
+    var config = _itemConfigs[enumType];
+    if (config == null) {
       throw Exception("No form ID for type ${enumType.toString()}");
     }
-    return formID;
+    return config.formID;
   }
 
-  Stream<Map<String, String>> getAll(Type enumType, String clientID) async* {
-    var formID = _formID(enumType);
-    var formKey = FormKey(formID: formID, clientID: clientID);
+  FormKey _formKey(Type enumType, String clientID) {
+    return FormKey(formID: _formID(enumType), clientID: clientID);
+  }
+
+  Stream<Map<GifItem, String>> getAll(Type enumType, String clientID) async* {
+    final itemIndex = Map.fromIterable(
+      _itemConfigs[enumType]!.items,
+      key: (i) => i.toString(),
+      value: (i) => i,
+    );
+    var formKey = _formKey(enumType, clientID);
+    print("looking up $formKey");
     yield* _persistence.getAllValues(formKey)
-        .map((m) => m.map((k, v) => MapEntry(k, v.value)));
+        .map((m) => m.map((k, v) => MapEntry(itemIndex[k]!, v.value)));
   }
 
   Future<void> updateAll(Type enumType, String clientID, Map<String, String> entries) async {
-    var formID = _formID(enumType);
-    var formKey = FormKey(formID: formID, clientID: clientID);
+    var formKey = _formKey(enumType, clientID);
     var values = entries.map((k, v) => MapEntry(k, FormValue<void>(value: v, extras: [])));
     await _persistence.updateAllValues(formKey, values);
+  }
+
+  Stream<Map<GifItem, String>> explanations(Type enumType, String clientID) async* {
+    yield* getAll(enumType, clientID).map((values) {
+      Map<GifItem, String> explanations = {};
+      values.forEach((item, value) {
+        for (var option in item.explainOptions) {
+          //print("Checking ${option.name} for ${item.name}");
+          if (value == option.name) {
+            explanations[item] = "";
+          }
+        }
+      });
+      return explanations;
+    });
   }
 }

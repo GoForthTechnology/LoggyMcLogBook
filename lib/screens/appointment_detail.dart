@@ -145,7 +145,7 @@ class NextStepsPanel extends StatelessWidget {
         },
       ),),
       OverviewTile(
-        attentionLevel: OverviewAttentionLevel.GREEN,
+        attentionLevel: OverviewAttentionLevel.GREY,
         title: "Order Materials",
         icon: Icons.palette,
         actions: [

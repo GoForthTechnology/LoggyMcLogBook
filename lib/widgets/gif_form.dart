@@ -1,5 +1,5 @@
 
-import 'dart:math';
+import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client_general_info.dart';
@@ -13,6 +13,16 @@ class ClientID extends ChangeNotifier {
   ClientID(this.value);
 }
 
+final gifPanels = [
+  GeneralInfoPanel(),
+  DemographicInfoPanel(),
+  PregnancyHistoryPanel(),
+  MenstrualHistoryPanel(),
+  GeneralMedicalHistoryPanel(),
+  GynHistoryPanel(),
+  FamilyPlanningHistoryPanel(),
+];
+
 class GifForm extends StatelessWidget {
   final String clientID;
 
@@ -23,17 +33,19 @@ class GifForm extends StatelessWidget {
     return ChangeNotifierProvider<ClientID>(create: (context) => ClientID(clientID), builder: (context, child) => ExpandableInfoPanel(
       title: "General Intake Form",
       subtitle: "Not yet completed",
-      contents: [
-        GeneralInfoPanel(),
-        DemographicInfoPanel(),
-        PregnancyHistoryPanel(),
-        ExpandableInfoPanel(
-          title: "Medical History",
-          subtitle: "",
-          contents: [],
-        ),
-      ],
+      contents: gifPanels,
     ));
+  }
+}
+
+class GifBody extends StatelessWidget {
+  final String clientID;
+
+  const GifBody({super.key, required this.clientID});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<ClientID>(create: (context) => ClientID(clientID), builder: (context, child) => Column(children: gifPanels));
   }
 }
 
@@ -90,19 +102,104 @@ class PregnancyHistoryPanel extends StatelessWidget {
   }
 }
 
+class GynHistoryPanel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GifFormSection(
+      sectionTitle: "Gyn History",
+      enumType: MedicalHistoryItem,
+      itemRows: [
+        [MedicalHistoryItem.CERVICITIS, MedicalHistoryItem.CERVICAL_TREATMENT],
+        [MedicalHistoryItem.INFERTILITY_TREATMENT, MedicalHistoryItem.ENDOMETRIOSIS],
+        [MedicalHistoryItem.PCOD, MedicalHistoryItem.PELVIC_INFECTION],
+        [MedicalHistoryItem.PMS, MedicalHistoryItem.BREAST_SURGERY],
+        [MedicalHistoryItem.GYN_SURGERY],
+      ],
+    );
+  }
+}
+
+class MenstrualHistoryPanel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GifFormSection(
+      sectionTitle: "Menstrual History",
+      enumType: MedicalHistoryItem,
+      itemRows: [
+        [MedicalHistoryItem.AGE_AT_FIRST_MENSTRUATION, MedicalHistoryItem.NATURE_OF_CYCLES],
+        [MedicalHistoryItem.AVERAGE_LENGTH_OF_MENSTRUAL_FLOW, MedicalHistoryItem.MENSTRUAL_CRAMPS],
+      ],
+    );
+  }
+}
+
+class GeneralMedicalHistoryPanel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GifFormSection(
+      sectionTitle: "General Medical History",
+      enumType: MedicalHistoryItem,
+      itemRows: [
+        [MedicalHistoryItem.HIGH_BLOOD_PRESSURE, MedicalHistoryItem.HEART_DISEASE],
+        [MedicalHistoryItem.DIABETES, MedicalHistoryItem.CONVULSIONS],
+        [MedicalHistoryItem.MIGRAINE_HEADACHES, MedicalHistoryItem.THYROID_PROBLEMS],
+        [MedicalHistoryItem.CANCER, MedicalHistoryItem.URINARY_TRACT_INFECTION],
+        [MedicalHistoryItem.VARICOSE_VEINS, MedicalHistoryItem.BLOOD_CLOTS],
+        [MedicalHistoryItem.ANEMIA, MedicalHistoryItem.ALLERGIES],
+        [MedicalHistoryItem.DRUG_ALLERGIES, MedicalHistoryItem.STDS],
+        [MedicalHistoryItem.NON_GYN_SURGERY, MedicalHistoryItem.VAGINAL_INFECTIONS],
+      ],
+    );
+  }
+}
+
+class FamilyPlanningHistoryPanel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GifFormSection(
+      sectionTitle: "FamilyPlanning History",
+      enumType: MedicalHistoryItem,
+      itemRows: [
+        [FamilyPlanningHistoryItem.FIRST_MOST_RECENT_METHOD, FamilyPlanningHistoryItem.SECOND_MOST_RECENT_METHOD],
+        [FamilyPlanningHistoryItem.THIRD_MOST_RECENT_METHOD, FamilyPlanningHistoryItem.FOURTH_MOST_RECENT_METHOD],
+      ],
+    );
+  }
+}
+
+class SectionTitle extends StatelessWidget {
+  final String text;
+
+  const SectionTitle(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Text(text, style: Theme.of(context).textTheme.titleMedium),
+    );
+  }
+}
+
 class GifFormSection extends StatelessWidget {
   final String sectionTitle;
   final List<List<GifItem>> itemRows;
   final Type enumType;
+  final Map<int, Widget> rowSeparators;
+  final bool initiallyExpanded;
 
-  const GifFormSection({super.key, required this.sectionTitle, required this.itemRows, required this.enumType});
+  const GifFormSection({super.key, required this.sectionTitle, required this.itemRows, required this.enumType, this.rowSeparators = const {}, this.initiallyExpanded = false});
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<GifRepo, ClientID>(builder: (context, repo, clientID, child) => FormSection(
       sectionTitle: sectionTitle,
       itemRows: itemRows,
+      rowSeparators: rowSeparators,
       initialValues: repo.getAll(enumType, clientID.value).first,
+      initiallyExpanded: initiallyExpanded,
+      explanations: Stream.value({}),
+      //explanations: repo.explanations(enumType, clientID.value),
       onSave: (m) async {
         await repo.updateAll(enumType, clientID.value, m);
       },
@@ -113,10 +210,13 @@ class GifFormSection extends StatelessWidget {
 class FormSection extends StatefulWidget {
   final String sectionTitle;
   final List<List<GifItem>> itemRows;
-  final Future<Map<String, String>> initialValues;
+  final Map<int, Widget> rowSeparators;
+  final Future<Map<GifItem, String>> initialValues;
+  final Stream<Map<GifItem, String>> explanations;
   final Function(Map<String, String>) onSave;
+  final bool initiallyExpanded;
 
-  FormSection({required this.sectionTitle, required this.itemRows, required this.initialValues, required this.onSave});
+  FormSection({required this.sectionTitle, required this.itemRows, required this.initialValues, required this.onSave, required this.rowSeparators, this.initiallyExpanded = false, required this.explanations});
 
   @override
   State<StatefulWidget> createState() => FormSectionState();
@@ -124,65 +224,80 @@ class FormSection extends StatefulWidget {
 
 class FormSectionState extends State<FormSection> {
   bool editEnabled = false;
-  Map<String, String> initialValues = {};
+  Map<GifItem, String> initialValues = {};
   Map<GifItem, TextEditingController> controllers = {};
+  Map<GifItem, String> comments = {};
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, String>>(future: widget.initialValues, builder: (context, snapshot) {
-      if (!snapshot.hasData) {
-        return Container();
-      }
-      initialValues = snapshot.data!;
-      return ExpandableInfoPanel(
-        title: widget.sectionTitle,
-        subtitle: "",
-        trailing: _trailingWidget(),
-        contents: _rows(),
+    return FutureBuilder<Map<GifItem, String>>(future: widget.initialValues, builder: (context, snapshot) {
+      initialValues = snapshot.data ?? {};
+      return StreamBuilder<Map<GifItem, String>>(
+        stream: widget.explanations,
+        builder: ((context, snapshot) {
+          var explanations = snapshot.data ?? {};
+          return ExpandableInfoPanel(
+            title: widget.sectionTitle,
+            subtitle: "",
+            trailing: _trailingWidget(),
+            contents: _rows(context, explanations),
+            initiallyExpanded: widget.initiallyExpanded,
+          );
+        }),
       );
     });
   }
 
-  List<Widget> _rows() {
-    return widget.itemRows
-        .map((row) => Row(children: row.map((item) => Flexible(child: _itemWidget(item))).toList()))
-        .toList();
+  void updateComment(GifItem item, String comment) {
+    setState(() {
+      comments[item] = comment;
+    });
+  }
+
+  List<Widget> _rows(BuildContext context, Map<GifItem, String> explanations) {
+    List<Widget> rows;
+    if (MediaQuery.of(context).size.width >= 720) {
+      rows = widget.itemRows
+          .map((row) => Row(children: row.map((item) => Expanded(child: _itemWidget(item))).toList()))
+          .toList();
+    } else {
+      rows = widget.itemRows.expand((r) => r).map((item) => Row(children: [
+        Flexible(child: ConstrainedBox(constraints: BoxConstraints(minWidth: 150), child:  _itemWidget(item))),
+      ],)).toList();
+    }
+    List<Widget> out = [];
+    for (var i = 0; i < rows.length; i++) {
+      var separator = widget.rowSeparators[i];
+      if (separator != null) {
+        out.add(separator);
+      }
+      out.add(rows[i]);
+    }
+    if (explanations.isNotEmpty) {
+      out.add(Text("Additional Questions"));
+      explanations.forEach((item, explanation) {
+        out.add(TextFormField(
+          decoration: InputDecoration(
+            labelText: item.name,
+          ),
+          initialValue: explanation,
+        ));
+      });
+    }
+    return out;
   }
 
   Widget _itemWidget(GifItem item) {
-    var initialValue = initialValues[item.name] ?? "";
+    var initialValue = initialValues[item] ?? "";
     var controller = controllers.putIfAbsent(item, () => TextEditingController(text: initialValue));
-    Widget inputWidget = TextFormField(
-      decoration: InputDecoration(
-        labelText: item.label,
-      ),
-      enabled: editEnabled,
+    return ItemWidget(
+      initialValue: initialValue,
+      initialComment: comments[item] ?? "",
       controller: controller,
-    );
-    if (item.optionsEnum != null) {
-      inputWidget = DropdownButtonFormField<String>(
-        items: item.optionsEnum!.map((v) => DropdownMenuItem<String>(
-          child: Text(v.name),
-          value: v.name,
-        )).toList(),
-        onChanged: !editEnabled ? null : (value) => setState(() {
-          controller.text = value ?? "";
-        }),
-        decoration: InputDecoration(
-          labelText: item.label,
-        ),
-        value: initialValue.isEmpty ? null : initialValue,
-      );
-    }
-    List<Widget> children = [Expanded(child: inputWidget)];
-    if (editEnabled) {
-      children.add(AddCommentButton());
-    } else if (Random.secure().nextDouble() < 0.3) {
-      children.add(ViewCommentsButton(numComments: 1));
-    }
-    return Padding(
-      padding: EdgeInsets.only(right: 8),
-      child: Row(mainAxisSize: MainAxisSize.min, children: children,),
+      item: item,
+      editEnabled: editEnabled,
+      onChange: () => setState(() {}),
+      updateComment: updateComment,
     );
   }
 
@@ -203,72 +318,138 @@ class FormSectionState extends State<FormSection> {
   }
 }
 
+class ItemWidget extends StatefulWidget {
+  final GifItem item;
+  final String initialValue;
+  final String initialComment;
+  final TextEditingController controller;
+  final bool editEnabled;
+  final void Function() onChange;
+  final void Function(GifItem, String) updateComment;
+
+  const ItemWidget({super.key, required this.item, required this.initialValue, required this.controller, required this.editEnabled, required this.onChange, required this.updateComment, required this.initialComment});
+
+  @override
+  State<StatefulWidget> createState() => ItemWidgetState(previousValue: initialValue,);
+}
+
+class ItemWidgetState extends State<ItemWidget> {
+  String previousValue;
+
+  ItemWidgetState({required this.previousValue});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(right: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(child: inputWidget()),
+          if (showCommonIcon()) IconButton(
+            onPressed: showCommentDialog,
+            icon: Icon(Icons.comment),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget inputWidget() {
+    if (widget.item.optionsEnum != null) {
+      return DropdownButtonFormField<String>(
+        items: widget.item.optionsEnum!.map((v) => DropdownMenuItem<String>(
+          child: Text(toBeginningOfSentenceCase(v.name.toString().replaceAll("_", " "))!),
+          value: v.name,
+        )).toList(),
+        onChanged: widget.editEnabled ? onEnumUpdate : null,
+        decoration: InputDecoration(
+          labelText: widget.item.label,
+        ),
+        value: widget.initialValue.isEmpty ? null : widget.initialValue,
+      );
+    }
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: widget.item.label,
+      ),
+      enabled: widget.editEnabled,
+      controller: widget.controller,
+    );
+  }
+
+  bool showCommonIcon() {
+    return widget.controller.text == "YES";
+  }
+
+  void showCommentDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => CommentDialog(
+        initialComment: widget.initialComment,
+        onSave: (comment) {
+          widget.updateComment(widget.item, comment);
+        },
+      ),
+    );
+  }
+
+  void onEnumUpdate(String? value) {
+    if (previousValue != value) {
+      widget.controller.text = value ?? "";
+      widget.onChange();
+      if (value == "YES") {
+        showCommentDialog();
+      }
+    }
+    setState(() {
+      previousValue = value ?? "";
+    });
+  }
+}
+
 class CommentDialog extends StatefulWidget {
+  final String initialComment;
+  final Function(String) onSave;
+
+  const CommentDialog({super.key, required this.onSave, required this.initialComment});
+
   @override
   State<StatefulWidget> createState() => CommentDialogState();
 }
 
 class CommentDialogState extends State<CommentDialog> {
-  List<String> comments = [];
+  var controller = TextEditingController();
+
+  @override
+  void initState() {
+    controller.text = widget.initialComment;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var commentWidgets = comments.map((c) => TextFormField(initialValue: c,));
-    var contents = Column(children: [...commentWidgets, TextButton(onPressed: () {}, child: Text("Add Comment"))],);
     return AlertDialog(
-      title: Text("Comments"),
-      content: contents,
+      title: Text("Additional Details"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("Please provide some additional context"),
+          TextFormField(
+            controller: controller,
+            maxLines: null,
+          )
+        ],
+      ),
       actions: [
-        TextButton(onPressed: () {}, child: Text("Cancel")),
-        TextButton(onPressed: () {}, child: Text("Save")),
+        TextButton(onPressed: () {
+          Navigator.of(context).pop();
+        }, child: Text("Cancel")),
+        TextButton(onPressed: () {
+          widget.onSave(controller.text);
+          Navigator.of(context).pop();
+        }, child: Text("Save")),
       ],
     );
-  }
-}
-
-class AddCommentButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(message: "Add Comment", child: IconButton(icon: Icon(Icons.add_comment), onPressed: () {
-      showDialog(context: context, builder: (context) => CommentDialog(),);
-    },));
-  }
-}
-
-class ViewCommentsButton extends StatelessWidget {
-  final int numComments;
-
-  const ViewCommentsButton({super.key, required this.numComments});
-
-  @override
-  Widget build(BuildContext context) {
-    var icon = Stack(
-      children: <Widget>[
-        new Icon(Icons.comment),
-        new Positioned(
-          right: 0,
-          child: new Container(
-            padding: EdgeInsets.all(1),
-            decoration: new BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            constraints: BoxConstraints(
-              minWidth: 12,
-              minHeight: 12,
-            ),
-            child: new Text(
-              '$numComments',
-              style: new TextStyle(
-                color: Colors.white,
-                fontSize: 8,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        )
-      ],
-    );
-    return Tooltip(message: "View Comments", child: IconButton(onPressed: () {}, icon: icon));
   }
 }
