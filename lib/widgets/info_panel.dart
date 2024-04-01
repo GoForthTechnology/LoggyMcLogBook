@@ -25,7 +25,7 @@ class ExpandableInfoPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(child: ExpansionTile(
+    var tile = ExpansionTile(
       initiallyExpanded: initiallyExpanded,
       title: Text(title, style: titleStyle ?? Theme.of(context).textTheme.titleLarge),
       subtitle: subtitle == "" ? null : Text(subtitle),
@@ -34,7 +34,8 @@ class ExpandableInfoPanel extends StatelessWidget {
       expandedAlignment: Alignment.topLeft,
       children: contents,
       trailing: trailing,
-    ));
+    );
+    return Card(child: tile);
   }
 }
 

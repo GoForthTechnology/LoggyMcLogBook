@@ -9,7 +9,8 @@ class GifScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("General Intake Form"),),
-      body: SingleChildScrollView(child: GifBody(clientID: "FOO",)),
+      //body: SingleChildScrollView(child: GifBody(clientID: "FOO",)),
+      body: SingleChildScrollView(child: GifStepper()),
     );
   }
 }
