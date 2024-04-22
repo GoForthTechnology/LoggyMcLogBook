@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:fc_forms/fc_forms.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class FollowUpFormStepper extends StatefulWidget {
   final int followUpNum;
@@ -26,26 +25,42 @@ class FollowUpFormStepperState extends State<FollowUpFormStepper> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (context) => FollowUpFormViewModel(),
-        builder: (context, child) => Stepper(
-              currentStep: _index,
-              onStepCancel: _cancelStep,
-              onStepContinue: _continueStep,
-              onStepTapped: _selectStep,
-              steps:
-                  itemIndex.entries.map((e) => _step(e.key, e.value)).toList(),
-            ));
+    return Stepper(
+      currentStep: _index,
+      onStepCancel: _cancelStep,
+      onStepContinue: _continueStep,
+      onStepTapped: _selectStep,
+      steps: itemIndex.entries.map((e) => _step(e.key, e.value)).toList(),
+    );
   }
 
   Step _step(int sectionNum, List<FollowUpFormItem> items) {
     return Step(
       title: Text(sectionTitles[sectionNum] ?? "Section $sectionNum"),
-      //content: FollowUpFormSectionWidget.createSingle([items], groupIndex: 0),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: items.map(_item).toList(),
+        children: items
+            .map((item) {
+              var subSectionTitleWidget = _subsectionTitleWidget(item.id());
+              return [
+                if (subSectionTitleWidget != null) subSectionTitleWidget,
+                _item(item),
+              ];
+            })
+            .expand((e) => e)
+            .toList(),
       ),
+    );
+  }
+
+  Widget? _subsectionTitleWidget(ItemId id) {
+    var subSectionTitle = subSectionTitles[id];
+    if (subSectionTitle == null) {
+      return null;
+    }
+    return Text(
+      subSectionTitle,
+      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
     );
   }
 
