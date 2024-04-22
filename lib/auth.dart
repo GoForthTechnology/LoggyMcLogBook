@@ -23,11 +23,6 @@ const authRoutes = [
 
 const googleClientId = '582214367176-tbs5t9ebp84fvmrieirce557lv0cfmn5.apps.googleusercontent.com';
 
-final List<AuthProvider> authProviders = [
-  //EmailAuthProvider(),
-  GoogleProvider(clientId: googleClientId),
-];
-
 class AuthGuard extends AutoRouteGuard {
   @override
   void onNavigation(NavigationResolver resolver, StackRouter router) {

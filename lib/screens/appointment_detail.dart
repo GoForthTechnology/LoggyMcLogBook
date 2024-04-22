@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:fc_forms/fc_forms.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
@@ -8,6 +7,7 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/reminders.dart';
 import 'package:lmlb/widgets/appointment_info_panel.dart';
+import 'package:lmlb/widgets/fup_form.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
@@ -17,30 +17,50 @@ import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
-
   final String appointmentID;
 
-  const AppointmentDetailScreen({super.key, @PathParam() required this.appointmentID});
+  const AppointmentDetailScreen(
+      {super.key, @PathParam() required this.appointmentID});
 
   @override
   Widget build(BuildContext context) {
-    return appointmentWidget(appointmentID, (appointment) => clientWidget(appointment!.clientId, (client) => NavigationRailScreen(
-      item: NavigationItem.APPOINTMENTS,
-      title: Text("${appointment.type.name()} for ${client!.fullName()}"),
-      content: ListView(
-        children: [
-          AppointmentInfoPanel(appointment: appointment,),
-          PreviousAppointmentPanel(currentAppointment: appointment,),
-          FollowUpForm(),
-          NextStepsPanel(client: client, appointment: appointment,),
-          Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Center(child: Text("Additional Info", style: Theme.of(context).textTheme.titleMedium))),
-          GifForm(clientID: appointment.clientId,),
-          ExpandableInfoPanel(title: "Real Follow Up Form", subtitle: "", contents: [
+    return appointmentWidget(
+        appointmentID,
+        (appointment) => clientWidget(
+            appointment!.clientId,
+            (client) => NavigationRailScreen(
+                  item: NavigationItem.APPOINTMENTS,
+                  title: Text(
+                      "${appointment.type.name()} for ${client!.fullName()}"),
+                  content: ListView(
+                    children: [
+                      AppointmentInfoPanel(
+                        appointment: appointment,
+                      ),
+                      PreviousAppointmentPanel(
+                        currentAppointment: appointment,
+                      ),
+                      FollowUpForm(),
+                      NextStepsPanel(
+                        client: client,
+                        appointment: appointment,
+                      ),
+                      Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: Center(
+                              child: Text("Additional Info",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium))),
+                      GifForm(
+                        clientID: appointment.clientId,
+                      ),
+                      /*ExpandableInfoPanel(title: "Real Follow Up Form", subtitle: "", contents: [
             SingleChildScrollView(scrollDirection: Axis.horizontal, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: FollowUpFormWidget(),),),
-          ]),
-        ],
-      ),
-    )));
+          ]),*/
+                    ],
+                  ),
+                )));
   }
 }
 
@@ -51,33 +71,39 @@ class PreviousAppointmentPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Appointments>(builder: (context, repo, child) => FutureBuilder<Appointment?>(
-      future: repo.getPrevious(currentAppointment),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return emptyPanel();
-        }
-        return panelForAppointment(snapshot.data!);
-      }),
+    return Consumer<Appointments>(
+      builder: (context, repo, child) => FutureBuilder<Appointment?>(
+          future: repo.getPrevious(currentAppointment),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return emptyPanel();
+            }
+            return panelForAppointment(snapshot.data!);
+          }),
     );
   }
 
   Widget emptyPanel() {
-    return ExpandableInfoPanel(title: "Previous Appointment", subtitle: "None", contents: []);
+    return ExpandableInfoPanel(
+        title: "Previous Appointment", subtitle: "None", contents: []);
   }
 
   Widget panelForAppointment(Appointment appointment) {
-    return ExpandableInfoPanel(title: "Previous Appointment", subtitle: appointment.toString(), contents: [
-      OverviewTile(
-        attentionLevel: OverviewAttentionLevel.GREY,
-        title: "Notes",
-        subtitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-        icon: Icons.note,
-        actions: [
-          OverviewAction(title: "Edit"),
-        ],
-      ),
-    ]);
+    return ExpandableInfoPanel(
+        title: "Previous Appointment",
+        subtitle: appointment.toString(),
+        contents: [
+          OverviewTile(
+            attentionLevel: OverviewAttentionLevel.GREY,
+            title: "Notes",
+            subtitle:
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            icon: Icons.note,
+            actions: [
+              OverviewAction(title: "Edit"),
+            ],
+          ),
+        ]);
   }
 }
 
@@ -85,65 +111,81 @@ class NextStepsPanel extends StatelessWidget {
   final Client client;
   final Appointment appointment;
 
-  const NextStepsPanel({super.key, required this.appointment, required this.client});
+  const NextStepsPanel(
+      {super.key, required this.appointment, required this.client});
 
   @override
   Widget build(BuildContext context) {
-    AppointmentType nextType = AppointmentType.values[appointment.type.index + 1];
+    AppointmentType nextType =
+        AppointmentType.values[appointment.type.index + 1];
     return ExpandableInfoPanel(title: "Next Steps", subtitle: "", contents: [
-      Consumer<Appointments>(builder: (context, repo, child) => StreamBuilder<Appointment?>(
-        stream: repo.getNext(appointment).asStream(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return OverviewTile(
-              attentionLevel: OverviewAttentionLevel.GREY,
-              title: "Schedule ${nextType.name()}",
-              icon: Icons.event,
-              actions: [
-                OverviewAction(title: "Scheduled for ${snapshot.data!.timeStr()}"),
-              ],
-            );
-          }
-          return Consumer<Reminders>(builder: (context, repo, child) => StreamBuilder<List<Reminder>>(
-            stream: repo.forAppointment(appointment.id!),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                var reminder = snapshot.data!.first;
-                return OverviewTile(
-                  attentionLevel: OverviewAttentionLevel.GREY,
-                  title: "Schedule ${nextType.name()}",
-                  icon: Icons.event,
-                  actions: [
-                    OverviewAction(title: "Reminder set for ${reminder.triggerTime.toString()}"),
-                  ],
-                );
-              }
-              var title = "Schedule ${nextType.name()}";
+      Consumer<Appointments>(
+        builder: (context, repo, child) => StreamBuilder<Appointment?>(
+          stream: repo.getNext(appointment).asStream(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
               return OverviewTile(
-                attentionLevel: OverviewAttentionLevel.GREEN,
-                title: title,
+                attentionLevel: OverviewAttentionLevel.GREY,
+                title: "Schedule ${nextType.name()}",
                 icon: Icons.event,
                 actions: [
-                  OverviewAction(title: "Set Reminder", onPress: () => showDialog(
-                    context: context,
-                    builder: (context) => NewReminderDialog(
-                      reminderType: ReminderType.SCHEDULE_APPOINTMENT,
-                      defaultTriggerDaysAway: 30,
-                      defaultTitle: "$title for ${client.fullName()}",
-                      appointmentID: appointment.id,
-                      clientID: client.id,
-                    ),
-                  )),
-                  OverviewAction(title: "Schedule", onPress: () => showDialog(
-                    context: context,
-                    builder: (context) => NewAppointmentDialog(clientID: appointment.clientId),
-                  )),
+                  OverviewAction(
+                      title: "Scheduled for ${snapshot.data!.timeStr()}"),
                 ],
               );
-            },),
-          );
-        },
-      ),),
+            }
+            return Consumer<Reminders>(
+              builder: (context, repo, child) => StreamBuilder<List<Reminder>>(
+                stream: repo.forAppointment(appointment.id!),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                    var reminder = snapshot.data!.first;
+                    return OverviewTile(
+                      attentionLevel: OverviewAttentionLevel.GREY,
+                      title: "Schedule ${nextType.name()}",
+                      icon: Icons.event,
+                      actions: [
+                        OverviewAction(
+                            title:
+                                "Reminder set for ${reminder.triggerTime.toString()}"),
+                      ],
+                    );
+                  }
+                  var title = "Schedule ${nextType.name()}";
+                  return OverviewTile(
+                    attentionLevel: OverviewAttentionLevel.GREEN,
+                    title: title,
+                    icon: Icons.event,
+                    actions: [
+                      OverviewAction(
+                          title: "Set Reminder",
+                          onPress: () => showDialog(
+                                context: context,
+                                builder: (context) => NewReminderDialog(
+                                  reminderType:
+                                      ReminderType.SCHEDULE_APPOINTMENT,
+                                  defaultTriggerDaysAway: 30,
+                                  defaultTitle:
+                                      "$title for ${client.fullName()}",
+                                  appointmentID: appointment.id,
+                                  clientID: client.id,
+                                ),
+                              )),
+                      OverviewAction(
+                          title: "Schedule",
+                          onPress: () => showDialog(
+                                context: context,
+                                builder: (context) => NewAppointmentDialog(
+                                    clientID: appointment.clientId),
+                              )),
+                    ],
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ),
       OverviewTile(
         attentionLevel: OverviewAttentionLevel.GREY,
         title: "Order Materials",
@@ -162,54 +204,40 @@ class FollowUpForm extends StatelessWidget {
     return ExpandableInfoPanel(
       title: "Follow Up Form",
       subtitle: "",
-      contents: contents(context),
+      contents: [
+        FollowUpFormStepper(
+          followUpNum: 1,
+        )
+      ],
     );
-  }
-
-  List<Widget> contents(BuildContext context) {
-    var itemsPerSection = itemsForFollowUp(2);
-
-    List<Widget> out = [];
-    for (var sectionNum in sectionTitles.keys) {
-      var items = itemsPerSection[sectionNum] ?? [];
-      out.add(ExpandableInfoPanel(
-        title: "$sectionNum) ${sectionTitles[sectionNum]!}",
-        titleStyle: Theme.of(context).textTheme.titleMedium,
-        subtitle: "",
-        contents: [
-          Padding(
-            padding: EdgeInsets.only(bottom: 20),
-            child: FollowUpFormSectionWidget.createSingle([items], groupIndex: 0, ignoreStyles: true),
-          ),
-        ],
-      ));
-    }
-    return out;
   }
 }
 
-Widget appointmentWidget(String appointmentID, Widget Function(Appointment?) build) {
-  return Consumer<Appointments>(builder: (context, repo, child) => StreamBuilder<Appointment?>(
-    stream: repo.stream(appointmentID),
-    builder: (context, snapshot) {
-      if (!snapshot.hasData) {
-        return Container();
-      }
-      return build(snapshot.data);
-    },
-  ));
+Widget appointmentWidget(
+    String appointmentID, Widget Function(Appointment?) build) {
+  return Consumer<Appointments>(
+      builder: (context, repo, child) => StreamBuilder<Appointment?>(
+            stream: repo.stream(appointmentID),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Container();
+              }
+              return build(snapshot.data);
+            },
+          ));
 }
 
 Widget clientWidget(String clientID, Widget Function(Client?) build) {
-  return Consumer<Clients>(builder: (context, repo, child) => StreamBuilder<Client?>(
-    stream: repo.stream(clientID),
-    builder: (context, snapshot) {
-      if (!snapshot.hasData) {
-        return Container();
-      }
-      return build(snapshot.data);
-    },
-  ));
+  return Consumer<Clients>(
+      builder: (context, repo, child) => StreamBuilder<Client?>(
+            stream: repo.stream(clientID),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Container();
+              }
+              return build(snapshot.data);
+            },
+          ));
 }
 
 /*class AppointmentDetailModel extends ClientSelectorModel {

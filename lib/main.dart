@@ -1,7 +1,7 @@
-import 'package:fc_forms/fc_forms.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/auth.dart';
@@ -56,7 +56,7 @@ Future<Widget> init(Widget app, bool isWeb) {
     ChangeNotifierProvider.value(value: appointments),
     ChangeNotifierProvider.value(value: gifRepo),
     ChangeNotifierProvider.value(value: reminderRepo),
-    ChangeNotifierProvider.value(value: FollowUpFormViewModel(),),
+    //ChangeNotifierProvider.value(value: FollowUpFormViewModel(),),
   ], child: app));
 }
 
@@ -67,7 +67,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    FirebaseUIAuth.configureProviders(authProviders);
+    FirebaseUIAuth.configureProviders([
+      GoogleProvider(clientId: googleClientId),
+      EmailAuthProvider(),
+    ]);
 
     return MaterialApp.router(
       title: 'FCP Log Book',
