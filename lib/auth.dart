@@ -1,8 +1,6 @@
-
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/routes.gr.dart';
 
@@ -14,14 +12,14 @@ const authRoutes = [
       RedirectRoute(path: '*', redirectTo: ''),
     ],
   ),
-
   AutoRoute(
     path: '/verify-email',
     page: EmailVerifyScreen,
   ),
 ];
 
-const googleClientId = '582214367176-tbs5t9ebp84fvmrieirce557lv0cfmn5.apps.googleusercontent.com';
+const googleClientId =
+    '582214367176-tbs5t9ebp84fvmrieirce557lv0cfmn5.apps.googleusercontent.com';
 
 class AuthGuard extends AutoRouteGuard {
   @override
@@ -55,7 +53,8 @@ class LoginScreen extends StatelessWidget {
             if (!state.user!.emailVerified) {
               AutoRouter.of(context).push(const EmailVerifyScreenRoute());
             } else {
-              AutoRouter.of(context).pushAndPopUntil(OverviewScreenRoute(), predicate: (r) => false);
+              AutoRouter.of(context).pushAndPopUntil(OverviewScreenRoute(),
+                  predicate: (r) => false);
             }
           }),
           AuthStateChangeAction<UserCreated>((context, state) {
