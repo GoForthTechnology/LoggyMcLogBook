@@ -35,8 +35,12 @@ class FollowUpFormStepperState extends State<FollowUpFormStepper> {
   }
 
   Step _step(int sectionNum, List<FollowUpFormItem> items) {
+    var sectionTitle = sectionTitles[sectionNum];
+    var title = sectionTitle == null
+        ? "Section $sectionNum"
+        : "$sectionNum) $sectionTitle";
     return Step(
-      title: Text(sectionTitles[sectionNum] ?? "Section $sectionNum"),
+      title: Text(title),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: items
@@ -44,7 +48,15 @@ class FollowUpFormStepperState extends State<FollowUpFormStepper> {
               var subSectionTitleWidget = _subsectionTitleWidget(item.id());
               return [
                 if (subSectionTitleWidget != null) subSectionTitleWidget,
-                _item(item),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: item.questions
+                      .mapIndexed((i, q) => QuestionWidget(
+                          id: item.entryId(i, widget.followUpNum),
+                          item: item,
+                          question: q))
+                      .toList(),
+                ),
               ];
             })
             .expand((e) => e)
@@ -61,16 +73,6 @@ class FollowUpFormStepperState extends State<FollowUpFormStepper> {
     return Text(
       subSectionTitle,
       style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-    );
-  }
-
-  Widget _item(FollowUpFormItem item) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: item.questions
-          .mapIndexed((i, q) => QuestionWidget(
-              id: item.entryId(i, widget.followUpNum), item: item, question: q))
-          .toList(),
     );
   }
 
@@ -125,7 +127,10 @@ class QuestionWidgetState extends State<QuestionWidget> {
           padding: EdgeInsets.symmetric(vertical: 2),
           child: Row(
             children: [
-              Text("${widget.id.code} - ${widget.question.description}"),
+              ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 600),
+                  child: Text(
+                      "${widget.id.code} - ${widget.question.description}")),
               SizedBox(
                 width: 20,
               ),
