@@ -7,6 +7,7 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/reminders.dart';
 import 'package:lmlb/widgets/appointment_info_panel.dart';
+import 'package:lmlb/widgets/client_info_panel.dart';
 import 'package:lmlb/widgets/fup_form.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
@@ -34,6 +35,7 @@ class AppointmentDetailScreen extends StatelessWidget {
                       "${appointment.type.name()} for ${client!.fullName()}"),
                   content: ListView(
                     children: [
+                      ClientInfoPanel(client: client),
                       AppointmentInfoPanel(
                         appointment: appointment,
                       ),
