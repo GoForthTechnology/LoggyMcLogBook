@@ -7,47 +7,68 @@ import 'package:lmlb/widgets/appointments_panel.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/notes_panel.dart';
+import 'package:lmlb/widgets/reproductive_history_panel.dart';
 import 'package:provider/provider.dart';
 
 class ClientDetailsScreen extends StatelessWidget {
   final String clientId;
   final formKey = GlobalKey<FormState>();
 
-  ClientDetailsScreen({Key? key, @PathParam() required this.clientId}) : super(key: key);
+  ClientDetailsScreen({Key? key, @PathParam() required this.clientId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Clients>(builder: (context, clientRepo, child) => FutureBuilder<Client?>(
-      future: clientRepo.get(clientId),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Container();
-        }
-        bool hasClientNum = snapshot.data?.num != null;
-        bool isActive = snapshot.data?.active ?? false;
-        List<Widget> actions = [];
-        if (hasClientNum && isActive) {
-          actions.add(Tooltip(message: "Deactivate Client", child: IconButton(
-            icon: Icon(Icons.cancel),
-            onPressed: () => clientRepo.deactivate(snapshot.data!).ignore(),
-          )));
-        } else if (hasClientNum && !isActive) {
-          actions.add(Tooltip(message: "Activate Client", child: IconButton(
-            icon: Icon(Icons.add_circle),
-            onPressed: () => clientRepo.activate(snapshot.data!).ignore(),
-          )));
-        }
-        return NavigationRailScreen(
-          item: NavigationItem.CLIENTS,
-          title: Text('Details for ${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
-          content: ListView(children: [
-            ActionItemsPanel(clientID: clientId,),
-            AppointmentsPanel(clientID: clientId,),
-            NotesPanel(clientID: clientId,),
-            GifForm(clientID: clientId,),
-          ]),
-        );
-      }),
+    return Consumer<Clients>(
+      builder: (context, clientRepo, child) => FutureBuilder<Client?>(
+          future: clientRepo.get(clientId),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Container();
+            }
+            bool hasClientNum = snapshot.data?.num != null;
+            bool isActive = snapshot.data?.active ?? false;
+            List<Widget> actions = [];
+            if (hasClientNum && isActive) {
+              actions.add(Tooltip(
+                  message: "Deactivate Client",
+                  child: IconButton(
+                    icon: Icon(Icons.cancel),
+                    onPressed: () =>
+                        clientRepo.deactivate(snapshot.data!).ignore(),
+                  )));
+            } else if (hasClientNum && !isActive) {
+              actions.add(Tooltip(
+                  message: "Activate Client",
+                  child: IconButton(
+                    icon: Icon(Icons.add_circle),
+                    onPressed: () =>
+                        clientRepo.activate(snapshot.data!).ignore(),
+                  )));
+            }
+            return NavigationRailScreen(
+              item: NavigationItem.CLIENTS,
+              title: Text(
+                  'Details for ${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
+              content: ListView(children: [
+                ActionItemsPanel(
+                  clientID: clientId,
+                ),
+                AppointmentsPanel(
+                  clientID: clientId,
+                ),
+                NotesPanel(
+                  clientID: clientId,
+                ),
+                ReproductiveHistoryPanel(
+                  clientID: clientId,
+                ),
+                GifForm(
+                  clientID: clientId,
+                ),
+              ]),
+            );
+          }),
     );
   }
 }
