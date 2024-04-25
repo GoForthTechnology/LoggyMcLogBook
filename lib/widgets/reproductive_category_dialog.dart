@@ -39,6 +39,7 @@ class _NewReproductiveCategoryDialogState
                 if (value == null) {
                   return "Value required";
                 }
+                return null;
               },
               onChanged: (value) {
                 category = value;
