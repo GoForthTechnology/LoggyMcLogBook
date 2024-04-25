@@ -11,23 +11,27 @@ class Child extends Indexable<Child> {
   final String name;
   final DateTime dateOfBirth;
   final DateTime? dateOfDeath;
+  final String? note;
 
   Child(
       {this.id,
       required this.name,
       required this.dateOfBirth,
-      this.dateOfDeath});
+      this.dateOfDeath,
+      this.note});
 
   Child copyWith({
     String? id,
     DateTime? dateOfBirth,
     DateTime? dateOfDeath,
+    String? note,
   }) {
     return Child(
       id: id ?? this.id,
       name: name,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       dateOfDeath: dateOfDeath ?? this.dateOfDeath,
+      note: note ?? this.note,
     );
   }
 

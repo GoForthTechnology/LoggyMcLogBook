@@ -7,7 +7,6 @@ import 'package:lmlb/entities/pregnancy.dart';
 import 'package:lmlb/models/child_model.dart';
 import 'package:lmlb/models/pregnancy_model.dart';
 import 'package:lmlb/models/reproductive_category_model.dart';
-import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/widgets/child_dialog.dart';
 import 'package:lmlb/widgets/child_tile.dart';
 import 'package:lmlb/widgets/info_panel.dart';
@@ -16,20 +15,40 @@ import 'package:lmlb/widgets/pregnancy_tile.dart';
 import 'package:lmlb/widgets/reproductive_category_dialog.dart';
 import 'package:lmlb/widgets/reproductive_entry_tile.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ReproductiveHistoryPanel extends StatelessWidget {
   final String clientID;
 
   const ReproductiveHistoryPanel({super.key, required this.clientID});
 
+  Stream<String> subtitleStream(ReproductiveCategoryModel categoryModel,
+      PregnancyModel pregnancyModel, ChildModel childModel) {
+    return Rx.combineLatest3<String, int, int, String>(
+        categoryModel.entries(clientID).map((entries) {
+          if (entries.isEmpty) {
+            return "unknown";
+          }
+          entries.sort((a, b) => b.sinceDate.compareTo(b.sinceDate));
+          return entries.first.category.name;
+        }),
+        pregnancyModel
+            .pregnancies(clientID)
+            .map((pregnancies) => pregnancies.length),
+        childModel.children(clientID).map((children) => children.length),
+        (latestCategory, numPregnancies, numChildren) =>
+            "Current Category: $latestCategory, Pregnancies: $numPregnancies, Children: $numChildren");
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<Clients>(
-      builder: (context, repo, child) => StreamBuilder(
-        stream: repo.stream(clientID),
+    return Consumer3<ReproductiveCategoryModel, PregnancyModel, ChildModel>(
+      builder: (context, categoryModel, pregnancyModel, childModel, child) =>
+          StreamBuilder(
+        stream: subtitleStream(categoryModel, pregnancyModel, childModel),
         builder: (context, snapshot) => ExpandableInfoPanel(
             title: "Reproductive History",
-            subtitle: "",
+            subtitle: !snapshot.hasData ? "" : snapshot.data as String,
             contents: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
