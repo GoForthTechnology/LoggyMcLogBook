@@ -19,10 +19,12 @@ class ReproductiveEntryTile extends StatefulWidget {
 
 class _ReproductiveEntryTileState extends State<ReproductiveEntryTile> {
   var dateController = TextEditingController();
+  var noteController = TextEditingController();
 
   @override
   void initState() {
     dateController.text = widget.entry.sinceDate.toIso8601String();
+    noteController.text = widget.entry.note ?? "";
     super.initState();
   }
 
@@ -53,14 +55,28 @@ class _ReproductiveEntryTileState extends State<ReproductiveEntryTile> {
               }
             },
           ),
+          TextFormField(
+            decoration: InputDecoration(label: Text("Notes")),
+            controller: noteController,
+            maxLines: null,
+          ),
         ],
-        showSave: () =>
-            dateController.text != widget.entry.sinceDate.toIso8601String(),
+        showSave: () {
+          if (dateController.text != widget.entry.sinceDate.toIso8601String()) {
+            return true;
+          }
+          if (noteController.text != widget.entry.note) {
+            return true;
+          }
+          return false;
+        },
         onSave: () => widget.onSave(
             widget.entry,
             ReproductiveCategoryEntry(
-                category: widget.entry.category,
-                sinceDate: DateTime.parse(dateController.text))),
+              category: widget.entry.category,
+              sinceDate: DateTime.parse(dateController.text),
+              note: noteController.text,
+            )),
         onRemove: () => widget.onRemove(widget.entry));
   }
 }

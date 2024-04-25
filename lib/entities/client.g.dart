@@ -35,6 +35,7 @@ ReproductiveCategoryEntry _$ReproductiveCategoryEntryFromJson(
     ReproductiveCategoryEntry(
       category: $enumDecode(_$ReproductiveCategoryEnumMap, json['category']),
       sinceDate: DateTime.parse(json['sinceDate'] as String),
+      note: json['note'] as String?,
     );
 
 Map<String, dynamic> _$ReproductiveCategoryEntryToJson(
@@ -42,6 +43,7 @@ Map<String, dynamic> _$ReproductiveCategoryEntryToJson(
     <String, dynamic>{
       'category': _$ReproductiveCategoryEnumMap[instance.category]!,
       'sinceDate': instance.sinceDate.toIso8601String(),
+      'note': instance.note,
     };
 
 const _$ReproductiveCategoryEnumMap = {

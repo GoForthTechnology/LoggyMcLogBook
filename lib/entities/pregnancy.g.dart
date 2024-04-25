@@ -8,6 +8,7 @@ part of 'pregnancy.dart';
 
 Pregnancy _$PregnancyFromJson(Map<String, dynamic> json) => Pregnancy(
       dueDate: DateTime.parse(json['dueDate'] as String),
+      note: json['note'] as String?,
       dateOfLoss: json['dateOfLoss'] == null
           ? null
           : DateTime.parse(json['dateOfLoss'] as String),
@@ -24,4 +25,5 @@ Map<String, dynamic> _$PregnancyToJson(Pregnancy instance) => <String, dynamic>{
       'dateOfLoss': instance.dateOfLoss?.toIso8601String(),
       'dateOfFirstMenses': instance.dateOfFirstMenses?.toIso8601String(),
       'dateOfDelivery': instance.dateOfDelivery?.toIso8601String(),
+      'note': instance.note,
     };

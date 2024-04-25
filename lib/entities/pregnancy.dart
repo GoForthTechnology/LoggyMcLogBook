@@ -8,9 +8,11 @@ class Pregnancy {
   final DateTime? dateOfLoss;
   final DateTime? dateOfFirstMenses;
   final DateTime? dateOfDelivery;
+  final String? note;
 
   Pregnancy(
       {required this.dueDate,
+      this.note,
       this.dateOfLoss,
       this.dateOfFirstMenses,
       this.dateOfDelivery});
@@ -19,9 +21,11 @@ class Pregnancy {
     DateTime? dateOfLoss,
     DateTime? dateOfFirstMenses,
     DateTime? dateOfDelivery,
+    String? note,
   }) {
     return Pregnancy(
       dueDate: dueDate,
+      note: note ?? this.note,
       dateOfLoss: dateOfLoss ?? this.dateOfLoss,
       dateOfFirstMenses: dateOfFirstMenses ?? this.dateOfFirstMenses,
       dateOfDelivery: dateOfDelivery ?? this.dateOfDelivery,

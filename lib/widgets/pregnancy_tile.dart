@@ -22,10 +22,16 @@ class _PregnancyTileState extends State<PregnancyTile> {
   var dueDateController = TextEditingController();
   var misscarrageDateController = TextEditingController();
   var deliveryDateController = TextEditingController();
+  var notesController = TextEditingController();
 
   @override
   void initState() {
     dueDateController.text = widget.pregnancy.dueDate.toIso8601String();
+    notesController.text = widget.pregnancy.note ?? "";
+    deliveryDateController.text =
+        widget.pregnancy.dateOfDelivery?.toIso8601String() ?? "";
+    misscarrageDateController.text =
+        widget.pregnancy.dateOfLoss?.toIso8601String() ?? "";
     super.initState();
   }
 
@@ -83,6 +89,11 @@ class _PregnancyTileState extends State<PregnancyTile> {
                     icon: Icon(Icons.clear)),
               ],
             ),
+          TextFormField(
+            decoration: InputDecoration(label: Text("Notes")),
+            controller: notesController,
+            maxLines: null,
+          ),
           if (showOutcomeButtons())
             Row(
               children: [
@@ -120,6 +131,9 @@ class _PregnancyTileState extends State<PregnancyTile> {
               widget.pregnancy.dateOfLoss?.toIso8601String()) {
             return true;
           }
+          if (notesController.text != widget.pregnancy.note) {
+            return true;
+          }
           return false;
         },
         onSave: () => widget.onSave(pregnancy()),
@@ -139,6 +153,7 @@ class _PregnancyTileState extends State<PregnancyTile> {
       dueDate: DateTime.parse(dueDateController.text),
       dateOfDelivery: dateOfDelivery,
       dateOfLoss: dateOfMiscarrage,
+      note: notesController.text,
     );
   }
 

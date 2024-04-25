@@ -78,8 +78,10 @@ class _NewReproductiveCategoryDialogState
                     onPressed: () async {
                       if (formKey.currentState?.validate() ?? false) {
                         var entry = ReproductiveCategoryEntry(
-                            category: category!,
-                            sinceDate: DateTime.parse(dateController.text));
+                          category: category!,
+                          sinceDate: DateTime.parse(dateController.text),
+                          note: notecontroller.text,
+                        );
                         await model.addEntry(widget.clientID, entry);
                         AutoRouter.of(context).pop();
                       }

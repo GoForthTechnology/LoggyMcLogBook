@@ -111,8 +111,10 @@ class BillingInformation {
 class ReproductiveCategoryEntry {
   final ReproductiveCategory category;
   final DateTime sinceDate;
+  final String? note;
 
-  ReproductiveCategoryEntry({required this.category, required this.sinceDate});
+  ReproductiveCategoryEntry(
+      {required this.category, required this.sinceDate, this.note});
 
   factory ReproductiveCategoryEntry.fromJson(Map<String, dynamic> json) =>
       _$ReproductiveCategoryEntryFromJson(json);
