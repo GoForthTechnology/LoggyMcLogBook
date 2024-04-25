@@ -75,6 +75,11 @@ class ReproductiveCategoryColumn extends StatelessWidget {
                                 entry: entry,
                                 onRemove: (entry) =>
                                     model.removeEntry(clientID, entry),
+                                onSave: (existingEntry, newEntry) async {
+                                  await model.removeEntry(
+                                      clientID, existingEntry);
+                                  await model.addEntry(clientID, newEntry);
+                                },
                               ))
                           .toList(),
                     ]);
@@ -242,29 +247,107 @@ class FakePregnancy extends StatelessWidget {
   }
 }
 
-class ReproductiveEntryTile extends StatelessWidget {
+class ReproductiveEntryTile extends StatefulWidget {
   final ReproductiveCategoryEntry entry;
   final Function(ReproductiveCategoryEntry entry) onRemove;
+  final Function(ReproductiveCategoryEntry, ReproductiveCategoryEntry) onSave;
 
   const ReproductiveEntryTile(
-      {super.key, required this.entry, required this.onRemove});
+      {super.key,
+      required this.entry,
+      required this.onRemove,
+      required this.onSave});
+
+  @override
+  State<ReproductiveEntryTile> createState() => _ReproductiveEntryTileState();
+}
+
+class _ReproductiveEntryTileState extends State<ReproductiveEntryTile> {
+  var dateController = TextEditingController();
+
+  @override
+  void initState() {
+    dateController.text = widget.entry.sinceDate.toIso8601String();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    var title =
+        "${widget.entry.category.code} ${widget.entry.category.toString().split(".").last}";
     return Consumer<ReproductiveCategoryModel>(
         builder: (context, model, child) => ExpandableInfoPanel(
-                title:
-                    "${entry.category.code} ${entry.category.toString().split(".").last}",
-                subtitle: "Since ${entry.sinceDate.toIso8601String()}",
-                contents: [
-                  TextFormField(
-                    initialValue: entry.sinceDate.toIso8601String(),
-                    decoration: InputDecoration(label: Text("Starting Date")),
-                  ),
-                  Center(
-                      child: TextButton(
-                          onPressed: () async => onRemove(entry),
-                          child: Text("REMOVE"))),
-                ]));
+              title: title,
+              subtitle: "Since ${widget.entry.sinceDate.toIso8601String()}",
+              contents: [
+                TextFormField(
+                  decoration: InputDecoration(label: Text("Starting Date")),
+                  controller: dateController,
+                  onTap: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: widget.entry.sinceDate,
+                      firstDate:
+                          widget.entry.sinceDate.subtract(Duration(days: 366)),
+                      lastDate: widget.entry.sinceDate.add(Duration(days: 366)),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        dateController.text = picked.toIso8601String();
+                      });
+                    }
+                  },
+                ),
+                Center(
+                    child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Spacer(),
+                    if (_showSave())
+                      IconButton(
+                        icon: Icon(Icons.save),
+                        onPressed: _saveEntry,
+                      ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: _confirmRemoval,
+                    ),
+                    Spacer(),
+                  ],
+                ))
+              ],
+            ));
+  }
+
+  bool _showSave() {
+    return dateController.text != widget.entry.sinceDate.toIso8601String();
+  }
+
+  void _saveEntry() {
+    widget.onSave(
+        widget.entry,
+        ReproductiveCategoryEntry(
+            category: widget.entry.category,
+            sinceDate: DateTime.parse(dateController.text)));
+  }
+
+  void _confirmRemoval() {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Confirm Delete"),
+              content: Text("Are you sure you want to delete this item?"),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("Cancel")),
+                TextButton(
+                    onPressed: () async {
+                      widget.onRemove(widget.entry);
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Confirm")),
+              ],
+            ));
   }
 }
