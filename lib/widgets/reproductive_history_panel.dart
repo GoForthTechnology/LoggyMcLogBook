@@ -2,10 +2,15 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/pregnancy.dart';
+import 'package:lmlb/models/pregnancy_model.dart';
 import 'package:lmlb/models/reproductive_category_model.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/widgets/info_panel.dart';
+import 'package:lmlb/widgets/pregnancy_dialog.dart';
+import 'package:lmlb/widgets/pregnancy_tile.dart';
 import 'package:lmlb/widgets/reproductive_category_dialog.dart';
+import 'package:lmlb/widgets/reproductive_entry_tile.dart';
 import 'package:provider/provider.dart';
 
 class ReproductiveHistoryPanel extends StatelessWidget {
@@ -30,7 +35,11 @@ class ReproductiveHistoryPanel extends StatelessWidget {
                       child: ReproductiveCategoryColumn(
                         clientID: clientID,
                       )),
-                  Flexible(flex: 1, child: PregnancyColumn()),
+                  Flexible(
+                      flex: 1,
+                      child: PregnancyColumn(
+                        clientID: clientID,
+                      )),
                   Flexible(flex: 1, child: ChildrenColumn()),
                 ],
               )
@@ -89,21 +98,43 @@ class ReproductiveCategoryColumn extends StatelessWidget {
 }
 
 class PregnancyColumn extends StatelessWidget {
+  final String clientID;
+
+  const PregnancyColumn({super.key, required this.clientID});
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Center(
-            child: Text(
-          "Pregnancies",
-          style: Theme.of(context).textTheme.titleMedium,
-        )),
-        FakePregnancy(subtitle: "Delivered Fake Baby #1", dueDate: "5/5/2002"),
-        FakePregnancy(subtitle: "Miscarried", dueDate: "5/5/2008"),
-        FakePregnancy(subtitle: "Delivered Fake Baby #2", dueDate: "5/5/2022"),
-        ElevatedButton(onPressed: () {}, child: Text("Add Pregnancy")),
-      ],
-    );
+    return Consumer<PregnancyModel>(
+        builder: (context, model, child) => StreamBuilder<List<Pregnancy>>(
+            stream: model.pregnancies(clientID),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Container();
+              }
+              var pregnancies = snapshot.data ?? [];
+              pregnancies.sort((a, b) => b.dueDate.compareTo(a.dueDate));
+              return ListColumn(
+                  title: "Pregnancies",
+                  children: pregnancies
+                      .map((p) => PregnancyTile(
+                            pregnancy: p,
+                            onRemove: (p) =>
+                                model.removePregnancy(clientID, p.dueDate),
+                            onSave: (updatedPregnancy) async {
+                              await model.removePregnancy(clientID, p.dueDate);
+                              await model.addPregnancy(
+                                  clientID, updatedPregnancy);
+                            },
+                          ))
+                      .toList(),
+                  trailing: ElevatedButton(
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => PregnancyDialog(clientID: clientID),
+                    ),
+                    child: Text("Add Pregnancy"),
+                  ));
+            }));
   }
 }
 
@@ -215,139 +246,5 @@ class FakeBaby extends StatelessWidget {
       ),
       Center(child: TextButton(onPressed: () {}, child: Text("REMOVE"))),
     ]);
-  }
-}
-
-class FakePregnancy extends StatelessWidget {
-  final String dueDate;
-  final String subtitle;
-
-  const FakePregnancy(
-      {super.key, required this.subtitle, required this.dueDate});
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpandableInfoPanel(
-        title: "Due Date $dueDate",
-        subtitle: subtitle,
-        contents: [
-          TextFormField(
-            initialValue: dueDate,
-            decoration: InputDecoration(label: Text("Due Date")),
-          ),
-          Row(
-            children: [
-              Text("Miscarrage?"),
-              Spacer(),
-              Switch(value: true, onChanged: (value) {}),
-            ],
-          ),
-          Center(child: TextButton(onPressed: () {}, child: Text("REMOVE"))),
-        ]);
-  }
-}
-
-class ReproductiveEntryTile extends StatefulWidget {
-  final ReproductiveCategoryEntry entry;
-  final Function(ReproductiveCategoryEntry entry) onRemove;
-  final Function(ReproductiveCategoryEntry, ReproductiveCategoryEntry) onSave;
-
-  const ReproductiveEntryTile(
-      {super.key,
-      required this.entry,
-      required this.onRemove,
-      required this.onSave});
-
-  @override
-  State<ReproductiveEntryTile> createState() => _ReproductiveEntryTileState();
-}
-
-class _ReproductiveEntryTileState extends State<ReproductiveEntryTile> {
-  var dateController = TextEditingController();
-
-  @override
-  void initState() {
-    dateController.text = widget.entry.sinceDate.toIso8601String();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var title =
-        "${widget.entry.category.code} ${widget.entry.category.toString().split(".").last}";
-    return Consumer<ReproductiveCategoryModel>(
-        builder: (context, model, child) => ExpandableInfoPanel(
-              title: title,
-              subtitle: "Since ${widget.entry.sinceDate.toIso8601String()}",
-              contents: [
-                TextFormField(
-                  decoration: InputDecoration(label: Text("Starting Date")),
-                  controller: dateController,
-                  onTap: () async {
-                    final DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate: widget.entry.sinceDate,
-                      firstDate:
-                          widget.entry.sinceDate.subtract(Duration(days: 366)),
-                      lastDate: widget.entry.sinceDate.add(Duration(days: 366)),
-                    );
-                    if (picked != null) {
-                      setState(() {
-                        dateController.text = picked.toIso8601String();
-                      });
-                    }
-                  },
-                ),
-                Center(
-                    child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Spacer(),
-                    if (_showSave())
-                      IconButton(
-                        icon: Icon(Icons.save),
-                        onPressed: _saveEntry,
-                      ),
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: _confirmRemoval,
-                    ),
-                    Spacer(),
-                  ],
-                ))
-              ],
-            ));
-  }
-
-  bool _showSave() {
-    return dateController.text != widget.entry.sinceDate.toIso8601String();
-  }
-
-  void _saveEntry() {
-    widget.onSave(
-        widget.entry,
-        ReproductiveCategoryEntry(
-            category: widget.entry.category,
-            sinceDate: DateTime.parse(dateController.text)));
-  }
-
-  void _confirmRemoval() {
-    showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: Text("Confirm Delete"),
-              content: Text("Are you sure you want to delete this item?"),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text("Cancel")),
-                TextButton(
-                    onPressed: () async {
-                      widget.onRemove(widget.entry);
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Confirm")),
-              ],
-            ));
   }
 }
