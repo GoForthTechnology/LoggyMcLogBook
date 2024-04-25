@@ -1,11 +1,15 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:lmlb/entities/child.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/pregnancy.dart';
+import 'package:lmlb/models/child_model.dart';
 import 'package:lmlb/models/pregnancy_model.dart';
 import 'package:lmlb/models/reproductive_category_model.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/widgets/child_dialog.dart';
+import 'package:lmlb/widgets/child_tile.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/pregnancy_dialog.dart';
 import 'package:lmlb/widgets/pregnancy_tile.dart';
@@ -40,7 +44,11 @@ class ReproductiveHistoryPanel extends StatelessWidget {
                       child: PregnancyColumn(
                         clientID: clientID,
                       )),
-                  Flexible(flex: 1, child: ChildrenColumn()),
+                  Flexible(
+                      flex: 1,
+                      child: ChildrenColumn(
+                        clientID: clientID,
+                      )),
                 ],
               )
             ]),
@@ -139,12 +147,41 @@ class PregnancyColumn extends StatelessWidget {
 }
 
 class ChildrenColumn extends StatelessWidget {
+  final String clientID;
+
+  const ChildrenColumn({super.key, required this.clientID});
+
   @override
   Widget build(BuildContext context) {
-    return ListColumn(title: "Children", children: [
-      FakeBaby(name: "Fake Baby #1"),
-      FakeBaby(name: "Fake Baby #2"),
-    ]);
+    return Consumer<ChildModel>(
+        builder: (context, model, child) => StreamBuilder<List<Child>>(
+            stream: model.children(clientID),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Container();
+              }
+              var children = snapshot.data ?? [];
+              children.sort((a, b) => a.dateOfBirth.compareTo(b.dateOfBirth));
+              return ListColumn(
+                  title: "Children",
+                  children: children
+                      .map((c) => ChildTile(
+                            child: c,
+                            onRemove: (p) => model.removeChild(clientID, p),
+                            onSave: (existingChild, updatedChild) async {
+                              await model.removeChild(clientID, existingChild);
+                              await model.addChild(clientID, updatedChild);
+                            },
+                          ))
+                      .toList(),
+                  trailing: ElevatedButton(
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => ChildDialog(clientID: clientID),
+                    ),
+                    child: Text("Add Child"),
+                  ));
+            }));
   }
 }
 
@@ -203,48 +240,5 @@ class _ListColumnState extends State<ListColumn> {
         if (widget.trailing != null) widget.trailing!
       ],
     );
-  }
-}
-
-final _notNullOrEmpty = (String? value) {
-  if (value == null || value.isEmpty) {
-    return "Value required";
-  }
-  return null;
-};
-
-class FakeBaby extends StatelessWidget {
-  final String name;
-  final _dateController = TextEditingController();
-
-  FakeBaby({super.key, required this.name});
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpandableInfoPanel(title: name, subtitle: "Age 6", contents: [
-      TextFormField(
-        initialValue: name,
-        decoration: InputDecoration(label: Text("Name")),
-      ),
-      TextFormField(
-        decoration: InputDecoration(
-          labelText: "Date of Birth",
-        ),
-        validator: _notNullOrEmpty,
-        controller: _dateController,
-        onTap: () async {
-          final DateTime? picked = await showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime.now().subtract(Duration(days: 90)),
-            lastDate: DateTime.now().add(Duration(days: 365)),
-          );
-          if (picked != null) {
-            _dateController.text = picked.toIso8601String();
-          }
-        },
-      ),
-      Center(child: TextButton(onPressed: () {}, child: Text("REMOVE"))),
-    ]);
   }
 }

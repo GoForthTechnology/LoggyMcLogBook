@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:lmlb/auth.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/reminder.dart';
+import 'package:lmlb/models/child_model.dart';
 import 'package:lmlb/models/pregnancy_model.dart';
 import 'package:lmlb/models/reproductive_category_model.dart';
 import 'package:lmlb/persistence/firebase/firestore_crud.dart';
@@ -61,6 +62,7 @@ Future<Widget> init(Widget app, bool isWeb) {
         ChangeNotifierProvider.value(value: reminderRepo),
         ChangeNotifierProvider.value(value: ReproductiveCategoryModel()),
         ChangeNotifierProvider.value(value: PregnancyModel()),
+        ChangeNotifierProvider.value(value: ChildModel()),
       ], child: app));
 }
 
