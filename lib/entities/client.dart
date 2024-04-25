@@ -142,7 +142,7 @@ enum ReproductiveCategory {
         return "2";
       case ReproductiveCategory.breastfeeding_total:
         return "3";
-      case ReproductiveCategory.breastfeeding_total:
+      case ReproductiveCategory.breastfeeding_weaning:
         return "4";
       case ReproductiveCategory.post_poll:
         return "5";

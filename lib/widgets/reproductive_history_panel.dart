@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:lmlb/entities/child.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/models/reproductive_category_model.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/widgets/info_panel.dart';
+import 'package:lmlb/widgets/reproductive_category_dialog.dart';
 import 'package:provider/provider.dart';
 
 class ReproductiveHistoryPanel extends StatelessWidget {
@@ -22,7 +25,11 @@ class ReproductiveHistoryPanel extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Flexible(flex: 1, child: ReproductiveCategoryColumn()),
+                  Flexible(
+                      flex: 1,
+                      child: ReproductiveCategoryColumn(
+                        clientID: clientID,
+                      )),
                   Flexible(flex: 1, child: PregnancyColumn()),
                   Flexible(flex: 1, child: ChildrenColumn()),
                 ],
@@ -34,25 +41,45 @@ class ReproductiveHistoryPanel extends StatelessWidget {
 }
 
 class ReproductiveCategoryColumn extends StatelessWidget {
+  final String clientID;
+
+  const ReproductiveCategoryColumn({super.key, required this.clientID});
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Center(
-            child: Text(
-          "Reproductive History",
-          style: Theme.of(context).textTheme.titleMedium,
-        )),
-        FakeReproductiveEntry(category: ReproductiveCategory.regular_cycles),
-        FakeReproductiveEntry(category: ReproductiveCategory.pregnant),
-        FakeReproductiveEntry(
-            category: ReproductiveCategory.breastfeeding_total),
-        FakeReproductiveEntry(category: ReproductiveCategory.long_cycles),
-        FakeReproductiveEntry(category: ReproductiveCategory.infertility),
-        FakeReproductiveEntry(category: ReproductiveCategory.pregnant),
-        ElevatedButton(onPressed: () {}, child: Text("Update")),
-      ],
-    );
+    return Consumer<ReproductiveCategoryModel>(
+        builder: (context, model, child) =>
+            StreamBuilder<List<ReproductiveCategoryEntry>>(
+              stream: model.entries(clientID),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Container();
+                }
+                var entries = snapshot.data ?? [];
+                entries.sort((a, b) => b.sinceDate.compareTo(a.sinceDate));
+                var updateButton = ElevatedButton(
+                    onPressed: () => showDialog(
+                        context: context,
+                        builder: (context) => NewReproductiveCategoryDialog(
+                              clientID: clientID,
+                              previousEntry:
+                                  entries.isEmpty ? null : entries.first,
+                            )),
+                    child: Text("Update"));
+                return ListColumn(
+                    title: "Reproductive Category",
+                    trailing: updateButton,
+                    children: [
+                      ...entries
+                          .map((entry) => ReproductiveEntryTile(
+                                entry: entry,
+                                onRemove: (entry) =>
+                                    model.removeEntry(clientID, entry),
+                              ))
+                          .toList(),
+                    ]);
+              },
+            ));
   }
 }
 
@@ -78,25 +105,83 @@ class PregnancyColumn extends StatelessWidget {
 class ChildrenColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    return ListColumn(title: "Children", children: [
+      FakeBaby(name: "Fake Baby #1"),
+      FakeBaby(name: "Fake Baby #2"),
+    ]);
+  }
+}
+
+class ListColumn extends StatefulWidget {
+  final String title;
+  final Widget? trailing;
+  final int maxItems;
+  final List<Widget> children;
+
+  const ListColumn({
+    super.key,
+    this.maxItems = 3,
+    this.trailing,
+    required this.title,
+    required this.children,
+  });
+
+  @override
+  State<ListColumn> createState() => _ListColumnState();
+}
+
+class _ListColumnState extends State<ListColumn> {
+  var showAll = false;
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> items = widget.children;
+    if (!showAll) {
+      items = items.sublist(0, min(items.length, widget.maxItems));
+    }
+    Widget showHideWidget = showAll
+        ? TextButton(
+            onPressed: () {
+              setState(() {
+                showAll = false;
+              });
+            },
+            child: Text("Show Less"))
+        : TextButton(
+            onPressed: () {
+              setState(() {
+                showAll = true;
+              });
+            },
+            child: Text("Show All"));
+
     return Column(
       children: [
         Center(
             child: Text(
-          "Children",
+          widget.title,
           style: Theme.of(context).textTheme.titleMedium,
         )),
-        FakeBaby(name: "Fake Baby #1"),
-        FakeBaby(name: "Fake Baby #2"),
-        ElevatedButton(onPressed: () {}, child: Text("Add Child")),
+        ...items,
+        if (widget.children.length > widget.maxItems) showHideWidget,
+        if (widget.trailing != null) widget.trailing!
       ],
     );
   }
 }
 
+final _notNullOrEmpty = (String? value) {
+  if (value == null || value.isEmpty) {
+    return "Value required";
+  }
+  return null;
+};
+
 class FakeBaby extends StatelessWidget {
   final String name;
+  final _dateController = TextEditingController();
 
-  const FakeBaby({super.key, required this.name});
+  FakeBaby({super.key, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +191,22 @@ class FakeBaby extends StatelessWidget {
         decoration: InputDecoration(label: Text("Name")),
       ),
       TextFormField(
-        initialValue: "Nov 6, 2006",
-        decoration: InputDecoration(label: Text("Date of Birth")),
+        decoration: InputDecoration(
+          labelText: "Date of Birth",
+        ),
+        validator: _notNullOrEmpty,
+        controller: _dateController,
+        onTap: () async {
+          final DateTime? picked = await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime.now().subtract(Duration(days: 90)),
+            lastDate: DateTime.now().add(Duration(days: 365)),
+          );
+          if (picked != null) {
+            _dateController.text = picked.toIso8601String();
+          }
+        },
       ),
       Center(child: TextButton(onPressed: () {}, child: Text("REMOVE"))),
     ]);
@@ -143,22 +242,29 @@ class FakePregnancy extends StatelessWidget {
   }
 }
 
-class FakeReproductiveEntry extends StatelessWidget {
-  final ReproductiveCategory category;
+class ReproductiveEntryTile extends StatelessWidget {
+  final ReproductiveCategoryEntry entry;
+  final Function(ReproductiveCategoryEntry entry) onRemove;
 
-  const FakeReproductiveEntry({super.key, required this.category});
+  const ReproductiveEntryTile(
+      {super.key, required this.entry, required this.onRemove});
 
   @override
   Widget build(BuildContext context) {
-    return ExpandableInfoPanel(
-        title: category.toString().split(".").last,
-        subtitle: "Since 5/5/2022",
-        contents: [
-          TextFormField(
-            initialValue: "5/5/2022",
-            decoration: InputDecoration(label: Text("Starting Date")),
-          ),
-          Center(child: TextButton(onPressed: () {}, child: Text("REMOVE"))),
-        ]);
+    return Consumer<ReproductiveCategoryModel>(
+        builder: (context, model, child) => ExpandableInfoPanel(
+                title:
+                    "${entry.category.code} ${entry.category.toString().split(".").last}",
+                subtitle: "Since ${entry.sinceDate.toIso8601String()}",
+                contents: [
+                  TextFormField(
+                    initialValue: entry.sinceDate.toIso8601String(),
+                    decoration: InputDecoration(label: Text("Starting Date")),
+                  ),
+                  Center(
+                      child: TextButton(
+                          onPressed: () async => onRemove(entry),
+                          child: Text("REMOVE"))),
+                ]));
   }
 }
