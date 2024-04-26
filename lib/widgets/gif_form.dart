@@ -1,4 +1,3 @@
-
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 import 'package:collection/collection.dart';
 
@@ -19,7 +18,8 @@ class GifSection {
   final Type enumType;
   final List<List<GifItem>> items;
 
-  const GifSection({required this.title, required this.enumType, required this.items});
+  const GifSection(
+      {required this.title, required this.enumType, required this.items});
 }
 
 class GifForm extends StatelessWidget {
@@ -29,15 +29,19 @@ class GifForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ClientID>(create: (context) => ClientID(clientID), builder: (context, child) => ExpandableInfoPanel(
-      title: "General Intake Form",
-      subtitle: "Not yet completed",
-      contents: sections.map((section) => GifFormSection(
-        sectionTitle: section.title,
-        enumType: section.enumType,
-        itemRows: section.items,
-      )).toList(),
-    ));
+    return ChangeNotifierProvider<ClientID>(
+        create: (context) => ClientID(clientID),
+        builder: (context, child) => ExpandableInfoPanel(
+              title: "General Intake Form",
+              subtitle: "Not yet completed",
+              contents: sections
+                  .map((section) => GifFormSection(
+                        sectionTitle: section.title,
+                        enumType: section.enumType,
+                        itemRows: section.items,
+                      ))
+                  .toList(),
+            ));
   }
 }
 
@@ -48,8 +52,8 @@ class GifStepper extends StatefulWidget {
 
 class GifStepperState extends State<GifStepper> {
   Map<GifItem, TextEditingController> controllers = {};
-  List<GlobalKey<FormState>> _formKeys = List
-      .generate(sections.length, (index) => GlobalKey<FormState>());
+  List<GlobalKey<FormState>> _formKeys =
+      List.generate(sections.length, (index) => GlobalKey<FormState>());
   int _index = 0;
 
   @override
@@ -67,7 +71,11 @@ class GifStepperState extends State<GifStepper> {
     return Step(
       state: _stepState(index),
       title: Text(section.title),
-      content: Form(key: _formKeys[index], child: Column(children: _rows(section),)),
+      content: Form(
+          key: _formKeys[index],
+          child: Column(
+            children: _rows(section),
+          )),
     );
   }
 
@@ -85,17 +93,29 @@ class GifStepperState extends State<GifStepper> {
   List<Widget> _rows(GifSection section) {
     if (MediaQuery.of(context).size.width >= 720) {
       return section.items
-          .map((row) => Row(children: row.map((item) => Expanded(child: _itemWidget(item))).toList()))
+          .map((row) => Row(
+              children: row
+                  .map((item) => Expanded(child: _itemWidget(item)))
+                  .toList()))
           .toList();
     }
-    return section.items.expand((r) => r).map((item) => Row(children: [
-      Flexible(child: ConstrainedBox(constraints: BoxConstraints(minWidth: 150), child:  _itemWidget(item))),
-    ],)).toList();
+    return section.items
+        .expand((r) => r)
+        .map((item) => Row(
+              children: [
+                Flexible(
+                    child: ConstrainedBox(
+                        constraints: BoxConstraints(minWidth: 150),
+                        child: _itemWidget(item))),
+              ],
+            ))
+        .toList();
   }
 
   Widget _itemWidget(GifItem item) {
     var initialValue = "";
-    var controller = controllers.putIfAbsent(item, () => TextEditingController(text: initialValue));
+    var controller = controllers.putIfAbsent(
+        item, () => TextEditingController(text: initialValue));
     return ItemWidget(
       initialValue: initialValue,
       initialComment: "",
@@ -118,14 +138,11 @@ class GifStepperState extends State<GifStepper> {
   void _continueStep() {
     if (_index < sections.length) {
       var key = _formKeys[_index];
-      print("FOO: ${key.currentState == null}");
       if (key.currentState?.validate() ?? false) {
         setState(() {
           _index += 1;
         });
-      } else {
-        print("foo");
-      }
+      } else {}
     }
   }
 
@@ -145,11 +162,14 @@ class GifBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ClientID>(
       create: (context) => ClientID(clientID),
-      builder: (context, child) => Column(children: sections.map((section) => GifFormSection(
-        sectionTitle: section.title,
-        itemRows: section.items,
-        enumType: section.enumType,
-      )).toList()),
+      builder: (context, child) => Column(
+          children: sections
+              .map((section) => GifFormSection(
+                    sectionTitle: section.title,
+                    itemRows: section.items,
+                    enumType: section.enumType,
+                  ))
+              .toList()),
     );
   }
 }
@@ -162,7 +182,12 @@ const sections = [
       [GeneralInfoItem.NAME_WOMAN, GeneralInfoItem.NAME_MAN],
       [GeneralInfoItem.DOB_WOMAN, GeneralInfoItem.DOB_MAN],
       [GeneralInfoItem.ADDRESS],
-      [GeneralInfoItem.CITY, GeneralInfoItem.STATE, GeneralInfoItem.ZIP, GeneralInfoItem.COUNTRY],
+      [
+        GeneralInfoItem.CITY,
+        GeneralInfoItem.STATE,
+        GeneralInfoItem.ZIP,
+        GeneralInfoItem.COUNTRY
+      ],
       [GeneralInfoItem.EMAIL, GeneralInfoItem.PHONE],
     ],
   ),
@@ -171,23 +196,53 @@ const sections = [
     enumType: DemographicInfoItem,
     items: [
       [DemographicInfoItem.AGE_WOMAN, DemographicInfoItem.AGE_MAN],
-      [DemographicInfoItem.ETHNIC_BACKGROUND_WOMAN, DemographicInfoItem.ETHNIC_BACKGROUND_MAN],
+      [
+        DemographicInfoItem.ETHNIC_BACKGROUND_WOMAN,
+        DemographicInfoItem.ETHNIC_BACKGROUND_MAN
+      ],
       [DemographicInfoItem.RELIGION_WOMAN, DemographicInfoItem.RELIGION_MAN],
-      [DemographicInfoItem.MARITAL_STATUS_WOMAN, DemographicInfoItem.MARITAL_STATUS_MAN],
-      [DemographicInfoItem.COMPLETED_EDUCATION_WOMAN, DemographicInfoItem.COMPLETED_EDUCATION_MAN],
-      [DemographicInfoItem.OCCUPATIONAL_STATUS_WOMAN, DemographicInfoItem.OCCUPATIONAL_STATUS_MAN],
-      [DemographicInfoItem.NOW_EMPLOYED_WOMAN, DemographicInfoItem.NOW_EMPLOYED_MAN],
-      [DemographicInfoItem.ANNUAL_COMBINED_INCOME, DemographicInfoItem.NUMBER_OF_PEOPLE_LIVING_IN_HOUSEHOLD],
+      [
+        DemographicInfoItem.MARITAL_STATUS_WOMAN,
+        DemographicInfoItem.MARITAL_STATUS_MAN
+      ],
+      [
+        DemographicInfoItem.COMPLETED_EDUCATION_WOMAN,
+        DemographicInfoItem.COMPLETED_EDUCATION_MAN
+      ],
+      [
+        DemographicInfoItem.OCCUPATIONAL_STATUS_WOMAN,
+        DemographicInfoItem.OCCUPATIONAL_STATUS_MAN
+      ],
+      [
+        DemographicInfoItem.NOW_EMPLOYED_WOMAN,
+        DemographicInfoItem.NOW_EMPLOYED_MAN
+      ],
+      [
+        DemographicInfoItem.ANNUAL_COMBINED_INCOME,
+        DemographicInfoItem.NUMBER_OF_PEOPLE_LIVING_IN_HOUSEHOLD
+      ],
     ],
   ),
   GifSection(
     title: "Pregnancy History",
     enumType: PregnancyHistoryItem,
     items: [
-      [PregnancyHistoryItem.NUMBER_OF_PREGNANCIES, PregnancyHistoryItem.NUMBER_LIVE_BIRTHS],
-      [PregnancyHistoryItem.NUMBER_STILLBORN, PregnancyHistoryItem.NUMBER_SPONTANEOUS_ABORTION],
-      [PregnancyHistoryItem.NUMBER_INDUCED_ABORTION, PregnancyHistoryItem.NUMBER_NOW_LIVING],
-      [PregnancyHistoryItem.WOMANS_AGE_AT_FIRST_PREGNANCY, PregnancyHistoryItem.DELIVERY_METHOD],
+      [
+        PregnancyHistoryItem.NUMBER_OF_PREGNANCIES,
+        PregnancyHistoryItem.NUMBER_LIVE_BIRTHS
+      ],
+      [
+        PregnancyHistoryItem.NUMBER_STILLBORN,
+        PregnancyHistoryItem.NUMBER_SPONTANEOUS_ABORTION
+      ],
+      [
+        PregnancyHistoryItem.NUMBER_INDUCED_ABORTION,
+        PregnancyHistoryItem.NUMBER_NOW_LIVING
+      ],
+      [
+        PregnancyHistoryItem.WOMANS_AGE_AT_FIRST_PREGNANCY,
+        PregnancyHistoryItem.DELIVERY_METHOD
+      ],
     ],
   ),
   GifSection(
@@ -195,7 +250,10 @@ const sections = [
     enumType: MedicalHistoryItem,
     items: [
       [MedicalHistoryItem.CERVICITIS, MedicalHistoryItem.CERVICAL_TREATMENT],
-      [MedicalHistoryItem.INFERTILITY_TREATMENT, MedicalHistoryItem.ENDOMETRIOSIS],
+      [
+        MedicalHistoryItem.INFERTILITY_TREATMENT,
+        MedicalHistoryItem.ENDOMETRIOSIS
+      ],
       [MedicalHistoryItem.PCOD, MedicalHistoryItem.PELVIC_INFECTION],
       [MedicalHistoryItem.PMS, MedicalHistoryItem.BREAST_SURGERY],
       [MedicalHistoryItem.GYN_SURGERY],
@@ -205,30 +263,51 @@ const sections = [
     title: "Menstrual History",
     enumType: MedicalHistoryItem,
     items: [
-      [MedicalHistoryItem.AGE_AT_FIRST_MENSTRUATION, MedicalHistoryItem.NATURE_OF_CYCLES],
-      [MedicalHistoryItem.AVERAGE_LENGTH_OF_MENSTRUAL_FLOW, MedicalHistoryItem.MENSTRUAL_CRAMPS],
+      [
+        MedicalHistoryItem.AGE_AT_FIRST_MENSTRUATION,
+        MedicalHistoryItem.NATURE_OF_CYCLES
+      ],
+      [
+        MedicalHistoryItem.AVERAGE_LENGTH_OF_MENSTRUAL_FLOW,
+        MedicalHistoryItem.MENSTRUAL_CRAMPS
+      ],
     ],
   ),
   GifSection(
     title: "General Medical History",
     enumType: MedicalHistoryItem,
     items: [
-      [MedicalHistoryItem.HIGH_BLOOD_PRESSURE, MedicalHistoryItem.HEART_DISEASE],
+      [
+        MedicalHistoryItem.HIGH_BLOOD_PRESSURE,
+        MedicalHistoryItem.HEART_DISEASE
+      ],
       [MedicalHistoryItem.DIABETES, MedicalHistoryItem.CONVULSIONS],
-      [MedicalHistoryItem.MIGRAINE_HEADACHES, MedicalHistoryItem.THYROID_PROBLEMS],
+      [
+        MedicalHistoryItem.MIGRAINE_HEADACHES,
+        MedicalHistoryItem.THYROID_PROBLEMS
+      ],
       [MedicalHistoryItem.CANCER, MedicalHistoryItem.URINARY_TRACT_INFECTION],
       [MedicalHistoryItem.VARICOSE_VEINS, MedicalHistoryItem.BLOOD_CLOTS],
       [MedicalHistoryItem.ANEMIA, MedicalHistoryItem.ALLERGIES],
       [MedicalHistoryItem.DRUG_ALLERGIES, MedicalHistoryItem.STDS],
-      [MedicalHistoryItem.NON_GYN_SURGERY, MedicalHistoryItem.VAGINAL_INFECTIONS],
+      [
+        MedicalHistoryItem.NON_GYN_SURGERY,
+        MedicalHistoryItem.VAGINAL_INFECTIONS
+      ],
     ],
   ),
   GifSection(
     title: "FamilyPlanning History",
     enumType: MedicalHistoryItem,
     items: [
-      [FamilyPlanningHistoryItem.FIRST_MOST_RECENT_METHOD, FamilyPlanningHistoryItem.SECOND_MOST_RECENT_METHOD],
-      [FamilyPlanningHistoryItem.THIRD_MOST_RECENT_METHOD, FamilyPlanningHistoryItem.FOURTH_MOST_RECENT_METHOD],
+      [
+        FamilyPlanningHistoryItem.FIRST_MOST_RECENT_METHOD,
+        FamilyPlanningHistoryItem.SECOND_MOST_RECENT_METHOD
+      ],
+      [
+        FamilyPlanningHistoryItem.THIRD_MOST_RECENT_METHOD,
+        FamilyPlanningHistoryItem.FOURTH_MOST_RECENT_METHOD
+      ],
     ],
   ),
 ];
@@ -254,22 +333,29 @@ class GifFormSection extends StatelessWidget {
   final Map<int, Widget> rowSeparators;
   final bool initiallyExpanded;
 
-  const GifFormSection({super.key, required this.sectionTitle, required this.itemRows, required this.enumType, this.rowSeparators = const {}, this.initiallyExpanded = false});
+  const GifFormSection(
+      {super.key,
+      required this.sectionTitle,
+      required this.itemRows,
+      required this.enumType,
+      this.rowSeparators = const {},
+      this.initiallyExpanded = false});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<GifRepo, ClientID>(builder: (context, repo, clientID, child) => FormSection(
-      sectionTitle: sectionTitle,
-      itemRows: itemRows,
-      rowSeparators: rowSeparators,
-      initialValues: repo.getAll(enumType, clientID.value).first,
-      initiallyExpanded: initiallyExpanded,
-      explanations: Stream.value({}),
-      //explanations: repo.explanations(enumType, clientID.value),
-      onSave: (m) async {
-        await repo.updateAll(enumType, clientID.value, m);
-      },
-    ));
+    return Consumer2<GifRepo, ClientID>(
+        builder: (context, repo, clientID, child) => FormSection(
+              sectionTitle: sectionTitle,
+              itemRows: itemRows,
+              rowSeparators: rowSeparators,
+              initialValues: repo.getAll(enumType, clientID.value),
+              initiallyExpanded: initiallyExpanded,
+              explanations: Stream.value({}),
+              //explanations: repo.explanations(enumType, clientID.value),
+              onSave: (m) async {
+                await repo.updateAll(enumType, clientID.value, m);
+              },
+            ));
   }
 }
 
@@ -277,12 +363,19 @@ class FormSection extends StatefulWidget {
   final String sectionTitle;
   final List<List<GifItem>> itemRows;
   final Map<int, Widget> rowSeparators;
-  final Future<Map<GifItem, String>> initialValues;
+  final Stream<Map<GifItem, String>> initialValues;
   final Stream<Map<GifItem, String>> explanations;
   final Function(Map<String, String>) onSave;
   final bool initiallyExpanded;
 
-  FormSection({required this.sectionTitle, required this.itemRows, required this.initialValues, required this.onSave, required this.rowSeparators, this.initiallyExpanded = false, required this.explanations});
+  FormSection(
+      {required this.sectionTitle,
+      required this.itemRows,
+      required this.initialValues,
+      required this.onSave,
+      required this.rowSeparators,
+      this.initiallyExpanded = false,
+      required this.explanations});
 
   @override
   State<StatefulWidget> createState() => FormSectionState();
@@ -290,28 +383,29 @@ class FormSection extends StatefulWidget {
 
 class FormSectionState extends State<FormSection> {
   bool editEnabled = false;
-  Map<GifItem, String> initialValues = {};
   Map<GifItem, TextEditingController> controllers = {};
   Map<GifItem, String> comments = {};
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<GifItem, String>>(future: widget.initialValues, builder: (context, snapshot) {
-      initialValues = snapshot.data ?? {};
-      return StreamBuilder<Map<GifItem, String>>(
-        stream: widget.explanations,
-        builder: ((context, snapshot) {
-          var explanations = snapshot.data ?? {};
-          return ExpandableInfoPanel(
-            title: widget.sectionTitle,
-            subtitle: "",
-            trailing: _trailingWidget(),
-            contents: _rows(context, explanations),
-            initiallyExpanded: widget.initiallyExpanded,
+    return StreamBuilder<Map<GifItem, String>>(
+        stream: widget.initialValues,
+        builder: (context, snapshot) {
+          var initialValues = snapshot.data ?? {};
+          return StreamBuilder<Map<GifItem, String>>(
+            stream: widget.explanations,
+            builder: ((context, snapshot) {
+              var explanations = snapshot.data ?? {};
+              return ExpandableInfoPanel(
+                title: widget.sectionTitle,
+                subtitle: "",
+                trailing: _trailingWidget(),
+                contents: _rows(context, initialValues, explanations),
+                initiallyExpanded: widget.initiallyExpanded,
+              );
+            }),
           );
-        }),
-      );
-    });
+        });
   }
 
   void updateComment(GifItem item, String comment) {
@@ -320,16 +414,29 @@ class FormSectionState extends State<FormSection> {
     });
   }
 
-  List<Widget> _rows(BuildContext context, Map<GifItem, String> explanations) {
+  List<Widget> _rows(BuildContext context, Map<GifItem, String> initialValues,
+      Map<GifItem, String> explanations) {
     List<Widget> rows;
     if (MediaQuery.of(context).size.width >= 720) {
       rows = widget.itemRows
-          .map((row) => Row(children: row.map((item) => Expanded(child: _itemWidget(item))).toList()))
+          .map((row) => Row(
+              children: row
+                  .map((item) =>
+                      Expanded(child: _itemWidget(item, initialValues)))
+                  .toList()))
           .toList();
     } else {
-      rows = widget.itemRows.expand((r) => r).map((item) => Row(children: [
-        Flexible(child: ConstrainedBox(constraints: BoxConstraints(minWidth: 150), child:  _itemWidget(item))),
-      ],)).toList();
+      rows = widget.itemRows
+          .expand((r) => r)
+          .map((item) => Row(
+                children: [
+                  Flexible(
+                      child: ConstrainedBox(
+                          constraints: BoxConstraints(minWidth: 150),
+                          child: _itemWidget(item, initialValues))),
+                ],
+              ))
+          .toList();
     }
     List<Widget> out = [];
     for (var i = 0; i < rows.length; i++) {
@@ -353,9 +460,11 @@ class FormSectionState extends State<FormSection> {
     return out;
   }
 
-  Widget _itemWidget(GifItem item) {
+  Widget _itemWidget(GifItem item, Map<GifItem, String> initialValues) {
     var initialValue = initialValues[item] ?? "";
-    var controller = controllers.putIfAbsent(item, () => TextEditingController(text: initialValue));
+    var controller = controllers.putIfAbsent(
+        item, () => TextEditingController(text: initialValue));
+    controller.text = initialValue;
     return ItemWidget(
       initialValue: initialValue,
       initialComment: comments[item] ?? "",
@@ -369,18 +478,24 @@ class FormSectionState extends State<FormSection> {
 
   Widget _trailingWidget() {
     if (editEnabled) {
-      return IconButton(onPressed: () => setState(() {
-        editEnabled = false;
-        Map<String, String> entries = {};
-        for (var entry in controllers.entries) {
-          entries[entry.key.name] = entry.value.text;
-        }
-        widget.onSave(entries);
-      }), icon: Icon(Icons.save),);
+      return IconButton(
+        onPressed: () => setState(() {
+          editEnabled = false;
+          Map<String, String> entries = {};
+          for (var entry in controllers.entries) {
+            entries[entry.key.name] = entry.value.text;
+          }
+          widget.onSave(entries);
+        }),
+        icon: Icon(Icons.save),
+      );
     }
-    return IconButton(onPressed: () => setState(() {
-      editEnabled = true;
-    }), icon: Icon(Icons.edit),);
+    return IconButton(
+      onPressed: () => setState(() {
+        editEnabled = true;
+      }),
+      icon: Icon(Icons.edit),
+    );
   }
 }
 
@@ -393,10 +508,20 @@ class ItemWidget extends StatefulWidget {
   final void Function() onChange;
   final void Function(GifItem, String) updateComment;
 
-  const ItemWidget({super.key, required this.item, required this.initialValue, required this.controller, required this.editEnabled, required this.onChange, required this.updateComment, required this.initialComment});
+  const ItemWidget(
+      {super.key,
+      required this.item,
+      required this.initialValue,
+      required this.controller,
+      required this.editEnabled,
+      required this.onChange,
+      required this.updateComment,
+      required this.initialComment});
 
   @override
-  State<StatefulWidget> createState() => ItemWidgetState(previousValue: initialValue,);
+  State<StatefulWidget> createState() => ItemWidgetState(
+        previousValue: initialValue,
+      );
 }
 
 class ItemWidgetState extends State<ItemWidget> {
@@ -412,10 +537,11 @@ class ItemWidgetState extends State<ItemWidget> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(child: inputWidget()),
-          if (showCommonIcon()) IconButton(
-            onPressed: showCommentDialog,
-            icon: Icon(Icons.comment),
-          ),
+          if (showCommonIcon())
+            IconButton(
+              onPressed: showCommentDialog,
+              icon: Icon(Icons.comment),
+            ),
         ],
       ),
     );
@@ -433,10 +559,13 @@ class ItemWidgetState extends State<ItemWidget> {
     };
     if (widget.item.optionsEnum != null) {
       return DropdownButtonFormField<String>(
-        items: widget.item.optionsEnum!.map((v) => DropdownMenuItem<String>(
-          child: Text(toBeginningOfSentenceCase(v.name.toString().replaceAll("_", " "))!),
-          value: v.name,
-        )).toList(),
+        items: widget.item.optionsEnum!
+            .map((v) => DropdownMenuItem<String>(
+                  child: Text(toBeginningOfSentenceCase(
+                      v.name.toString().replaceAll("_", " "))!),
+                  value: v.name,
+                ))
+            .toList(),
         onChanged: widget.editEnabled ? onEnumUpdate : null,
         value: widget.initialValue.isEmpty ? null : widget.initialValue,
         validator: validator,
@@ -447,7 +576,9 @@ class ItemWidgetState extends State<ItemWidget> {
       var prompt = () async {
         final DateTime? picked = await showDatePicker(
           context: context,
-          initialDate: widget.controller.text.isEmpty ? null : DateTime.parse(widget.controller.text),
+          initialDate: widget.controller.text.isEmpty
+              ? null
+              : DateTime.parse(widget.controller.text),
           firstDate: DateTime.now().subtract(Duration(days: 365 * 100)),
           lastDate: DateTime.now(),
         );
@@ -476,10 +607,10 @@ class ItemWidgetState extends State<ItemWidget> {
       );
     }
     return TextFormField(
-    decoration: InputDecoration(
-    labelText: widget.item.label,
-    ),
-    enabled: widget.editEnabled,
+      decoration: InputDecoration(
+        labelText: widget.item.label,
+      ),
+      enabled: widget.editEnabled,
       controller: widget.controller,
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -524,7 +655,8 @@ class CommentDialog extends StatefulWidget {
   final String initialComment;
   final Function(String) onSave;
 
-  const CommentDialog({super.key, required this.onSave, required this.initialComment});
+  const CommentDialog(
+      {super.key, required this.onSave, required this.initialComment});
 
   @override
   State<StatefulWidget> createState() => CommentDialogState();
@@ -554,13 +686,17 @@ class CommentDialogState extends State<CommentDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () {
-          Navigator.of(context).pop();
-        }, child: Text("Cancel")),
-        TextButton(onPressed: () {
-          widget.onSave(controller.text);
-          Navigator.of(context).pop();
-        }, child: Text("Save")),
+        TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("Cancel")),
+        TextButton(
+            onPressed: () {
+              widget.onSave(controller.text);
+              Navigator.of(context).pop();
+            },
+            child: Text("Save")),
       ],
     );
   }
