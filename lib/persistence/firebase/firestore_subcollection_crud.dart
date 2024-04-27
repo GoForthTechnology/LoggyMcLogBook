@@ -46,7 +46,7 @@ class FireStoreSubcollectionCrud<T> {
     yield* query.doc(docID).snapshots().map((s) => s.data());
   }
 
-  Stream<List<T?>> streamCollection({required String primaryDocID}) async* {
+  Stream<List<T>> streamCollection({required String primaryDocID}) async* {
     var query = await _ref(primaryDocID);
     yield* query.snapshots().map((s) => s.docs.map((qs) => qs.data()).toList());
   }

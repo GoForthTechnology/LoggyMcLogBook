@@ -108,17 +108,36 @@ class BillingInformation {
 }
 
 @JsonSerializable(explicitToJson: true)
-class ReproductiveCategoryEntry {
+class ReproductiveCategoryEntry extends Indexable<ReproductiveCategoryEntry> {
+  final String? id;
   final ReproductiveCategory category;
   final DateTime sinceDate;
   final String? note;
 
   ReproductiveCategoryEntry(
-      {required this.category, required this.sinceDate, this.note});
+      {required this.category, required this.sinceDate, this.note, this.id});
+
+  ReproductiveCategoryEntry copyWith({String? id}) {
+    return ReproductiveCategoryEntry(
+      id: id ?? this.id,
+      category: category,
+      sinceDate: sinceDate,
+    );
+  }
 
   factory ReproductiveCategoryEntry.fromJson(Map<String, dynamic> json) =>
       _$ReproductiveCategoryEntryFromJson(json);
   Map<String, dynamic> toJson() => _$ReproductiveCategoryEntryToJson(this);
+
+  @override
+  String? getId() {
+    return id;
+  }
+
+  @override
+  ReproductiveCategoryEntry setId(String id) {
+    return copyWith(id: id);
+  }
 }
 
 enum ReproductiveCategory {

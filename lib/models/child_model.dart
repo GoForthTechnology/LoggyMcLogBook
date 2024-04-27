@@ -21,16 +21,6 @@ class ChildModel extends ChangeNotifier {
   }
 
   Stream<List<Child>> children(String clientID) async* {
-    yield* _persistence
-        .streamCollection(primaryDocID: clientID)
-        .map((children) {
-      List<Child> out = [];
-      for (var child in children) {
-        if (child != null) {
-          out.add(child);
-        }
-      }
-      return out;
-    });
+    yield* _persistence.streamCollection(primaryDocID: clientID);
   }
 }

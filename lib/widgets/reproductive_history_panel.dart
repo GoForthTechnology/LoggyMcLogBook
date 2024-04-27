@@ -145,10 +145,9 @@ class PregnancyColumn extends StatelessWidget {
                   children: pregnancies
                       .map((p) => PregnancyTile(
                             pregnancy: p,
-                            onRemove: (p) =>
-                                model.removePregnancy(clientID, p.dueDate),
+                            onRemove: (p) => model.removePregnancy(clientID, p),
                             onSave: (updatedPregnancy) async {
-                              await model.removePregnancy(clientID, p.dueDate);
+                              await model.removePregnancy(clientID, p);
                               await model.addPregnancy(
                                   clientID, updatedPregnancy);
                             },
