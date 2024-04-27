@@ -4,8 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fc_forms/fc_forms.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:lmlb/persistence/firebase/firestore_crud.dart';
-import 'package:lmlb/persistence/firebase/firestore_form_crud.dart';
 
 class FollowUpRepo extends ChangeNotifier {
   static const String _formKey = "FOLLOW-UP-FORM";

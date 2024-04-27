@@ -175,7 +175,6 @@ class QuestionWidgetState extends State<QuestionWidget> {
                   questionIndex: widget.id.questionIndex,
                   followUpIndex: index + 1,
                 );
-                var currentEntry = id == widget.id;
                 var value = widget.initialValues[id]?.value ?? "";
                 return Container(
                   width: 30,
