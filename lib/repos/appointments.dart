@@ -54,6 +54,10 @@ class Appointments extends ChangeNotifier {
         return null;
       }
       as.sort((a, b) => a.time.compareTo(b.time));
+      as = as.where((a) => a.time.isBefore(DateTime.now())).toList();
+      if (as.isEmpty) {
+        return null;
+      }
       return as.last;
     });
   }
