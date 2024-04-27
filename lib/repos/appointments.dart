@@ -101,6 +101,7 @@ class Appointments extends ChangeNotifier {
   }
 
   Future<void> updateAppointment(Appointment updatedAppointemnt) async {
-    // TODO: implement
+    var ref = await _ref(updatedAppointemnt.clientId);
+    ref.doc(updatedAppointemnt.id!).update(updatedAppointemnt.toJson());
   }
 }
