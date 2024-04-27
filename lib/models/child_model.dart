@@ -23,4 +23,8 @@ class ChildModel extends ChangeNotifier {
   Stream<List<Child>> children(String clientID) async* {
     yield* _persistence.streamCollection(primaryDocID: clientID);
   }
+
+  Future<int> numChildren(String clientID) {
+    return _persistence.collectionCount(primaryDocID: clientID);
+  }
 }

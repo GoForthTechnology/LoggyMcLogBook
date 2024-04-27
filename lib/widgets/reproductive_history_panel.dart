@@ -3,10 +3,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/child.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/client_general_info.dart';
 import 'package:lmlb/entities/pregnancy.dart';
 import 'package:lmlb/models/child_model.dart';
 import 'package:lmlb/models/pregnancy_model.dart';
 import 'package:lmlb/models/reproductive_category_model.dart';
+import 'package:lmlb/repos/gif_repo.dart';
 import 'package:lmlb/widgets/child_dialog.dart';
 import 'package:lmlb/widgets/child_tile.dart';
 import 'package:lmlb/widgets/info_panel.dart';
@@ -18,36 +20,55 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ReproductiveHistoryPanel extends StatelessWidget {
-  final String clientID;
+  final Client client;
+  final String? titleOverride;
 
-  const ReproductiveHistoryPanel({super.key, required this.clientID});
+  const ReproductiveHistoryPanel(
+      {super.key, required this.client, this.titleOverride});
 
-  Stream<String> subtitleStream(ReproductiveCategoryModel categoryModel,
-      PregnancyModel pregnancyModel, ChildModel childModel) {
-    return Rx.combineLatest3<String, int, int, String>(
-        categoryModel.entries(clientID).map((entries) {
+  Stream<String> subtitleStream(
+      Client client,
+      ReproductiveCategoryModel categoryModel,
+      GifRepo gifRepo,
+      PregnancyModel pregnancyModel,
+      ChildModel childModel) {
+    return Rx.combineLatest4<String, String, int, int, String>(
+        categoryModel.entries(client.id!).map((entries) {
           if (entries.isEmpty) {
-            return "unknown";
+            return "Reproductive Category Unknown";
           }
-          entries.sort((a, b) => b.sinceDate.compareTo(b.sinceDate));
-          return entries.first.category.name;
+          entries.sort(
+            (a, b) => b.sinceDate.compareTo(a.sinceDate),
+          );
+          return entries.first.category.toString();
         }),
-        pregnancyModel
-            .pregnancies(clientID)
-            .map((pregnancies) => pregnancies.length),
-        childModel.children(clientID).map((children) => children.length),
-        (latestCategory, numPregnancies, numChildren) =>
-            "Current Category: $latestCategory, Pregnancies: $numPregnancies, Children: $numChildren");
+        gifRepo.get(GeneralInfoItem.NAME_MAN, client.id!),
+        pregnancyModel.numPregancies(client.id!).asStream(),
+        childModel.numChildren(client.id!).asStream(),
+        (categoryStr, spouceName, numPregnancies, numChildren) {
+      String out = "${client.firstName} ${client.lastName}";
+      if (spouceName.isNotEmpty) {
+        out = "$out & $spouceName";
+      }
+      var pregnancyStr = numPregnancies == 1 ? "Pregnancy" : "Pregnancies";
+      var childStr = numChildren == 1 ? "Child" : "Children";
+      out =
+          "$out -- $categoryStr, $numPregnancies $pregnancyStr, $numChildren $childStr";
+      return out;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer3<ReproductiveCategoryModel, PregnancyModel, ChildModel>(
-      builder: (context, categoryModel, pregnancyModel, childModel, child) =>
+    return Consumer4<ReproductiveCategoryModel, PregnancyModel, ChildModel,
+        GifRepo>(
+      builder: (context, categoryModel, pregnancyModel, childModel, gifRepo,
+              child) =>
           StreamBuilder(
-        stream: subtitleStream(categoryModel, pregnancyModel, childModel),
+        stream: subtitleStream(
+            client, categoryModel, gifRepo, pregnancyModel, childModel),
         builder: (context, snapshot) => ExpandableInfoPanel(
-            title: "Reproductive History",
+            title: titleOverride ?? "Reproductive History",
             subtitle: !snapshot.hasData ? "" : snapshot.data as String,
             contents: [
               Row(
@@ -56,17 +77,17 @@ class ReproductiveHistoryPanel extends StatelessWidget {
                   Flexible(
                       flex: 1,
                       child: ReproductiveCategoryColumn(
-                        clientID: clientID,
+                        clientID: client.id!,
                       )),
                   Flexible(
                       flex: 1,
                       child: PregnancyColumn(
-                        clientID: clientID,
+                        clientID: client.id!,
                       )),
                   Flexible(
                       flex: 1,
                       child: ChildrenColumn(
-                        clientID: clientID,
+                        clientID: client.id!,
                       )),
                 ],
               )

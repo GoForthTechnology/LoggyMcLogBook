@@ -51,6 +51,11 @@ class FireStoreSubcollectionCrud<T> {
     yield* query.snapshots().map((s) => s.docs.map((qs) => qs.data()).toList());
   }
 
+  Future<int> collectionCount({required String primaryDocID}) async {
+    var query = await _ref(primaryDocID);
+    return query.count().get().then((snapshot) => snapshot.count ?? 0);
+  }
+
   Future<void> addDoc({required T doc, required String primaryDocID}) async {
     var query = await _ref(primaryDocID);
     query.add(doc);

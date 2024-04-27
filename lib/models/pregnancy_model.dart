@@ -24,4 +24,8 @@ class PregnancyModel extends ChangeNotifier {
   Stream<List<Pregnancy>> pregnancies(String clientID) async* {
     yield* _persistence.streamCollection(primaryDocID: clientID);
   }
+
+  Future<int> numPregancies(String clientID) {
+    return _persistence.collectionCount(primaryDocID: clientID);
+  }
 }

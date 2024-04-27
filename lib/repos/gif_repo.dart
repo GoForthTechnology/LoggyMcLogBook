@@ -51,6 +51,11 @@ class GifRepo extends ChangeNotifier {
     return FormKey(formID: _formID(enumType), clientID: clientID);
   }
 
+  Stream<String> get(Enum foo, String clieentID) async* {
+    var key = _formKey(foo.runtimeType, clieentID);
+    yield* _persistence.getValue(key, foo).map((fv) => fv.value);
+  }
+
   Stream<Map<GifItem, String>> getAll(Type enumType, String clientID) async* {
     print("asdf");
     var itemConfig = _itemConfigs[enumType];

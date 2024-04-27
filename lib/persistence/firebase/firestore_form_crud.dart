@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lmlb/persistence/streaming_form_crud.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FormKey {
   final String formID;
@@ -53,7 +54,11 @@ class FirestoreFormCrud<E> extends StreamingFormCrud {
   @override
   Stream<FormValue> getValue(FormKey key, Enum itemID) async* {
     var ref = await _formReference(key);
-    yield* ref.doc(itemID.name).snapshots().map((snapshot) => snapshot.data()!);
+    yield* ref
+        .doc(itemID.name)
+        .snapshots()
+        .map((snapshot) => snapshot.data()!)
+        .onErrorReturn(FormValue(value: ""));
   }
 
   @override

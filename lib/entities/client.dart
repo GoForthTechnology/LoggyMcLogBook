@@ -153,6 +153,17 @@ enum ReproductiveCategory {
   infertility,
   pregnant;
 
+  @override
+  String toString() {
+    var words = name.split("_");
+    for (int i = 0; i < words.length; i++) {
+      var word = words[i];
+      word = "${word[0].toUpperCase()}${word.substring(1).toLowerCase()}";
+      words[i] = word;
+    }
+    return words.join(" ");
+  }
+
   String get code {
     switch (this) {
       case ReproductiveCategory.regular_cycles:

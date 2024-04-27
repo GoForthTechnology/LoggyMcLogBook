@@ -7,7 +7,6 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/reminders.dart';
 import 'package:lmlb/widgets/appointment_info_panel.dart';
-import 'package:lmlb/widgets/client_info_panel.dart';
 import 'package:lmlb/widgets/fup_form.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
@@ -15,6 +14,7 @@ import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/new_appointment_dialog.dart';
 import 'package:lmlb/widgets/new_reminder_dialog.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
+import 'package:lmlb/widgets/reproductive_history_panel.dart';
 import 'package:provider/provider.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
@@ -39,7 +39,10 @@ class AppointmentDetailScreen extends StatelessWidget {
                       "${appointment.type.name()} for ${client!.fullName()}"),
                   content: ListView(
                     children: [
-                      ClientInfoPanel(client: client),
+                      ReproductiveHistoryPanel(
+                        client: client,
+                        titleOverride: "Client Overview",
+                      ),
                       AppointmentInfoPanel(
                         appointment: appointment,
                       ),

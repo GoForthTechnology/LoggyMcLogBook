@@ -26,8 +26,9 @@ class ClientDetailsScreen extends StatelessWidget {
             if (!snapshot.hasData) {
               return Container();
             }
-            bool hasClientNum = snapshot.data?.num != null;
-            bool isActive = snapshot.data?.active ?? false;
+            var client = snapshot.data!;
+            bool hasClientNum = client.num != null;
+            bool isActive = client.active ?? false;
             List<Widget> actions = [];
             if (hasClientNum && isActive) {
               actions.add(Tooltip(
@@ -61,7 +62,7 @@ class ClientDetailsScreen extends StatelessWidget {
                   clientID: clientId,
                 ),
                 ReproductiveHistoryPanel(
-                  clientID: clientId,
+                  client: client,
                 ),
                 GifForm(
                   clientID: clientId,
