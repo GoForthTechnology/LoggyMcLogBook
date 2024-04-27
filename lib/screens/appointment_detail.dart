@@ -46,7 +46,11 @@ class AppointmentDetailScreen extends StatelessWidget {
                       PreviousAppointmentPanel(
                         currentAppointment: appointment,
                       ),
-                      FollowUpForm(),
+                      if (appointment.type.followUpNum() != null)
+                        FollowUpForm(
+                          clientID: clientID,
+                          followUpNum: appointment.type.followUpNum()!,
+                        ),
                       NextStepsPanel(
                         client: client,
                         appointment: appointment,
@@ -202,6 +206,12 @@ class NextStepsPanel extends StatelessWidget {
 }
 
 class FollowUpForm extends StatelessWidget {
+  final String clientID;
+  final int followUpNum;
+
+  const FollowUpForm(
+      {super.key, required this.clientID, required this.followUpNum});
+
   @override
   Widget build(BuildContext context) {
     return ExpandableInfoPanel(
@@ -209,7 +219,8 @@ class FollowUpForm extends StatelessWidget {
       subtitle: "",
       contents: [
         FollowUpFormStepper(
-          followUpNum: 1,
+          clientID: clientID,
+          followUpNum: followUpNum,
         )
       ],
     );

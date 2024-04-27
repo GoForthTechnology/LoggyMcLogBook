@@ -1,11 +1,15 @@
 import 'package:collection/collection.dart';
 import 'package:fc_forms/fc_forms.dart';
 import 'package:flutter/material.dart';
+import 'package:lmlb/repos/fup_repo.dart';
+import 'package:provider/provider.dart';
 
 class FollowUpFormStepper extends StatefulWidget {
+  final String clientID;
   final int followUpNum;
 
-  const FollowUpFormStepper({super.key, required this.followUpNum});
+  const FollowUpFormStepper(
+      {super.key, required this.followUpNum, required this.clientID});
 
   @override
   State<StatefulWidget> createState() => FollowUpFormStepperState();
@@ -25,16 +29,28 @@ class FollowUpFormStepperState extends State<FollowUpFormStepper> {
 
   @override
   Widget build(BuildContext context) {
-    return Stepper(
-      currentStep: _index,
-      onStepCancel: _cancelStep,
-      onStepContinue: _continueStep,
-      onStepTapped: _selectStep,
-      steps: itemIndex.entries.map((e) => _step(e.key, e.value)).toList(),
-    );
+    return Consumer<FollowUpRepo>(
+        builder: (context, repo, child) =>
+            FutureBuilder<Map<FollowUpFormEntryId, FormEntry>>(
+                future: repo.values(widget.clientID).first,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container();
+                  }
+                  var values = snapshot.data ?? {};
+                  return Stepper(
+                      currentStep: _index,
+                      onStepCancel: _cancelStep,
+                      onStepContinue: () => _continueStep(repo),
+                      onStepTapped: _selectStep,
+                      steps: itemIndex.entries
+                          .map((e) => _step(e.key, e.value, values))
+                          .toList());
+                }));
   }
 
-  Step _step(int sectionNum, List<FollowUpFormItem> items) {
+  Step _step(int sectionNum, List<FollowUpFormItem> items,
+      Map<FollowUpFormEntryId, FormEntry> initialValues) {
     var sectionTitle = sectionTitles[sectionNum];
     var title = sectionTitle == null
         ? "Section $sectionNum"
@@ -50,12 +66,16 @@ class FollowUpFormStepperState extends State<FollowUpFormStepper> {
                 if (subSectionTitleWidget != null) subSectionTitleWidget,
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: item.questions
-                      .mapIndexed((i, q) => QuestionWidget(
-                          id: item.entryId(i, widget.followUpNum),
-                          item: item,
-                          question: q))
-                      .toList(),
+                  children: item.questions.mapIndexed((i, q) {
+                    var id = item.entryId(i, widget.followUpNum);
+                    return QuestionWidget(
+                        id: id,
+                        inputController: inputs.putIfAbsent(
+                            id, () => TextEditingController()),
+                        initialValues: initialValues,
+                        item: item,
+                        question: q);
+                  }).toList(),
                 ),
               ];
             })
@@ -84,9 +104,13 @@ class FollowUpFormStepperState extends State<FollowUpFormStepper> {
     }
   }
 
-  void _continueStep() {
+  void _continueStep(FollowUpRepo repo) async {
     if (_index < itemIndex.length) {
-      // TODO: validate
+      var entries = inputs.entries
+          .map((e) => FormEntry(id: e.key, value: e.value.text))
+          .where((e) => e.value.isNotEmpty)
+          .toList();
+      await repo.updateAll(widget.clientID, entries);
       setState(() {
         _index += 1;
       });
@@ -104,19 +128,22 @@ class QuestionWidget extends StatefulWidget {
   final FollowUpFormEntryId id;
   final FollowUpFormItem item;
   final Question question;
+  final TextEditingController inputController;
+  final Map<FollowUpFormEntryId, FormEntry> initialValues;
 
   const QuestionWidget(
       {super.key,
       required this.id,
       required this.item,
-      required this.question});
+      required this.question,
+      required this.inputController,
+      required this.initialValues});
 
   @override
   State<StatefulWidget> createState() => QuestionWidgetState();
 }
 
 class QuestionWidgetState extends State<QuestionWidget> {
-  final TextEditingController inputController = TextEditingController();
   final Map<int, TextEditingController> commentControllers = {};
   bool expanded = false;
 
@@ -139,13 +166,24 @@ class QuestionWidgetState extends State<QuestionWidget> {
               IconButton(
                   onPressed: () => _addComment(),
                   icon: Icon(Icons.add_comment)),
-              ...List.generate(
-                  8,
-                  (index) => Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(border: Border.all()),
-                      )),
+              ...List.generate(8, (index) {
+                var id = FollowUpFormEntryId(
+                  section: widget.id.section,
+                  subSection: widget.id.subSection,
+                  subSubSection: widget.id.subSubSection,
+                  superSection: widget.id.superSection,
+                  questionIndex: widget.id.questionIndex,
+                  followUpIndex: index + 1,
+                );
+                var currentEntry = id == widget.id;
+                var value = widget.initialValues[id]?.value ?? "";
+                return Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(border: Border.all()),
+                  child: Center(child: Text(value)),
+                );
+              }),
               IconButton(
                   onPressed:
                       commentControllers.isEmpty ? null : _toggleExpansion,
@@ -175,8 +213,10 @@ class QuestionWidgetState extends State<QuestionWidget> {
   Widget _inputWidgets() {
     if (widget.question.acceptableInputs.isNotEmpty) {
       return ButtonRow(
+        initialValue: widget.initialValues[widget.id]?.value ?? "",
         values: widget.question.acceptableInputs,
         onPressed: (value) {
+          widget.inputController.text = value ?? "";
           if (value == "1") {
             _addComment();
           }
@@ -247,10 +287,15 @@ class CommentWidget extends StatelessWidget {
 }
 
 class ButtonRow extends StatefulWidget {
+  final String initialValue;
   final Function(String?) onPressed;
   final List<String> values;
 
-  const ButtonRow({super.key, required this.values, required this.onPressed});
+  const ButtonRow(
+      {super.key,
+      required this.values,
+      required this.onPressed,
+      required this.initialValue});
 
   @override
   State<ButtonRow> createState() => _ButtonRowState();
@@ -258,6 +303,12 @@ class ButtonRow extends StatefulWidget {
 
 class _ButtonRowState extends State<ButtonRow> {
   String? currentValue = null;
+
+  @override
+  void initState() {
+    currentValue = widget.initialValue;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

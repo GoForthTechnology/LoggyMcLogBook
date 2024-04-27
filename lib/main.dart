@@ -11,13 +11,14 @@ import 'package:lmlb/models/child_model.dart';
 import 'package:lmlb/models/pregnancy_model.dart';
 import 'package:lmlb/models/reproductive_category_model.dart';
 import 'package:lmlb/persistence/firebase/firestore_crud.dart';
+import 'package:lmlb/persistence/firebase/firestore_form_crud.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/fup_repo.dart';
 import 'package:lmlb/repos/gif_repo.dart';
 import 'package:lmlb/repos/reminders.dart';
 import 'package:provider/provider.dart';
 
-import 'entities/appointment.dart';
 import 'firebase_options.dart';
 import 'routes.gr.dart';
 
@@ -38,11 +39,7 @@ Future<Widget> init(Widget app, bool isWeb) {
     fromJson: Client.fromJson,
     toJson: (c) => c.toJson(),
   ));
-  final appointments = Appointments(FirestoreCrud(
-    collectionName: "appointments",
-    fromJson: Appointment.fromJson,
-    toJson: (a) => a.toJson(),
-  ));
+  final appointments = Appointments();
   final reminderRepo = Reminders(
     FirestoreCrud(
         collectionName: "reminders",
@@ -60,6 +57,7 @@ Future<Widget> init(Widget app, bool isWeb) {
         ChangeNotifierProvider.value(value: ReproductiveCategoryModel()),
         ChangeNotifierProvider.value(value: PregnancyModel()),
         ChangeNotifierProvider.value(value: ChildModel()),
+        ChangeNotifierProvider.value(value: FollowUpRepo()),
       ], child: app));
 }
 

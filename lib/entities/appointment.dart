@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -27,7 +26,8 @@ enum AppointmentStatus {
 
 @JsonSerializable(explicitToJson: true)
 class Appointment extends Indexable<Appointment> {
-  @JsonKey(includeFromJson: false, includeToJson: false) final String? id;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? id;
   final AppointmentType type;
   final DateTime time;
   final Duration duration;
@@ -43,7 +43,7 @@ class Appointment extends Indexable<Appointment> {
     this.invoiceId,
   });
 
- Appointment copyWith({
+  Appointment copyWith({
     String? id,
     AppointmentType? type,
     DateTime? time,
@@ -98,7 +98,8 @@ class Appointment extends Indexable<Appointment> {
     return copyWith(id: id);
   }
 
-  factory Appointment.fromJson(Map<String, dynamic> json) => _$AppointmentFromJson(json);
+  factory Appointment.fromJson(Map<String, dynamic> json) =>
+      _$AppointmentFromJson(json);
   Map<String, dynamic> toJson() => _$AppointmentToJson(this);
 }
 
@@ -122,8 +123,42 @@ enum AppointmentType {
 }
 
 extension AppointmentTypeExt on AppointmentType {
+  int? followUpNum() {
+    switch (this) {
+      case AppointmentType.GENERIC:
+      case AppointmentType.INFO:
+      case AppointmentType.INTRO:
+      case AppointmentType.PREG_EVAL:
+        return null;
+      case AppointmentType.FUP1:
+        return 1;
+      case AppointmentType.FUP2:
+        return 2;
+      case AppointmentType.FUP3:
+        return 3;
+      case AppointmentType.FUP4:
+        return 4;
+      case AppointmentType.FUP5:
+        return 5;
+      case AppointmentType.FUP6:
+        return 6;
+      case AppointmentType.FUP7:
+        return 7;
+      case AppointmentType.FUP8:
+        return 8;
+      case AppointmentType.FUP9:
+        return 9;
+      case AppointmentType.FUP10:
+        return 10;
+      case AppointmentType.FUP11:
+        return 11;
+      case AppointmentType.FUP12:
+        return 11;
+    }
+  }
+
   AppointmentType? next() {
-    switch(this) {
+    switch (this) {
       case AppointmentType.INTRO:
         return AppointmentType.FUP1;
       case AppointmentType.FUP1:
