@@ -1,4 +1,3 @@
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
@@ -16,25 +15,31 @@ class AppointmentsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Appointments>(builder: (context, repo, child) => StreamBuilder<List<Appointment>>(
-      stream: repo.streamAll((a) => a.clientId == clientID),
-      builder: (context, snapshot) {
-        List<Appointment> appointments = snapshot.data ?? [];
-        List<Appointment> sortedAppointments = List.from(appointments);
-        sortedAppointments.sort((a, b) => b.time.compareTo(a.time));
-        return ExpandableInfoPanel(
-          title: "Appointments",
-          subtitle: _subtitle(sortedAppointments),
-          initiallyExpanded: false,
-          contents: sortedAppointments.map((a) => _appointmentTile(context, a)).toList(),
-          trailing: TextButton(
-            child: Text("Add Next"),
-            onPressed: () => showDialog(
-              context: context, builder: (context) => NewAppointmentDialog(clientID: clientID!,),
-            ),
-          ),
-        );
-      }),
+    return Consumer<Appointments>(
+      builder: (context, repo, child) => StreamBuilder<List<Appointment>>(
+          stream: repo.streamAll((a) => true, clientID: clientID),
+          builder: (context, snapshot) {
+            List<Appointment> appointments = snapshot.data ?? [];
+            List<Appointment> sortedAppointments = List.from(appointments);
+            sortedAppointments.sort((a, b) => b.time.compareTo(a.time));
+            return ExpandableInfoPanel(
+              title: "Appointments",
+              subtitle: _subtitle(sortedAppointments),
+              initiallyExpanded: false,
+              contents: sortedAppointments
+                  .map((a) => _appointmentTile(context, a))
+                  .toList(),
+              trailing: TextButton(
+                child: Text("Add Next"),
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => NewAppointmentDialog(
+                    clientID: clientID!,
+                  ),
+                ),
+              ),
+            );
+          }),
     );
   }
 
@@ -61,13 +66,17 @@ class AppointmentsPanel extends StatelessWidget {
   Widget _appointmentTile(BuildContext context, Appointment a) {
     return OverviewTile(
       attentionLevel: a.time.isBefore(DateTime.now())
-          ? OverviewAttentionLevel.GREY : OverviewAttentionLevel.GREEN,
+          ? OverviewAttentionLevel.GREY
+          : OverviewAttentionLevel.GREEN,
       title: a.type.name(),
       subtitle: a.timeStr(),
       icon: Icons.event,
       actions: [
-        OverviewAction(title: "View", onPress: () => AutoRouter.of(context).push(
-            AppointmentDetailScreenRoute(appointmentID: a.id!))),
+        OverviewAction(
+            title: "View",
+            onPress: () => AutoRouter.of(context).push(
+                AppointmentDetailScreenRoute(
+                    appointmentID: a.id!, clientID: a.clientId))),
       ],
     );
   }

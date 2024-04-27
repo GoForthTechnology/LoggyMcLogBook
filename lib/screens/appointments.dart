@@ -6,13 +6,14 @@ import 'package:lmlb/widgets/appointment_list/appointment_list_widget.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 
 class AppointmentsScreen extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return AppointmentListModel.provide(
       clientFilter: null,
-      onClientTapped: (context, id) {
-        AutoRouter.of(context).push(AppointmentDetailScreenRoute(appointmentID: id!))
+      onClientTapped: (context, appoinmentID, clientID) {
+        AutoRouter.of(context)
+            .push(AppointmentDetailScreenRoute(
+                appointmentID: appoinmentID, clientID: clientID))
             .then((result) {
           if (result != null && result as bool) {
             ScaffoldMessenger.of(context)
@@ -36,9 +37,7 @@ class AppointmentsScreen extends StatelessWidget {
       backgroundColor: Colors.green,
       // TODO: Re-enable
       //onPressed: () => addAppointment(context),
-      onPressed:  () {},
+      onPressed: () {},
     );
   }
 }
-
-

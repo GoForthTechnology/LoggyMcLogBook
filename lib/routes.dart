@@ -17,7 +17,7 @@ import 'package:lmlb/screens/overview.dart';
       guards: [AuthGuard],
     ),
     AutoRoute(
-      path: '/appointment/:appointmentID',
+      path: '/client/:clientID/appointment/:appointmentID',
       page: AppointmentDetailScreen,
       guards: [AuthGuard],
     ),

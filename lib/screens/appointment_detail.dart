@@ -19,14 +19,18 @@ import 'package:provider/provider.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
   final String appointmentID;
+  final String clientID;
 
   const AppointmentDetailScreen(
-      {super.key, @PathParam() required this.appointmentID});
+      {super.key,
+      @PathParam() required this.appointmentID,
+      @PathParam() required this.clientID});
 
   @override
   Widget build(BuildContext context) {
     return appointmentWidget(
         appointmentID,
+        clientID,
         (appointment) => clientWidget(
             appointment!.clientId,
             (client) => NavigationRailScreen(
@@ -57,9 +61,6 @@ class AppointmentDetailScreen extends StatelessWidget {
                       GifForm(
                         clientID: appointment.clientId,
                       ),
-                      /*ExpandableInfoPanel(title: "Real Follow Up Form", subtitle: "", contents: [
-            SingleChildScrollView(scrollDirection: Axis.horizontal, child: SingleChildScrollView(scrollDirection: Axis.vertical, child: FollowUpFormWidget(),),),
-          ]),*/
                     ],
                   ),
                 )));
@@ -215,11 +216,12 @@ class FollowUpForm extends StatelessWidget {
   }
 }
 
-Widget appointmentWidget(
-    String appointmentID, Widget Function(Appointment?) build) {
+Widget appointmentWidget(String appointmentID, String clientID,
+    Widget Function(Appointment?) build) {
   return Consumer<Appointments>(
       builder: (context, repo, child) => StreamBuilder<Appointment?>(
-            stream: repo.stream(appointmentID),
+            stream:
+                repo.stream(appointmentID: appointmentID, clientID: clientID),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Container();

@@ -41,12 +41,15 @@ class AppRouter extends _i8.RootStackRouter {
       final pathParams = routeData.inheritedPathParams;
       final args = routeData.argsAs<AppointmentDetailScreenRouteArgs>(
           orElse: () => AppointmentDetailScreenRouteArgs(
-              appointmentID: pathParams.getString('appointmentID')));
+                appointmentID: pathParams.getString('appointmentID'),
+                clientID: pathParams.getString('clientID'),
+              ));
       return _i8.AdaptivePage<dynamic>(
         routeData: routeData,
         child: _i2.AppointmentDetailScreen(
           key: args.key,
           appointmentID: args.appointmentID,
+          clientID: args.clientID,
         ),
       );
     },
@@ -110,7 +113,7 @@ class AppRouter extends _i8.RootStackRouter {
         ),
         _i8.RouteConfig(
           AppointmentDetailScreenRoute.name,
-          path: '/appointment/:appointmentID',
+          path: '/client/:clientID/appointment/:appointmentID',
           guards: [authGuard],
         ),
         _i8.RouteConfig(
@@ -178,14 +181,19 @@ class AppointmentDetailScreenRoute
   AppointmentDetailScreenRoute({
     _i9.Key? key,
     required String appointmentID,
+    required String clientID,
   }) : super(
           AppointmentDetailScreenRoute.name,
-          path: '/appointment/:appointmentID',
+          path: '/client/:clientID/appointment/:appointmentID',
           args: AppointmentDetailScreenRouteArgs(
             key: key,
             appointmentID: appointmentID,
+            clientID: clientID,
           ),
-          rawPathParams: {'appointmentID': appointmentID},
+          rawPathParams: {
+            'appointmentID': appointmentID,
+            'clientID': clientID,
+          },
         );
 
   static const String name = 'AppointmentDetailScreenRoute';
@@ -195,15 +203,18 @@ class AppointmentDetailScreenRouteArgs {
   const AppointmentDetailScreenRouteArgs({
     this.key,
     required this.appointmentID,
+    required this.clientID,
   });
 
   final _i9.Key? key;
 
   final String appointmentID;
 
+  final String clientID;
+
   @override
   String toString() {
-    return 'AppointmentDetailScreenRouteArgs{key: $key, appointmentID: $appointmentID}';
+    return 'AppointmentDetailScreenRouteArgs{key: $key, appointmentID: $appointmentID, clientID: $clientID}';
   }
 }
 

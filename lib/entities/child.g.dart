@@ -12,10 +12,12 @@ Child _$ChildFromJson(Map<String, dynamic> json) => Child(
       dateOfDeath: json['dateOfDeath'] == null
           ? null
           : DateTime.parse(json['dateOfDeath'] as String),
+      note: json['note'] as String?,
     );
 
 Map<String, dynamic> _$ChildToJson(Child instance) => <String, dynamic>{
       'name': instance.name,
       'dateOfBirth': instance.dateOfBirth.toIso8601String(),
       'dateOfDeath': instance.dateOfDeath?.toIso8601String(),
+      'note': instance.note,
     };

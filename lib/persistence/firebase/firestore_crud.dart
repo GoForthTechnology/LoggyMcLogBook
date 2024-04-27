@@ -6,18 +6,19 @@ import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
 
 class FirestoreCrud<T extends Indexable> extends StreamingCrudInterface<T> {
-
-  final String directory;
+  final String collectionName;
   final T Function(Map<String, dynamic>) fromJson;
   final Map<String, dynamic> Function(T) toJson;
 
   final _userCompleter = new Completer<User>();
   final FirebaseFirestore _db;
 
-  FirestoreCrud({required this.directory, required this.fromJson, required this.toJson}) : _db = FirebaseFirestore.instance {
-    FirebaseAuth.instance
-        .authStateChanges()
-        .listen((user) async {
+  FirestoreCrud(
+      {required this.collectionName,
+      required this.fromJson,
+      required this.toJson})
+      : _db = FirebaseFirestore.instance {
+    FirebaseAuth.instance.authStateChanges().listen((user) async {
       if (user != null && !_userCompleter.isCompleted) {
         var userRef = _db.collection("users").doc(user.uid);
         var userDoc = await userRef.get();
@@ -32,13 +33,14 @@ class FirestoreCrud<T extends Indexable> extends StreamingCrudInterface<T> {
 
   Future<CollectionReference<T>> _ref() async {
     var user = await _userCompleter.future;
-    return _db.collection("users")
+    return _db
+        .collection("users")
         .doc(user.uid)
-        .collection(directory)
+        .collection(collectionName)
         .withConverter<T>(
-      fromFirestore: (snapshots, _) => fromJson(snapshots.data()!),
-      toFirestore: (value, _) => toJson(value),
-    );
+          fromFirestore: (snapshots, _) => fromJson(snapshots.data()!),
+          toFirestore: (value, _) => toJson(value),
+        );
   }
 
   @override
@@ -47,30 +49,31 @@ class FirestoreCrud<T extends Indexable> extends StreamingCrudInterface<T> {
     yield* ref.doc(id).snapshots().map((s) => s.data()?.setId(s.id));
   }
 
-
   @override
-  Stream<List<T>> getWhere(Object field, {
+  Stream<List<T>> getWhere(
+    Object field, {
     Object? isEqualTo,
     Object? isNotEqualTo,
     bool? isNull,
   }) async* {
     var ref = await _ref();
     yield* ref
-        .where(field, isEqualTo: isEqualTo, isNotEqualTo: isNotEqualTo, isNull: isNull)
+        .where(field,
+            isEqualTo: isEqualTo, isNotEqualTo: isNotEqualTo, isNull: isNull)
         .snapshots()
         .map((s) => s.docs.map((ds) {
-          T t = ds.data().setId(ds.id);
-          return t;
-        }).toList());
+              T t = ds.data().setId(ds.id);
+              return t;
+            }).toList());
   }
 
   @override
   Stream<List<T>> getAll() async* {
     var ref = await _ref();
     yield* ref.snapshots().map((s) => s.docs.map((ds) {
-      T t = ds.data().setId(ds.id);
-      return t;
-    }).toList());
+          T t = ds.data().setId(ds.id);
+          return t;
+        }).toList());
   }
 
   @override

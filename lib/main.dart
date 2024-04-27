@@ -34,18 +34,18 @@ void main() async {
 
 Future<Widget> init(Widget app, bool isWeb) {
   final clients = Clients(FirestoreCrud(
-    directory: "clients",
+    collectionName: "clients",
     fromJson: Client.fromJson,
     toJson: (c) => c.toJson(),
   ));
   final appointments = Appointments(FirestoreCrud(
-    directory: "appointments",
+    collectionName: "appointments",
     fromJson: Appointment.fromJson,
     toJson: (a) => a.toJson(),
   ));
   final reminderRepo = Reminders(
     FirestoreCrud(
-        directory: "reminders",
+        collectionName: "reminders",
         fromJson: Reminder.fromJson,
         toJson: (r) => r.toJson()),
   );
