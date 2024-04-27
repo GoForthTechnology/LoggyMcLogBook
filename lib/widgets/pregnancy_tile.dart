@@ -25,6 +25,15 @@ class _PregnancyTileState extends State<PregnancyTile> {
   var notesController = TextEditingController();
 
   @override
+  void dispose() {
+    dueDateController.dispose();
+    misscarrageDateController.dispose();
+    deliveryDateController.dispose();
+    notesController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     dueDateController.text = widget.pregnancy.dueDate.toIso8601String();
     notesController.text = widget.pregnancy.note ?? "";
@@ -32,6 +41,7 @@ class _PregnancyTileState extends State<PregnancyTile> {
         widget.pregnancy.dateOfDelivery?.toIso8601String() ?? "";
     misscarrageDateController.text =
         widget.pregnancy.dateOfLoss?.toIso8601String() ?? "";
+    notesController.addListener(() => setState(() {}));
     super.initState();
   }
 

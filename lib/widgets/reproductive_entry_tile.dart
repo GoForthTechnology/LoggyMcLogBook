@@ -25,7 +25,15 @@ class _ReproductiveEntryTileState extends State<ReproductiveEntryTile> {
   void initState() {
     dateController.text = widget.entry.sinceDate.toIso8601String();
     noteController.text = widget.entry.note ?? "";
+    noteController.addListener(() => setState(() {}));
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    dateController.dispose();
+    noteController.dispose();
+    super.dispose();
   }
 
   @override

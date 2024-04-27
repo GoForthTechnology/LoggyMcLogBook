@@ -23,10 +23,20 @@ class _ChildTileState extends State<ChildTile> {
   var notesController = TextEditingController();
 
   @override
+  void dispose() {
+    nameController.dispose();
+    dateOfBirthController.dispose();
+    notesController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     nameController.text = widget.child.name;
+    nameController.addListener(() => setState(() {}));
     dateOfBirthController.text = widget.child.dateOfBirth.toIso8601String();
     notesController.text = widget.child.note ?? "";
+    notesController.addListener(() => setState(() {}));
     super.initState();
   }
 
