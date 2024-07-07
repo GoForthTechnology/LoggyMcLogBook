@@ -73,7 +73,31 @@ class Invoices extends ChangeNotifier {
     return -1;
   }
 
+  Future<Invoice?> _pendingInvoice(String clientID) async {
+    var ref = await _ref(clientID);
+    var snapshot = await ref
+        .where("dateBilled", isNull: true)
+        .withConverter<Invoice>(
+            fromFirestore: (snapshots, _) =>
+                Invoice.fromJson(snapshots.data() ?? {}).setId(snapshots.id),
+            toFirestore: (value, _) => value.toJson())
+        .get();
+    if (snapshot.docs.isEmpty) {
+      return null;
+    }
+    if (snapshot.docs.length > 1) {
+      throw Exception(
+          "Only one invoice should be pending for client $clientID");
+    }
+    return snapshot.docs[0].data();
+  }
+
   Future<String> create(String clientID, Currency currency) async {
+    var pendingInvoice = await _pendingInvoice(clientID);
+    if (pendingInvoice != null) {
+      throw Exception(
+          "Invoice Num ${pendingInvoice.invoiceNumStr()} already pending!");
+    }
     var nextInvoiceNum = await _nextInvoiceNum();
     var ref = await _ref(clientID);
     return ref

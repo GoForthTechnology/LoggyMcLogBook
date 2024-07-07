@@ -91,29 +91,20 @@ class ActionItemsPanel extends StatelessWidget {
 
   void createInvoice(BuildContext context, Invoices invoices,
       List<Appointment> unbilledAppointments) async {
-    var addAppointments = await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: Text("Add all appointments?"),
-              content: Text(
-                  "Would you like to add all unbilled appointments to the new invoices?"),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: Text("Yes")),
-                TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text("No")),
-              ],
-            ));
-    var invoiceID = await invoices.create(clientID!, Currency.USD);
-    print("Added ID: $invoiceID");
-    if (addAppointments) {}
-    var snackBar = SnackBar(
-      content: Text('Invoice Created'),
-      action: SnackBarAction(label: "View", onPressed: () {}),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    try {
+      var invoiceID = await invoices.create(clientID!, Currency.USD);
+      print("Added ID: $invoiceID");
+      var snackBar = SnackBar(
+        content: Text('Invoice Created'),
+        action: SnackBarAction(label: "View", onPressed: () {}),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      var snackBar = SnackBar(
+        content: Text(e.toString()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 }
 
