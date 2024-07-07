@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:lmlb/widgets/navigation_rail.dart';
 
 class InvoiceDetailScreen extends StatelessWidget {
   final String invoiceID;
@@ -12,7 +13,10 @@ class InvoiceDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    return NavigationRailScreen(
+      item: NavigationItem.BILLING,
+      content: const Placeholder(),
+      title: Text("Invoice Details"),
+    );
   }
 }

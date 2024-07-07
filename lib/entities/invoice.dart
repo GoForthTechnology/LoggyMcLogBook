@@ -26,6 +26,7 @@ enum InvoiceStatus {
 
 @JsonSerializable(explicitToJson: true)
 class Invoice extends Indexable<Invoice> {
+  @JsonKey(includeFromJson: false, includeToJson: false)
   late String? id;
   final int? num;
   final String clientID;

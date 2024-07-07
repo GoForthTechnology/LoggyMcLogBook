@@ -7,7 +7,6 @@ part of 'invoice.dart';
 // **************************************************************************
 
 Invoice _$InvoiceFromJson(Map<String, dynamic> json) => Invoice(
-      id: json['id'] as String?,
       num: (json['num'] as num?)?.toInt(),
       clientID: json['clientID'] as String,
       currency: $enumDecode(_$CurrencyEnumMap, json['currency']),
@@ -21,7 +20,6 @@ Invoice _$InvoiceFromJson(Map<String, dynamic> json) => Invoice(
     );
 
 Map<String, dynamic> _$InvoiceToJson(Invoice instance) => <String, dynamic>{
-      'id': instance.id,
       'num': instance.num,
       'clientID': instance.clientID,
       'currency': _$CurrencyEnumMap[instance.currency]!,

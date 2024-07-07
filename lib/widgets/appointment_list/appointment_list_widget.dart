@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/widgets/filter_bar.dart';
+import 'package:lmlb/widgets/warning_widget.dart';
 import 'package:provider/provider.dart';
 
 import 'appointment_list_model.dart';
@@ -54,19 +55,5 @@ class AppointmentTile extends StatelessWidget {
             .onClientTapped(context, appointment.id, appointment.clientID),
       ),
     ));
-  }
-}
-
-class WarningWidget extends StatelessWidget {
-  final List<String> warnings;
-
-  const WarningWidget({super.key, required this.warnings});
-
-  @override
-  Widget build(BuildContext context) {
-    if (warnings.isEmpty) {
-      return Container();
-    }
-    return Tooltip(message: warnings.join("\n"), child: Icon(Icons.warning));
   }
 }

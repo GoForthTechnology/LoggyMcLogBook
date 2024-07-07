@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/invoice.dart';
+import 'package:rxdart/rxdart.dart';
 
 class Invoices extends ChangeNotifier {
   final _userCompleter = new Completer<User>();
@@ -45,16 +46,42 @@ class Invoices extends ChangeNotifier {
                 Invoice.fromJson(snapshots.data() ?? {}).setId(snapshots.id),
             toFirestore: (value, _) => value.toJson())
         .snapshots()
-        .map((snapshots) => snapshots.docs.map((e) => e.data()).toList());
+        .map((snapshots) =>
+            snapshots.docs.map((e) => e.data().setId(e.id)).toList())
+        .doOnError((p0, p1) => print("FOOOOOO: $p0, $p1"));
+  }
+
+  Future<int> _nextInvoiceNum() async {
+    try {
+      var query = _db
+          .collectionGroup("invoices")
+          .orderBy("num", descending: true)
+          .limit(1);
+      var snapshot = await query.get();
+      if (snapshot.docs.isEmpty) {
+        return 1;
+      }
+      if (snapshot.docs.length != 1) {
+        throw Exception("Expected only one doc!");
+      }
+      var doc = snapshot.docs[0];
+      int num = doc.data()["num"];
+      return num + 1;
+    } catch (e) {
+      print(e);
+    }
+    return -1;
   }
 
   Future<String> create(String clientID, Currency currency) async {
+    var nextInvoiceNum = await _nextInvoiceNum();
     var ref = await _ref(clientID);
     return ref
         .add(Invoice(
           clientID: clientID,
           currency: currency,
           dateCreated: DateTime.now(),
+          num: nextInvoiceNum,
         ))
         .then((doc) => doc.id);
   }
