@@ -18,6 +18,8 @@ Client _$ClientFromJson(Map<String, dynamic> json) => Client(
                   ReproductiveCategoryEntry.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      currency: $enumDecodeNullable(_$CurrencyEnumMap, json['currency']),
+      defaultFollowUpPrice: (json['defaultFollowUpPrice'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
@@ -26,9 +28,18 @@ Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
       'firstName': instance.firstName,
       'lastName': instance.lastName,
       'practitionerID': instance.practitionerID,
+      'currency': _$CurrencyEnumMap[instance.currency],
+      'defaultFollowUpPrice': instance.defaultFollowUpPrice,
       'reproductiveCategoryHistory':
           instance.reproductiveCategoryHistory.map((e) => e.toJson()).toList(),
     };
+
+const _$CurrencyEnumMap = {
+  Currency.USD: 'USD',
+  Currency.CHF: 'CHF',
+  Currency.EUR: 'EUR',
+  Currency.GBP: 'GBP',
+};
 
 ReproductiveCategoryEntry _$ReproductiveCategoryEntryFromJson(
         Map<String, dynamic> json) =>

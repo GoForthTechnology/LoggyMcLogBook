@@ -16,6 +16,8 @@ class Client extends Indexable<Client> {
   final String firstName;
   final String lastName;
   final String practitionerID;
+  final Currency? currency;
+  final int? defaultFollowUpPrice;
 
   final List<ReproductiveCategoryEntry> reproductiveCategoryHistory;
 
@@ -27,6 +29,8 @@ class Client extends Indexable<Client> {
     this.num,
     this.active,
     this.reproductiveCategoryHistory = const [],
+    this.currency,
+    this.defaultFollowUpPrice,
   });
 
   Client copyWith({
@@ -36,6 +40,8 @@ class Client extends Indexable<Client> {
     String? firstName,
     String? lastName,
     String? practitionerID,
+    Currency? currency,
+    int? defaultFollowUpPrice,
     List<ReproductiveCategoryEntry>? reproductiveCategoryHistory,
   }) {
     return Client(
@@ -47,6 +53,8 @@ class Client extends Indexable<Client> {
       practitionerID: practitionerID ?? this.practitionerID,
       reproductiveCategoryHistory:
           reproductiveCategoryHistory ?? this.reproductiveCategoryHistory,
+      defaultFollowUpPrice: defaultFollowUpPrice ?? this.defaultFollowUpPrice,
+      currency: currency ?? this.currency,
     );
   }
 

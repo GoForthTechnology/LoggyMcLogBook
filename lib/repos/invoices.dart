@@ -38,7 +38,7 @@ class Invoices extends ChangeNotifier {
   Stream<List<Invoice>> list({String? clientID}) async* {
     var query = _db.collectionGroup("invoices");
     if (clientID != null) {
-      query = query.where("clientId", isEqualTo: clientID);
+      query = query.where("clientID", isEqualTo: clientID);
     }
     yield* query
         .withConverter<Invoice>(
