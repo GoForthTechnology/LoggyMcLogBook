@@ -6,8 +6,12 @@ import 'package:lmlb/routes.gr.dart';
 enum NavigationItem {
   HOME(label: "Home", icon: Icons.home, route: OverviewScreenRoute()),
   CLIENTS(label: "Clients", icon: Icons.contacts, route: ClientsScreenRoute()),
-  APPOINTMENTS(label: "Appointments", icon: Icons.event, route: AppointmentsScreenRoute()),
-  BILLING(label: "Billing", icon: Icons.receipt_long),
+  APPOINTMENTS(
+      label: "Appointments",
+      icon: Icons.event,
+      route: AppointmentsScreenRoute()),
+  BILLING(
+      label: "Billing", icon: Icons.receipt_long, route: InvoicesScreenRoute()),
   MATERIALS(label: "Materials", icon: Icons.inventory_2),
   ;
 
@@ -24,7 +28,12 @@ class NavigationRailScreen extends StatelessWidget {
   final Widget? fab;
   final Widget content;
 
-  const NavigationRailScreen({super.key, required this.item, required this.content, required this.title, this.fab});
+  const NavigationRailScreen(
+      {super.key,
+      required this.item,
+      required this.content,
+      required this.title,
+      this.fab});
 
   @override
   Widget build(BuildContext context) {
@@ -43,17 +52,21 @@ class NavigationRailScreen extends StatelessWidget {
   }
 
   Widget _railLayout(BuildContext context) {
-    return Row(children: [
-      NavigationRail(
-        selectedIndex: item.index,
-        destinations: NavigationItem.values.map((i) => NavigationRailDestination(
-          icon: Icon(i.icon),
-          label: Text(i.label),
-        )).toList(),
-        onDestinationSelected: (index) => _onSelect(context, index),
-      ),
-      Expanded(child: content),
-    ],);
+    return Row(
+      children: [
+        NavigationRail(
+          selectedIndex: item.index,
+          destinations: NavigationItem.values
+              .map((i) => NavigationRailDestination(
+                    icon: Icon(i.icon),
+                    label: Text(i.label),
+                  ))
+              .toList(),
+          onDestinationSelected: (index) => _onSelect(context, index),
+        ),
+        Expanded(child: content),
+      ],
+    );
   }
 
   Widget? _bottomNavBar(BuildContext context) {

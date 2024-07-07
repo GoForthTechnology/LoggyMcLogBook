@@ -11,28 +11,30 @@
 // ignore_for_file: type=lint
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i8;
-import 'package:flutter/material.dart' as _i9;
-import 'package:lmlb/auth.dart' as _i7;
+import 'package:auto_route/auto_route.dart' as _i10;
+import 'package:flutter/material.dart' as _i11;
+import 'package:lmlb/auth.dart' as _i9;
 import 'package:lmlb/screens/appointment_detail.dart' as _i2;
 import 'package:lmlb/screens/appointments.dart' as _i3;
-import 'package:lmlb/screens/client_details.dart' as _i5;
-import 'package:lmlb/screens/clients.dart' as _i4;
-import 'package:lmlb/screens/gif.dart' as _i6;
+import 'package:lmlb/screens/client_details.dart' as _i7;
+import 'package:lmlb/screens/clients.dart' as _i6;
+import 'package:lmlb/screens/gif.dart' as _i8;
+import 'package:lmlb/screens/invoice_detail.dart' as _i5;
+import 'package:lmlb/screens/invoices.dart' as _i4;
 import 'package:lmlb/screens/overview.dart' as _i1;
 
-class AppRouter extends _i8.RootStackRouter {
+class AppRouter extends _i10.RootStackRouter {
   AppRouter({
-    _i9.GlobalKey<_i9.NavigatorState>? navigatorKey,
+    _i11.GlobalKey<_i11.NavigatorState>? navigatorKey,
     required this.authGuard,
   }) : super(navigatorKey);
 
-  final _i7.AuthGuard authGuard;
+  final _i9.AuthGuard authGuard;
 
   @override
-  final Map<String, _i8.PageFactory> pagesMap = {
+  final Map<String, _i10.PageFactory> pagesMap = {
     OverviewScreenRoute.name: (routeData) {
-      return _i8.AdaptivePage<dynamic>(
+      return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
         child: _i1.OverviewScreen(),
       );
@@ -44,7 +46,7 @@ class AppRouter extends _i8.RootStackRouter {
                 appointmentID: pathParams.getString('appointmentID'),
                 clientID: pathParams.getString('clientID'),
               ));
-      return _i8.AdaptivePage<dynamic>(
+      return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
         child: _i2.AppointmentDetailScreen(
           key: args.key,
@@ -54,15 +56,37 @@ class AppRouter extends _i8.RootStackRouter {
       );
     },
     AppointmentsScreenRoute.name: (routeData) {
-      return _i8.AdaptivePage<dynamic>(
+      return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
         child: _i3.AppointmentsScreen(),
       );
     },
-    ClientsScreenRoute.name: (routeData) {
-      return _i8.AdaptivePage<dynamic>(
+    InvoicesScreenRoute.name: (routeData) {
+      return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i4.ClientsScreen(),
+        child: _i4.InvoicesScreen(),
+      );
+    },
+    InvoiceDetailScreenRoute.name: (routeData) {
+      final pathParams = routeData.inheritedPathParams;
+      final args = routeData.argsAs<InvoiceDetailScreenRouteArgs>(
+          orElse: () => InvoiceDetailScreenRouteArgs(
+                invoiceID: pathParams.getString('invoiceID'),
+                clientID: pathParams.getString('clientID'),
+              ));
+      return _i10.AdaptivePage<dynamic>(
+        routeData: routeData,
+        child: _i5.InvoiceDetailScreen(
+          key: args.key,
+          invoiceID: args.invoiceID,
+          clientID: args.clientID,
+        ),
+      );
+    },
+    ClientsScreenRoute.name: (routeData) {
+      return _i10.AdaptivePage<dynamic>(
+        routeData: routeData,
+        child: _i6.ClientsScreen(),
       );
     },
     ClientDetailsScreenRoute.name: (routeData) {
@@ -70,77 +94,87 @@ class AppRouter extends _i8.RootStackRouter {
       final args = routeData.argsAs<ClientDetailsScreenRouteArgs>(
           orElse: () => ClientDetailsScreenRouteArgs(
               clientId: pathParams.getString('clientId')));
-      return _i8.AdaptivePage<dynamic>(
+      return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i5.ClientDetailsScreen(
+        child: _i7.ClientDetailsScreen(
           key: args.key,
           clientId: args.clientId,
         ),
       );
     },
     GifScreenRoute.name: (routeData) {
-      return _i8.AdaptivePage<dynamic>(
+      return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i6.GifScreen(),
+        child: _i8.GifScreen(),
       );
     },
     LoginScreenRoute.name: (routeData) {
-      return _i8.AdaptivePage<dynamic>(
+      return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i7.LoginScreen(),
+        child: _i9.LoginScreen(),
       );
     },
     EmailVerifyScreenRoute.name: (routeData) {
-      return _i8.AdaptivePage<dynamic>(
+      return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i7.EmailVerifyScreen(),
+        child: _i9.EmailVerifyScreen(),
       );
     },
   };
 
   @override
-  List<_i8.RouteConfig> get routes => [
-        _i8.RouteConfig(
+  List<_i10.RouteConfig> get routes => [
+        _i10.RouteConfig(
           '/#redirect',
           path: '/',
           redirectTo: '/dashboard',
           fullMatch: true,
         ),
-        _i8.RouteConfig(
+        _i10.RouteConfig(
           OverviewScreenRoute.name,
           path: '/dashboard',
           guards: [authGuard],
         ),
-        _i8.RouteConfig(
+        _i10.RouteConfig(
           AppointmentDetailScreenRoute.name,
           path: '/client/:clientID/appointment/:appointmentID',
           guards: [authGuard],
         ),
-        _i8.RouteConfig(
+        _i10.RouteConfig(
           AppointmentsScreenRoute.name,
           path: '/appointments',
           guards: [authGuard],
         ),
-        _i8.RouteConfig(
+        _i10.RouteConfig(
+          InvoicesScreenRoute.name,
+          path: '/invoices',
+          guards: [authGuard],
+        ),
+        _i10.RouteConfig(
+          InvoiceDetailScreenRoute.name,
+          path: '/client/:clientID/invoice/:invoiceID',
+          guards: [authGuard],
+        ),
+        _i10.RouteConfig(
           ClientsScreenRoute.name,
           path: '/clients',
           guards: [authGuard],
         ),
-        _i8.RouteConfig(
+        _i10.RouteConfig(
           ClientDetailsScreenRoute.name,
           path: '/client/:clientId',
           guards: [authGuard],
         ),
-        _i8.RouteConfig(
+        _i10.RouteConfig(
           GifScreenRoute.name,
           path: '/gif',
           guards: [authGuard],
         ),
-        _i8.RouteConfig(
+        _i10.RouteConfig(
           LoginScreenRoute.name,
           path: '/login',
           children: [
-            _i8.RouteConfig(
+            _i10.RouteConfig(
               '*#redirect',
               path: '*',
               parent: LoginScreenRoute.name,
@@ -149,11 +183,11 @@ class AppRouter extends _i8.RootStackRouter {
             )
           ],
         ),
-        _i8.RouteConfig(
+        _i10.RouteConfig(
           EmailVerifyScreenRoute.name,
           path: '/verify-email',
         ),
-        _i8.RouteConfig(
+        _i10.RouteConfig(
           '*#redirect',
           path: '*',
           redirectTo: '/',
@@ -164,7 +198,7 @@ class AppRouter extends _i8.RootStackRouter {
 
 /// generated route for
 /// [_i1.OverviewScreen]
-class OverviewScreenRoute extends _i8.PageRouteInfo<void> {
+class OverviewScreenRoute extends _i10.PageRouteInfo<void> {
   const OverviewScreenRoute()
       : super(
           OverviewScreenRoute.name,
@@ -177,9 +211,9 @@ class OverviewScreenRoute extends _i8.PageRouteInfo<void> {
 /// generated route for
 /// [_i2.AppointmentDetailScreen]
 class AppointmentDetailScreenRoute
-    extends _i8.PageRouteInfo<AppointmentDetailScreenRouteArgs> {
+    extends _i10.PageRouteInfo<AppointmentDetailScreenRouteArgs> {
   AppointmentDetailScreenRoute({
-    _i9.Key? key,
+    _i11.Key? key,
     required String appointmentID,
     required String clientID,
   }) : super(
@@ -206,7 +240,7 @@ class AppointmentDetailScreenRouteArgs {
     required this.clientID,
   });
 
-  final _i9.Key? key;
+  final _i11.Key? key;
 
   final String appointmentID;
 
@@ -220,7 +254,7 @@ class AppointmentDetailScreenRouteArgs {
 
 /// generated route for
 /// [_i3.AppointmentsScreen]
-class AppointmentsScreenRoute extends _i8.PageRouteInfo<void> {
+class AppointmentsScreenRoute extends _i10.PageRouteInfo<void> {
   const AppointmentsScreenRoute()
       : super(
           AppointmentsScreenRoute.name,
@@ -231,8 +265,64 @@ class AppointmentsScreenRoute extends _i8.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i4.ClientsScreen]
-class ClientsScreenRoute extends _i8.PageRouteInfo<void> {
+/// [_i4.InvoicesScreen]
+class InvoicesScreenRoute extends _i10.PageRouteInfo<void> {
+  const InvoicesScreenRoute()
+      : super(
+          InvoicesScreenRoute.name,
+          path: '/invoices',
+        );
+
+  static const String name = 'InvoicesScreenRoute';
+}
+
+/// generated route for
+/// [_i5.InvoiceDetailScreen]
+class InvoiceDetailScreenRoute
+    extends _i10.PageRouteInfo<InvoiceDetailScreenRouteArgs> {
+  InvoiceDetailScreenRoute({
+    _i11.Key? key,
+    required String invoiceID,
+    required String clientID,
+  }) : super(
+          InvoiceDetailScreenRoute.name,
+          path: '/client/:clientID/invoice/:invoiceID',
+          args: InvoiceDetailScreenRouteArgs(
+            key: key,
+            invoiceID: invoiceID,
+            clientID: clientID,
+          ),
+          rawPathParams: {
+            'invoiceID': invoiceID,
+            'clientID': clientID,
+          },
+        );
+
+  static const String name = 'InvoiceDetailScreenRoute';
+}
+
+class InvoiceDetailScreenRouteArgs {
+  const InvoiceDetailScreenRouteArgs({
+    this.key,
+    required this.invoiceID,
+    required this.clientID,
+  });
+
+  final _i11.Key? key;
+
+  final String invoiceID;
+
+  final String clientID;
+
+  @override
+  String toString() {
+    return 'InvoiceDetailScreenRouteArgs{key: $key, invoiceID: $invoiceID, clientID: $clientID}';
+  }
+}
+
+/// generated route for
+/// [_i6.ClientsScreen]
+class ClientsScreenRoute extends _i10.PageRouteInfo<void> {
   const ClientsScreenRoute()
       : super(
           ClientsScreenRoute.name,
@@ -243,11 +333,11 @@ class ClientsScreenRoute extends _i8.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i5.ClientDetailsScreen]
+/// [_i7.ClientDetailsScreen]
 class ClientDetailsScreenRoute
-    extends _i8.PageRouteInfo<ClientDetailsScreenRouteArgs> {
+    extends _i10.PageRouteInfo<ClientDetailsScreenRouteArgs> {
   ClientDetailsScreenRoute({
-    _i9.Key? key,
+    _i11.Key? key,
     required String clientId,
   }) : super(
           ClientDetailsScreenRoute.name,
@@ -268,7 +358,7 @@ class ClientDetailsScreenRouteArgs {
     required this.clientId,
   });
 
-  final _i9.Key? key;
+  final _i11.Key? key;
 
   final String clientId;
 
@@ -279,8 +369,8 @@ class ClientDetailsScreenRouteArgs {
 }
 
 /// generated route for
-/// [_i6.GifScreen]
-class GifScreenRoute extends _i8.PageRouteInfo<void> {
+/// [_i8.GifScreen]
+class GifScreenRoute extends _i10.PageRouteInfo<void> {
   const GifScreenRoute()
       : super(
           GifScreenRoute.name,
@@ -291,9 +381,9 @@ class GifScreenRoute extends _i8.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i7.LoginScreen]
-class LoginScreenRoute extends _i8.PageRouteInfo<void> {
-  const LoginScreenRoute({List<_i8.PageRouteInfo>? children})
+/// [_i9.LoginScreen]
+class LoginScreenRoute extends _i10.PageRouteInfo<void> {
+  const LoginScreenRoute({List<_i10.PageRouteInfo>? children})
       : super(
           LoginScreenRoute.name,
           path: '/login',
@@ -304,8 +394,8 @@ class LoginScreenRoute extends _i8.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i7.EmailVerifyScreen]
-class EmailVerifyScreenRoute extends _i8.PageRouteInfo<void> {
+/// [_i9.EmailVerifyScreen]
+class EmailVerifyScreenRoute extends _i10.PageRouteInfo<void> {
   const EmailVerifyScreenRoute()
       : super(
           EmailVerifyScreenRoute.name,

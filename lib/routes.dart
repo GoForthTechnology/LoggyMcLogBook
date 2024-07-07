@@ -5,6 +5,8 @@ import 'package:lmlb/screens/appointments.dart';
 import 'package:lmlb/screens/client_details.dart';
 import 'package:lmlb/screens/clients.dart';
 import 'package:lmlb/screens/gif.dart';
+import 'package:lmlb/screens/invoice_detail.dart';
+import 'package:lmlb/screens/invoices.dart';
 import 'package:lmlb/screens/overview.dart';
 
 @AdaptiveAutoRouter(
@@ -24,6 +26,16 @@ import 'package:lmlb/screens/overview.dart';
     AutoRoute(
       path: '/appointments',
       page: AppointmentsScreen,
+      guards: [AuthGuard],
+    ),
+    AutoRoute(
+      path: '/invoices',
+      page: InvoicesScreen,
+      guards: [AuthGuard],
+    ),
+    AutoRoute(
+      path: '/client/:clientID/invoice/:invoiceID',
+      page: InvoiceDetailScreen,
       guards: [AuthGuard],
     ),
     AutoRoute(
