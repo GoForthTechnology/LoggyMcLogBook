@@ -1,9 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
+import 'package:lmlb/routes.gr.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
@@ -57,6 +59,14 @@ class InvoiceTile extends StatelessWidget {
       attentionLevel: OverviewAttentionLevel.GREY,
       title: "Invoice #${invoice.invoiceNumStr()}",
       icon: Icons.receipt_long,
+      actions: [
+        OverviewAction(
+            title: "VIEW",
+            onPress: () {
+              AutoRouter.of(context).push(InvoiceDetailScreenRoute(
+                  invoiceID: invoice.id!, clientID: invoice.clientID));
+            })
+      ],
     );
   }
 }
