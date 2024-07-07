@@ -10,7 +10,7 @@ Client _$ClientFromJson(Map<String, dynamic> json) => Client(
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
       practitionerID: json['practitionerID'] as String,
-      num: json['num'] as int?,
+      num: (json['num'] as num?)?.toInt(),
       active: json['active'] as bool?,
       reproductiveCategoryHistory: (json['reproductiveCategoryHistory']
                   as List<dynamic>?)
@@ -36,11 +36,13 @@ ReproductiveCategoryEntry _$ReproductiveCategoryEntryFromJson(
       category: $enumDecode(_$ReproductiveCategoryEnumMap, json['category']),
       sinceDate: DateTime.parse(json['sinceDate'] as String),
       note: json['note'] as String?,
+      id: json['id'] as String?,
     );
 
 Map<String, dynamic> _$ReproductiveCategoryEntryToJson(
         ReproductiveCategoryEntry instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'category': _$ReproductiveCategoryEnumMap[instance.category]!,
       'sinceDate': instance.sinceDate.toIso8601String(),
       'note': instance.note,

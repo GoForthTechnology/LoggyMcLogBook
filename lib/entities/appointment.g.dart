@@ -9,7 +9,7 @@ part of 'appointment.dart';
 Appointment _$AppointmentFromJson(Map<String, dynamic> json) => Appointment(
       type: $enumDecode(_$AppointmentTypeEnumMap, json['type']),
       time: DateTime.parse(json['time'] as String),
-      duration: Duration(microseconds: json['duration'] as int),
+      duration: Duration(microseconds: (json['duration'] as num).toInt()),
       clientId: json['clientId'] as String,
       invoiceId: json['invoiceId'] as String?,
     );

@@ -13,7 +13,7 @@ ClientGeneralInfo _$ClientGeneralInfoFromJson(Map<String, dynamic> json) =>
       address: json['address'] as String?,
       city: json['city'] as String?,
       state: json['state'] as String?,
-      zip: json['zip'] as int?,
+      zip: (json['zip'] as num?)?.toInt(),
       country: json['country'] as String?,
       dateOfBirth: json['dateOfBirth'] == null
           ? null
