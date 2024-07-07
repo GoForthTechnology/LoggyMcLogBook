@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
@@ -29,13 +28,20 @@ enum InvoiceStatus {
 class Invoice extends Indexable<Invoice> {
   late String? id;
   final int? num;
-  final String clientId;
+  final String clientID;
   final Currency currency;
   final DateTime dateCreated;
   DateTime? dateBilled;
   DateTime? datePaid;
 
-  Invoice(this.id, this.num, this.clientId, this.currency, this.dateCreated, this.dateBilled, this.datePaid);
+  Invoice(
+      {this.id,
+      this.num,
+      required this.clientID,
+      required this.currency,
+      required this.dateCreated,
+      this.dateBilled,
+      this.datePaid});
 
   int invoiceNum() {
     var invoiceNum = num ?? 0;
@@ -67,6 +73,7 @@ class Invoice extends Indexable<Invoice> {
     return this;
   }
 
-  factory Invoice.fromJson(Map<String, dynamic> json) => _$InvoiceFromJson(json);
+  factory Invoice.fromJson(Map<String, dynamic> json) =>
+      _$InvoiceFromJson(json);
   Map<String, dynamic> toJson() => _$InvoiceToJson(this);
 }

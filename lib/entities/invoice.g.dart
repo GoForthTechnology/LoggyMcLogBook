@@ -7,15 +7,15 @@ part of 'invoice.dart';
 // **************************************************************************
 
 Invoice _$InvoiceFromJson(Map<String, dynamic> json) => Invoice(
-      json['id'] as String?,
-      json['num'] as int?,
-      json['clientId'] as String,
-      $enumDecode(_$CurrencyEnumMap, json['currency']),
-      DateTime.parse(json['dateCreated'] as String),
-      json['dateBilled'] == null
+      id: json['id'] as String?,
+      num: (json['num'] as num?)?.toInt(),
+      clientID: json['clientID'] as String,
+      currency: $enumDecode(_$CurrencyEnumMap, json['currency']),
+      dateCreated: DateTime.parse(json['dateCreated'] as String),
+      dateBilled: json['dateBilled'] == null
           ? null
           : DateTime.parse(json['dateBilled'] as String),
-      json['datePaid'] == null
+      datePaid: json['datePaid'] == null
           ? null
           : DateTime.parse(json['datePaid'] as String),
     );
@@ -23,7 +23,7 @@ Invoice _$InvoiceFromJson(Map<String, dynamic> json) => Invoice(
 Map<String, dynamic> _$InvoiceToJson(Invoice instance) => <String, dynamic>{
       'id': instance.id,
       'num': instance.num,
-      'clientId': instance.clientId,
+      'clientID': instance.clientID,
       'currency': _$CurrencyEnumMap[instance.currency]!,
       'dateCreated': instance.dateCreated.toIso8601String(),
       'dateBilled': instance.dateBilled?.toIso8601String(),

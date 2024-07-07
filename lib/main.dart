@@ -16,6 +16,7 @@ import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/fup_repo.dart';
 import 'package:lmlb/repos/gif_repo.dart';
+import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/repos/reminders.dart';
 import 'package:provider/provider.dart';
 
@@ -39,7 +40,6 @@ Future<Widget> init(Widget app, bool isWeb) {
     fromJson: Client.fromJson,
     toJson: (c) => c.toJson(),
   ));
-  final appointments = Appointments();
   final reminderRepo = Reminders(
     FirestoreCrud(
         collectionName: "reminders",
@@ -51,7 +51,8 @@ Future<Widget> init(Widget app, bool isWeb) {
   final init = Future.value(null);
   return init.then((_) => MultiProvider(providers: [
         ChangeNotifierProvider.value(value: clients),
-        ChangeNotifierProvider.value(value: appointments),
+        ChangeNotifierProvider.value(value: Appointments()),
+        ChangeNotifierProvider.value(value: Invoices()),
         ChangeNotifierProvider.value(value: gifRepo),
         ChangeNotifierProvider.value(value: reminderRepo),
         ChangeNotifierProvider.value(value: ReproductiveCategoryModel()),
