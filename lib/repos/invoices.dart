@@ -39,6 +39,24 @@ class Invoices extends ChangeNotifier {
         );
   }
 
+  Future<void> update(Invoice invoice) async {
+    var ref = await _ref(invoice.clientID);
+    ref.doc(invoice.id).update(invoice.toJson());
+  }
+
+  Stream<Invoice?> get(
+      {required String clientID, required String invoiceID}) async* {
+    var ref = await _ref(clientID);
+    yield* ref
+        .doc(invoiceID)
+        .withConverter<Invoice>(
+            fromFirestore: (snapshots, _) =>
+                Invoice.fromJson(snapshots.data() ?? {}).setId(snapshots.id),
+            toFirestore: (value, _) => value.toJson())
+        .snapshots()
+        .map((s) => s.data());
+  }
+
   Stream<List<Invoice>> list({String? clientID}) async* {
     var query = _db.collectionGroup("invoices");
     if (clientID != null) {
