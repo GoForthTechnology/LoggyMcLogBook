@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
-import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/reminder.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
