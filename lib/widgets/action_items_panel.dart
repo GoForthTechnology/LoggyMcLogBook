@@ -46,12 +46,13 @@ class ActionItemsPanel extends StatelessWidget {
                     initiallyExpanded: true,
                   );
                 }
+                var client = snapshot.data!;
                 return Consumer3<Reminders, Appointments, Invoices>(
                     builder:
                         (context, reminders, appointments, invoices, child) =>
                             StreamBuilder<List<OverviewTile>>(
-                              stream: actionItemTiles(
-                                  context, reminders, appointments, invoices),
+                              stream: actionItemTiles(context, client,
+                                  reminders, appointments, invoices),
                               builder: (context, snapshot) {
                                 if (snapshot.data?.isEmpty ?? true) {
                                   return ExpandableInfoPanel(
@@ -74,25 +75,33 @@ class ActionItemsPanel extends StatelessWidget {
             ));
   }
 
-  Stream<List<OverviewTile>> actionItemTiles(BuildContext context,
-      Reminders reminders, Appointments appointments, Invoices invoices) {
+  Stream<List<OverviewTile>> actionItemTiles(
+      BuildContext context,
+      Client client,
+      Reminders reminders,
+      Appointments appointments,
+      Invoices invoices) {
     return Rx.combineLatest2<List<OverviewTile>, List<OverviewTile>,
             List<OverviewTile>>(
         reminders
             .forClient(clientID!)
             .map((rs) => rs.map((r) => ActionItemTile.forReminder(r)).toList()),
-        appointments.streamAll((a) => true, clientID: clientID).map((as) => as
-            .map((r) => ActionItemTile.forUnbilledAppointment(r,
-                onCreateInvoice: () => createInvoice(context, invoices, as)))
-            .toList()),
+        appointments
+            .streamAll((a) => a.invoiceId == null, clientID: clientID)
+            .map((as) => as
+                .map((a) => ActionItemTile.forUnbilledAppointment(a,
+                    onCreateInvoice: () =>
+                        createInvoice(context, invoices, client, as)))
+                .toList()),
         (reminderActions, appointmentActions) =>
             [reminderActions, appointmentActions].expand((x) => x).toList());
   }
 
-  void createInvoice(BuildContext context, Invoices invoices,
+  void createInvoice(BuildContext context, Invoices invoiceRepo, Client client,
       List<Appointment> unbilledAppointments) async {
     try {
-      var invoiceID = await invoices.create(clientID!, Currency.USD);
+      var invoiceID = await invoiceRepo.create(clientID!, client,
+          appointments: unbilledAppointments);
       print("Added ID: $invoiceID");
       var snackBar = SnackBar(
         content: Text('Invoice Created'),

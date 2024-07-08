@@ -49,10 +49,11 @@ Future<Widget> init(Widget app, bool isWeb) {
   final gifRepo = GifRepo(FirestoreFormCrud());
   //final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
   final init = Future.value(null);
+  final appointmentRepo = Appointments();
   return init.then((_) => MultiProvider(providers: [
         ChangeNotifierProvider.value(value: clients),
-        ChangeNotifierProvider.value(value: Appointments()),
-        ChangeNotifierProvider.value(value: Invoices()),
+        ChangeNotifierProvider.value(value: appointmentRepo),
+        ChangeNotifierProvider.value(value: Invoices(appointmentRepo)),
         ChangeNotifierProvider.value(value: gifRepo),
         ChangeNotifierProvider.value(value: reminderRepo),
         ChangeNotifierProvider.value(value: ReproductiveCategoryModel()),

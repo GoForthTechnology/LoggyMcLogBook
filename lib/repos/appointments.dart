@@ -81,7 +81,8 @@ class Appointments extends ChangeNotifier {
                     .setId(snapshots.id),
             toFirestore: (value, _) => value.toJson())
         .snapshots()
-        .map((snapshots) => snapshots.docs.map((e) => e.data()).toList())
+        .map((snapshots) =>
+            snapshots.docs.map((e) => e.data()).where(predicate).toList())
         .doOnError((p0, p1) => print("FOOOOOO: $p0, $p1"));
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -25,6 +26,24 @@ enum InvoiceStatus {
 }
 
 @JsonSerializable(explicitToJson: true)
+class AppointmentEntry {
+  final String appointmentID;
+  final AppointmentType appointmentType;
+  final DateTime appointmentDate;
+  final int price;
+
+  AppointmentEntry(
+      {required this.appointmentID,
+      required this.appointmentType,
+      required this.appointmentDate,
+      required this.price});
+
+  factory AppointmentEntry.fromJson(Map<String, dynamic> json) =>
+      _$AppointmentEntryFromJson(json);
+  Map<String, dynamic> toJson() => _$AppointmentEntryToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
 class Invoice extends Indexable<Invoice> {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String? id;
@@ -34,6 +53,7 @@ class Invoice extends Indexable<Invoice> {
   final DateTime dateCreated;
   DateTime? dateBilled;
   DateTime? datePaid;
+  final List<AppointmentEntry> appointmentEntries;
 
   Invoice(
       {this.id,
@@ -41,6 +61,7 @@ class Invoice extends Indexable<Invoice> {
       required this.clientID,
       required this.currency,
       required this.dateCreated,
+      required this.appointmentEntries,
       this.dateBilled,
       this.datePaid});
 

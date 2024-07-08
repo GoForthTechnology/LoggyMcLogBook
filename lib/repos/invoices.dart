@@ -3,15 +3,20 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lmlb/entities/appointment.dart';
+import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/invoice.dart';
+import 'package:lmlb/repos/appointments.dart';
 import 'package:rxdart/rxdart.dart';
 
 class Invoices extends ChangeNotifier {
   final _userCompleter = new Completer<User>();
   final FirebaseFirestore _db;
 
-  Invoices() : _db = FirebaseFirestore.instance {
+  final Appointments appointmentRepo;
+
+  Invoices(this.appointmentRepo) : _db = FirebaseFirestore.instance {
     FirebaseAuth.instance.authStateChanges().listen((user) async {
       if (user != null && !_userCompleter.isCompleted) {
         _userCompleter.complete(user);
@@ -92,21 +97,37 @@ class Invoices extends ChangeNotifier {
     return snapshot.docs[0].data();
   }
 
-  Future<String> create(String clientID, Currency currency) async {
+  Future<String> create(String clientID, Client client,
+      {List<Appointment> appointments = const []}) async {
     var pendingInvoice = await _pendingInvoice(clientID);
     if (pendingInvoice != null) {
       throw Exception(
           "Invoice Num ${pendingInvoice.invoiceNumStr()} already pending!");
     }
+    if (client.currency == null) {
+      throw Exception("Client is missing a currency selection!");
+    }
     var nextInvoiceNum = await _nextInvoiceNum();
     var ref = await _ref(clientID);
-    return ref
+    var invoiceID = await ref
         .add(Invoice(
           clientID: clientID,
-          currency: currency,
+          currency: client.currency!,
           dateCreated: DateTime.now(),
           num: nextInvoiceNum,
+          appointmentEntries: appointments
+              .map((a) => AppointmentEntry(
+                  appointmentID: a.id!,
+                  appointmentType: a.type,
+                  appointmentDate: a.time,
+                  price: client.defaultFollowUpPrice ?? 0))
+              .toList(),
         ))
         .then((doc) => doc.id);
+    await Future.wait(appointments
+        .map((a) =>
+            appointmentRepo.updateAppointment(a.copyWith(invoiceID: invoiceID)))
+        .toList());
+    return invoiceID;
   }
 }
