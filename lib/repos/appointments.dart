@@ -102,7 +102,10 @@ class Appointments extends ChangeNotifier {
       {required String appointmentID, required String clientID}) async* {
     var query = await _ref(clientID);
 
-    yield* query.doc(appointmentID).snapshots().map((s) => s.data());
+    yield* query
+        .doc(appointmentID)
+        .snapshots()
+        .map((s) => s.data()?.setId(s.id));
   }
 
   Future<void> updateAppointment(Appointment updatedAppointemnt) async {

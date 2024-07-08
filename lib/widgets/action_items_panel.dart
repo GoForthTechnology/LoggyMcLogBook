@@ -54,7 +54,7 @@ class ActionItemsPanel extends StatelessWidget {
                                   reminders, appointments, invoices),
                               builder: (context, snapshot) {
                                 if (snapshot.data?.isEmpty ?? true) {
-                                  return ExpandableInfoPanel(
+                                  return const ExpandableInfoPanel(
                                     title: "Action Items",
                                     subtitle: "Nothing for now :-)",
                                     contents: [],
@@ -98,20 +98,20 @@ class ActionItemsPanel extends StatelessWidget {
 
   void createInvoice(BuildContext context, Invoices invoiceRepo, Client client,
       List<Appointment> unbilledAppointments) async {
+    var messenger = ScaffoldMessenger.of(context);
     try {
-      var invoiceID = await invoiceRepo.create(clientID!, client,
+      await invoiceRepo.create(clientID!, client,
           appointments: unbilledAppointments);
-      print("Added ID: $invoiceID");
       var snackBar = SnackBar(
-        content: Text('Invoice Created'),
+        content: const Text('Invoice Created'),
         action: SnackBarAction(label: "View", onPressed: () {}),
       );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      messenger.showSnackBar(snackBar);
     } catch (e) {
       var snackBar = SnackBar(
         content: Text(e.toString()),
       );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      messenger.showSnackBar(snackBar);
     }
   }
 }

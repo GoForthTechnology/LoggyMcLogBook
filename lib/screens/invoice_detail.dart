@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/widgets/info_panel.dart';
@@ -40,8 +39,8 @@ class InvoiceDetailScreen extends StatelessWidget {
                   invoiceRepo: repo,
                 ),
                 AppointmentPanel(
-                  entries: invoice.appointmentEntries,
-                  currency: invoice.currency,
+                  invoice: invoice,
+                  invoiceRepo: repo,
                 ),
               ],
             ),
@@ -172,27 +171,59 @@ class _DatePanelState extends State<DatePanel> {
 }
 
 class AppointmentPanel extends StatelessWidget {
-  final Currency currency;
-  final List<AppointmentEntry> entries;
+  final Invoice invoice;
+  final Invoices invoiceRepo;
 
   const AppointmentPanel(
-      {super.key, required this.entries, required this.currency});
+      {super.key, required this.invoice, required this.invoiceRepo});
 
   @override
   Widget build(BuildContext context) {
-    int totalPrice =
-        entries.map((e) => e.price).reduce((value, element) => value + element);
+    int totalPrice = invoice.appointmentEntries
+        .map((e) => e.price)
+        .reduce((value, element) => value + element);
     return ExpandableInfoPanel(
       title: "Appointments",
-      subtitle: "$totalPrice ${currency.name}",
-      contents: entries
+      subtitle: "$totalPrice ${invoice.currency.name}",
+      contents: invoice.appointmentEntries
           .map((e) => OverviewTile(
                 attentionLevel: OverviewAttentionLevel.GREY,
                 title:
-                    "${e.price} ${currency.name} for ${e.appointmentType.name} on ${e.appointmentDate}",
+                    "${e.price} ${invoice.currency.name} for ${e.appointmentType.name} on ${e.appointmentDate}",
                 icon: Icons.event,
+                additionalTrailing: [
+                  IconButton(
+                    onPressed: () async {
+                      if (await confirmAppointmentRemoval(context)) {
+                        await invoiceRepo.removeAppointment(
+                            invoice, e.appointmentID);
+                      }
+                    },
+                    icon: const Icon(Icons.remove_circle_outline),
+                  )
+                ],
               ))
           .toList(),
     );
+  }
+
+  Future<bool> confirmAppointmentRemoval(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Confirm Removal"),
+            content: const Text(
+                "Would you like to remove this appointment from the invoice?"),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("Yes")),
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("No")),
+            ],
+          ),
+        ) ??
+        false;
   }
 }

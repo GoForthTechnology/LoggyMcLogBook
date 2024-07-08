@@ -65,14 +65,17 @@ class Invoice extends Indexable<Invoice> {
       this.dateBilled,
       this.datePaid});
 
-  Invoice copyWith({DateTime? dateBilled, DateTime? datePaid}) {
+  Invoice copyWith(
+      {DateTime? dateBilled,
+      DateTime? datePaid,
+      List<AppointmentEntry>? appointmentEntries}) {
     return Invoice(
         id: this.id,
         num: this.num,
         clientID: this.clientID,
         currency: this.currency,
         dateCreated: this.dateCreated,
-        appointmentEntries: this.appointmentEntries,
+        appointmentEntries: appointmentEntries ?? this.appointmentEntries,
         dateBilled: dateBilled ?? this.dateBilled,
         datePaid: datePaid ?? this.datePaid);
   }

@@ -7,10 +7,9 @@ import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
-import 'package:rxdart/rxdart.dart';
 
 class Invoices extends ChangeNotifier {
-  final _userCompleter = new Completer<User>();
+  final _userCompleter = Completer<User>();
   final FirebaseFirestore _db;
 
   final Appointments appointmentRepo;
@@ -25,7 +24,7 @@ class Invoices extends ChangeNotifier {
   }
 
   Future<CollectionReference<Invoice>> _ref(String clientID) async {
-    var user = await _userCompleter.future.timeout(Duration(seconds: 10));
+    var user = await _userCompleter.future.timeout(const Duration(seconds: 10));
     return _db
         .collection("users")
         .doc(user.uid)
@@ -47,14 +46,20 @@ class Invoices extends ChangeNotifier {
   Stream<Invoice?> get(
       {required String clientID, required String invoiceID}) async* {
     var ref = await _ref(clientID);
-    yield* ref
-        .doc(invoiceID)
-        .withConverter<Invoice>(
-            fromFirestore: (snapshots, _) =>
-                Invoice.fromJson(snapshots.data() ?? {}).setId(snapshots.id),
-            toFirestore: (value, _) => value.toJson())
-        .snapshots()
-        .map((s) => s.data());
+    yield* ref.doc(invoiceID).snapshots().map((s) => s.data());
+  }
+
+  Stream<Invoice?> getPending({required String clientID}) async* {
+    var ref = await _ref(clientID);
+    yield* ref.where("dateBilled", isNull: true).snapshots().map((e) {
+      if (e.docs.isEmpty) {
+        return null;
+      }
+      if (e.docs.length > 1) {
+        throw Exception("Found multiple pending invoices!");
+      }
+      return e.docs[0].data();
+    });
   }
 
   Stream<List<Invoice>> list({String? clientID}) async* {
@@ -69,8 +74,7 @@ class Invoices extends ChangeNotifier {
             toFirestore: (value, _) => value.toJson())
         .snapshots()
         .map((snapshots) =>
-            snapshots.docs.map((e) => e.data().setId(e.id)).toList())
-        .doOnError((p0, p1) => print("FOOOOOO: $p0, $p1"));
+            snapshots.docs.map((e) => e.data().setId(e.id)).toList());
   }
 
   Future<int> _nextInvoiceNum() async {
@@ -90,9 +94,8 @@ class Invoices extends ChangeNotifier {
       int num = doc.data()["num"];
       return num + 1;
     } catch (e) {
-      print(e);
+      rethrow;
     }
-    return -1;
   }
 
   Future<Invoice?> _pendingInvoice(String clientID) async {
@@ -146,5 +149,27 @@ class Invoices extends ChangeNotifier {
             appointmentRepo.updateAppointment(a.copyWith(invoiceID: invoiceID)))
         .toList());
     return invoiceID;
+  }
+
+  Future<Invoice> removeAppointment(
+      Invoice invoice, String appointmentID) async {
+    var appointment = await appointmentRepo
+        .stream(appointmentID: appointmentID, clientID: invoice.clientID)
+        .first;
+    if (appointment == null) {
+      throw Exception("Appointment $appointmentID not found");
+    }
+    var updatedEntries = invoice.appointmentEntries
+        .where((e) => e.appointmentID != appointmentID)
+        .toList();
+    var updatedInvoice = invoice.copyWith(appointmentEntries: updatedEntries);
+    try {
+      await appointmentRepo
+          .updateAppointment(appointment.copyWith(invoiceID: null));
+      await update(updatedInvoice);
+      return updatedInvoice;
+    } catch (e) {
+      rethrow;
+    }
   }
 }
