@@ -57,7 +57,6 @@ class GifRepo extends ChangeNotifier {
   }
 
   Stream<Map<GifItem, String>> getAll(Type enumType, String clientID) async* {
-    print("asdf");
     var itemConfig = _itemConfigs[enumType];
     if (itemConfig == null) {
       throw Exception("Could not find ItemConfig for $enumType");

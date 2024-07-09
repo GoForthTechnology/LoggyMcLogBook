@@ -44,7 +44,11 @@ class BillingPanel extends StatelessWidget {
   }
 
   String _subtitle(List<Invoice> invoices) {
-    return "TODO";
+    int numPending = invoices.where((i) => i.dateBilled == null).length;
+    int numOutstanding = invoices
+        .where((i) => i.dateBilled != null && i.datePaid == null)
+        .length;
+    return "$numPending pending, $numOutstanding outstanding";
   }
 }
 
