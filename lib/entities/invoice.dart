@@ -8,23 +8,6 @@ import 'currency.dart';
 
 part 'invoice.g.dart';
 
-enum InvoiceStatus {
-  draft,
-  billed,
-  paid;
-
-  Color get color {
-    switch (this) {
-      case InvoiceStatus.draft:
-        return Colors.green;
-      case InvoiceStatus.billed:
-        return Colors.red;
-      case InvoiceStatus.paid:
-        return Colors.grey;
-    }
-  }
-}
-
 @JsonSerializable(explicitToJson: true)
 class AppointmentEntry {
   final String appointmentID;
@@ -42,6 +25,8 @@ class AppointmentEntry {
       _$AppointmentEntryFromJson(json);
   Map<String, dynamic> toJson() => _$AppointmentEntryToJson(this);
 }
+
+enum InvoiceState { pending, billed, paid }
 
 @JsonSerializable(explicitToJson: true)
 class Invoice extends Indexable<Invoice> {
@@ -64,6 +49,16 @@ class Invoice extends Indexable<Invoice> {
       required this.appointmentEntries,
       this.dateBilled,
       this.datePaid});
+
+  InvoiceState get state {
+    if (datePaid != null) {
+      return InvoiceState.paid;
+    }
+    if (dateBilled != null) {
+      return InvoiceState.billed;
+    }
+    return InvoiceState.pending;
+  }
 
   Invoice copyWith(
       {DateTime? dateBilled,
@@ -111,16 +106,6 @@ class Invoice extends Indexable<Invoice> {
 
   String invoiceNumStr() {
     return sprintf("%06d", [invoiceNum()]);
-  }
-
-  InvoiceStatus status() {
-    if (datePaid != null) {
-      return InvoiceStatus.paid;
-    }
-    if (dateBilled != null) {
-      return InvoiceStatus.billed;
-    }
-    return InvoiceStatus.draft;
   }
 
   @override

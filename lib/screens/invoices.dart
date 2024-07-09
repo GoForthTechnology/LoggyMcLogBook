@@ -3,11 +3,13 @@ import 'package:lmlb/widgets/invoice_list.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 
 class InvoicesScreen extends StatelessWidget {
+  const InvoicesScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return NavigationRailScreen(
+    return const NavigationRailScreen(
       item: NavigationItem.BILLING,
-      title: const Text('Billing'),
+      title: Text('Billing'),
       content: InvoiceListWidget(),
     );
   }
