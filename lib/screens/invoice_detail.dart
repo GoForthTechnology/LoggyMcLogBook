@@ -1,14 +1,27 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/client_general_info.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/gif_repo.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
+import 'package:lmlb/widgets/rendered_invoice.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_to_pdf/flutter_to_pdf.dart';
+import 'package:rxdart/rxdart.dart';
+
+class Deps {
+  final ClientInfo clientInfo;
+  final Invoice? invoice;
+
+  Deps({required this.clientInfo, required this.invoice});
+}
 
 class InvoiceDetailScreen extends StatelessWidget {
   final String invoiceID;
@@ -21,36 +34,115 @@ class InvoiceDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Invoices>(
-      builder: (context, repo, child) => StreamBuilder<Invoice?>(
-        stream: repo.get(clientID: clientID, invoiceID: invoiceID),
+    return Consumer3<Invoices, Clients, GifRepo>(
+      builder: (context, invoiceRepo, clientRepo, gifRepo, child) =>
+          StreamBuilder<Deps>(
+        stream:
+            Rx.combineLatest3<Invoice?, Client?, Map<GifItem, String>, Deps>(
+                invoiceRepo.get(clientID: clientID, invoiceID: invoiceID),
+                clientRepo.stream(clientID),
+                gifRepo.getAll(GeneralInfoItem, clientID),
+                (invoice, client, gifItems) {
+          return Deps(
+              clientInfo: ClientInfo(
+                clientDisplayNum: client?.displayNum() ?? "",
+                fullName: client?.fullName() ?? "",
+                address: gifItems[GeneralInfoItem.ADDRESS] ?? "",
+                city: gifItems[GeneralInfoItem.CITY] ?? "",
+                state: gifItems[GeneralInfoItem.STATE] ?? "",
+                zip: gifItems[GeneralInfoItem.ZIP] ?? "",
+                country: gifItems[GeneralInfoItem.COUNTRY] ?? "",
+                email: gifItems[GeneralInfoItem.EMAIL] ?? "",
+                phoneNumber: gifItems[GeneralInfoItem.PHONE] ?? "",
+              ),
+              invoice: invoice);
+        }),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Container();
           }
-          var invoice = snapshot.data;
+          var invoice = snapshot.data?.invoice;
           if (invoice == null) {
             throw Exception("Invoice not found!");
           }
           return NavigationRailScreen(
             item: NavigationItem.BILLING,
             title: const Text("Invoice Details"),
-            content: Column(
-              children: [
-                DatePanel(
-                  invoice: invoice,
-                  invoiceRepo: repo,
-                ),
-                ClientInfoPanel(clientID: clientID),
-                AppointmentPanel(
-                  invoice: invoice,
-                  invoiceRepo: repo,
-                ),
-              ],
-            ),
+            content: Container(
+                alignment: Alignment.topCenter,
+                child: SingleChildScrollView(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    DatePanel(
+                      invoice: invoice,
+                      invoiceRepo: invoiceRepo,
+                    ),
+                    ClientInfoPanel(clientID: clientID),
+                    AppointmentPanel(
+                      invoice: invoice,
+                      invoiceRepo: invoiceRepo,
+                    ),
+                    if (invoice.dateBilled != null)
+                      InoviceRenderPanel(
+                        invoice: invoice,
+                        clientInfo: snapshot.data!.clientInfo,
+                      ),
+                  ],
+                ))),
           );
         },
       ),
+    );
+  }
+}
+
+class InoviceRenderPanel extends StatefulWidget {
+  final Invoice invoice;
+  final ClientInfo clientInfo;
+
+  const InoviceRenderPanel(
+      {super.key, required this.invoice, required this.clientInfo});
+
+  @override
+  State<StatefulWidget> createState() => InoviceRenderPanelState();
+}
+
+class InoviceRenderPanelState extends State<InoviceRenderPanel> {
+  final ExportDelegate exportDelegate = ExportDelegate(
+      options:
+          const ExportOptions(pageFormatOptions: PageFormatOptions.legal()));
+  static const frameID = "invoice";
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpandableInfoPanel(
+      title: "Invoice",
+      subtitle: "",
+      trailing: IconButton(
+        icon: const Icon(Icons.print),
+        onPressed: () async {
+          try {
+            final pdf = await exportDelegate.exportToPdfDocument(frameID);
+            var data = await pdf.save();
+            const String mimeType = 'text/plain';
+            final XFile textFile =
+                XFile.fromData(data, mimeType: mimeType, name: 'invoice.pdf');
+            await textFile.saveTo("");
+          } catch (e, s) {
+            print("$e, $s");
+          }
+        },
+      ),
+      initiallyExpanded: true, // this is important to make the page render!!!
+      contents: [
+        ExportFrame(
+            frameId: frameID,
+            exportDelegate: exportDelegate,
+            child: RenderedInvoiceWidget(
+                invoice: widget.invoice, clientInfo: widget.clientInfo))
+      ],
     );
   }
 }

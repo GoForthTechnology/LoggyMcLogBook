@@ -134,6 +134,32 @@ enum AppointmentType {
 }
 
 extension AppointmentTypeExt on AppointmentType {
+  String prettyName() {
+    switch (this) {
+      case AppointmentType.GENERIC:
+        return "Generic";
+      case AppointmentType.INFO:
+        return "Info Session";
+      case AppointmentType.INTRO:
+        return "Intro Session";
+      case AppointmentType.PREG_EVAL:
+        return "Pregnancy Evaluation";
+      case AppointmentType.FUP1:
+      case AppointmentType.FUP2:
+      case AppointmentType.FUP3:
+      case AppointmentType.FUP4:
+      case AppointmentType.FUP5:
+      case AppointmentType.FUP6:
+      case AppointmentType.FUP7:
+      case AppointmentType.FUP8:
+      case AppointmentType.FUP9:
+      case AppointmentType.FUP10:
+      case AppointmentType.FUP11:
+      case AppointmentType.FUP12:
+        return "Follow Up #${followUpNum()}";
+    }
+  }
+
   int? followUpNum() {
     switch (this) {
       case AppointmentType.GENERIC:

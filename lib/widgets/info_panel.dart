@@ -14,6 +14,7 @@ class ExpandableInfoPanel extends StatelessWidget {
   final TextStyle? titleStyle;
 
   const ExpandableInfoPanel({
+    super.key,
     required this.title,
     required this.subtitle,
     required this.contents,
@@ -27,13 +28,15 @@ class ExpandableInfoPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     var tile = ExpansionTile(
       initiallyExpanded: initiallyExpanded,
-      title: Text(title, style: titleStyle ?? Theme.of(context).textTheme.titleLarge),
+      title: Text(title,
+          style: titleStyle ?? Theme.of(context).textTheme.titleLarge),
       subtitle: subtitle == "" ? null : Text(subtitle),
-      childrenPadding: EdgeInsets.symmetric(horizontal: childrenHorizontalPadding),
+      childrenPadding:
+          EdgeInsets.symmetric(horizontal: childrenHorizontalPadding),
       expandedCrossAxisAlignment: CrossAxisAlignment.start,
       expandedAlignment: Alignment.topLeft,
-      children: contents,
       trailing: trailing,
+      children: contents,
     );
     return Card(child: tile);
   }
@@ -43,17 +46,22 @@ class InfoPanel extends StatelessWidget {
   final String title;
   final List<Widget> contents;
 
-  const InfoPanel({required this.title, required this.contents});
+  const InfoPanel({super.key, required this.title, required this.contents});
 
   @override
   Widget build(BuildContext context) {
-    return Card(child: Padding(padding: EdgeInsets.all(20), child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.titleLarge),
-        ...contents.map((w) => Padding(padding: EdgeInsets.symmetric(vertical: 4), child: w)),
-      ],
-    )));
+    return Card(
+        child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: Theme.of(context).textTheme.titleLarge),
+                ...contents.map((w) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: w)),
+              ],
+            )));
   }
 }
 
@@ -65,16 +73,21 @@ class InfoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: EdgeInsets.all(2), child: Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text("$itemName:", style: Theme.of(context).textTheme.titleMedium?.apply(fontWeightDelta: 2)),
-        Container(width: 4),
-        itemValue,
-      ],
-    ));
-
+    return Padding(
+        padding: const EdgeInsets.all(2),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text("$itemName:",
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.apply(fontWeightDelta: 2)),
+            Container(width: 4),
+            itemValue,
+          ],
+        ));
   }
 }
 
@@ -84,30 +97,35 @@ class EditorItem extends StatelessWidget {
   final String Function(Client) getItemValue;
   final Client Function(Client, String) setItemValue;
 
-  const EditorItem({super.key, required this.itemName, required this.clientID, required this.getItemValue, required this.setItemValue});
+  const EditorItem(
+      {super.key,
+      required this.itemName,
+      required this.clientID,
+      required this.getItemValue,
+      required this.setItemValue});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Clients>(builder: (context, clientRepo, child) => InfoItem(
-      itemName: itemName,
-      itemValue: MyEditableText(
-        initialText: clientRepo.get(clientID).then((client) {
-          if (client == null) {
-            throw Exception("Client not found for ID $clientID");
-          }
-          return getItemValue(client);
-        }),
-        onSave: (value) => clientRepo.get(clientID).then((client) {
-          if (client == null) {
-            throw Exception("Client not found for ID $clientID");
-          }
-          return clientRepo.update(setItemValue(client, value));
-        }),
-        onError: (error) {
-          print("Got error: $error");
-        },
-      ),
-    ));
+    return Consumer<Clients>(
+        builder: (context, clientRepo, child) => InfoItem(
+              itemName: itemName,
+              itemValue: MyEditableText(
+                initialText: clientRepo.get(clientID).then((client) {
+                  if (client == null) {
+                    throw Exception("Client not found for ID $clientID");
+                  }
+                  return getItemValue(client);
+                }),
+                onSave: (value) => clientRepo.get(clientID).then((client) {
+                  if (client == null) {
+                    throw Exception("Client not found for ID $clientID");
+                  }
+                  return clientRepo.update(setItemValue(client, value));
+                }),
+                onError: (error) {
+                  print("Got error: $error");
+                },
+              ),
+            ));
   }
 }
-

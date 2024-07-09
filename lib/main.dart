@@ -19,7 +19,6 @@ import 'package:lmlb/repos/fup_repo.dart';
 import 'package:lmlb/repos/gif_repo.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/repos/reminders.dart';
-import 'package:lmlb/screens/invoices.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
