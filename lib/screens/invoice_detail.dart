@@ -1,7 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/invoices.dart';
+import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
@@ -38,12 +41,48 @@ class InvoiceDetailScreen extends StatelessWidget {
                   invoice: invoice,
                   invoiceRepo: repo,
                 ),
+                ClientInfoPanel(clientID: clientID),
                 AppointmentPanel(
                   invoice: invoice,
                   invoiceRepo: repo,
                 ),
               ],
             ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ClientInfoPanel extends StatelessWidget {
+  final String clientID;
+
+  const ClientInfoPanel({super.key, required this.clientID});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<Clients>(
+      builder: (context, clientRepo, child) => StreamBuilder<Client?>(
+        stream: clientRepo.stream(clientID),
+        builder: (context, snapshot) {
+          var client = snapshot.data;
+          if (client == null) {
+            return Container();
+          }
+          return ExpandableInfoPanel(
+            title: "Client Info",
+            subtitle: client.fullName(),
+            contents: [
+              ChangeNotifierProvider<ClientID>(
+                create: (context) => ClientID(clientID),
+                builder: (context, child) => GifFormSection(
+                  sectionTitle: generalInfoSection.title,
+                  itemRows: generalInfoSection.items,
+                  enumType: generalInfoSection.enumType,
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -82,21 +121,25 @@ class _DatePanelState extends State<DatePanel> {
   }
 
   void updateDateBilled(DateTime? value) async {
-    await widget.invoiceRepo.update(
-        widget.invoice.copyWith(dateBilled: dateBilled, datePaid: datePaid));
     setState(() {
       dateBilled = value;
       dateBilledController.text = value?.toIso8601String() ?? "";
     });
+    var invoice = value == null
+        ? widget.invoice.clearDateBilled()
+        : widget.invoice.copyWith(dateBilled: value);
+    await widget.invoiceRepo.update(invoice);
   }
 
   void updateDatePaid(DateTime? value) async {
-    await widget.invoiceRepo.update(
-        widget.invoice.copyWith(dateBilled: dateBilled, datePaid: datePaid));
     setState(() {
       datePaid = value;
       datePaidController.text = value?.toIso8601String() ?? "";
     });
+    var invoice = value == null
+        ? widget.invoice.clearDatePaid()
+        : widget.invoice.copyWith(datePaid: value);
+    await widget.invoiceRepo.update(invoice);
   }
 
   @override

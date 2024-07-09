@@ -174,23 +174,25 @@ class GifBody extends StatelessWidget {
   }
 }
 
-const sections = [
-  GifSection(
-    title: "General Information",
-    enumType: GeneralInfoItem,
-    items: [
-      [GeneralInfoItem.NAME_WOMAN, GeneralInfoItem.NAME_MAN],
-      [GeneralInfoItem.DOB_WOMAN, GeneralInfoItem.DOB_MAN],
-      [GeneralInfoItem.ADDRESS],
-      [
-        GeneralInfoItem.CITY,
-        GeneralInfoItem.STATE,
-        GeneralInfoItem.ZIP,
-        GeneralInfoItem.COUNTRY
-      ],
-      [GeneralInfoItem.EMAIL, GeneralInfoItem.PHONE],
+const generalInfoSection = GifSection(
+  title: "General Information",
+  enumType: GeneralInfoItem,
+  items: [
+    [GeneralInfoItem.NAME_WOMAN, GeneralInfoItem.NAME_MAN],
+    [GeneralInfoItem.DOB_WOMAN, GeneralInfoItem.DOB_MAN],
+    [GeneralInfoItem.ADDRESS],
+    [
+      GeneralInfoItem.CITY,
+      GeneralInfoItem.STATE,
+      GeneralInfoItem.ZIP,
+      GeneralInfoItem.COUNTRY
     ],
-  ),
+    [GeneralInfoItem.EMAIL, GeneralInfoItem.PHONE],
+  ],
+);
+
+const sections = [
+  generalInfoSection,
   GifSection(
     title: "Demographic Information",
     enumType: DemographicInfoItem,

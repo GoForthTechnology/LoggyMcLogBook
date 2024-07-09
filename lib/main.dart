@@ -12,12 +12,14 @@ import 'package:lmlb/models/pregnancy_model.dart';
 import 'package:lmlb/models/reproductive_category_model.dart';
 import 'package:lmlb/persistence/firebase/firestore_crud.dart';
 import 'package:lmlb/persistence/firebase/firestore_form_crud.dart';
+import 'package:lmlb/repos/ai_repo.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/fup_repo.dart';
 import 'package:lmlb/repos/gif_repo.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/repos/reminders.dart';
+import 'package:lmlb/screens/invoices.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
@@ -50,12 +52,16 @@ Future<Widget> init(Widget app, bool isWeb) {
   //final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
   final init = Future.value(null);
   final appointmentRepo = Appointments();
+  final invoiceRepo = Invoices(appointmentRepo);
+  final aiRepo =
+      ActionItemRepo(invoiceRepo, appointmentRepo, reminderRepo, clients);
   return init.then((_) => MultiProvider(providers: [
         ChangeNotifierProvider.value(value: clients),
         ChangeNotifierProvider.value(value: appointmentRepo),
-        ChangeNotifierProvider.value(value: Invoices(appointmentRepo)),
+        ChangeNotifierProvider.value(value: invoiceRepo),
         ChangeNotifierProvider.value(value: gifRepo),
         ChangeNotifierProvider.value(value: reminderRepo),
+        ChangeNotifierProvider.value(value: aiRepo),
         ChangeNotifierProvider.value(value: ReproductiveCategoryModel()),
         ChangeNotifierProvider.value(value: PregnancyModel()),
         ChangeNotifierProvider.value(value: ChildModel()),

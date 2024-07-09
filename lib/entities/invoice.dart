@@ -80,6 +80,30 @@ class Invoice extends Indexable<Invoice> {
         datePaid: datePaid ?? this.datePaid);
   }
 
+  Invoice clearDateBilled() {
+    return Invoice(
+        id: id,
+        num: num,
+        clientID: clientID,
+        currency: currency,
+        dateCreated: dateCreated,
+        appointmentEntries: appointmentEntries,
+        dateBilled: null,
+        datePaid: datePaid);
+  }
+
+  Invoice clearDatePaid() {
+    return Invoice(
+        id: id,
+        num: num,
+        clientID: clientID,
+        currency: currency,
+        dateCreated: dateCreated,
+        appointmentEntries: appointmentEntries,
+        dateBilled: dateBilled,
+        datePaid: null);
+  }
+
   int invoiceNum() {
     var invoiceNum = num ?? 0;
     return 100 + invoiceNum;

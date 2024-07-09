@@ -61,6 +61,17 @@ class Appointment extends Indexable<Appointment> {
     );
   }
 
+  Appointment clearInvoice() {
+    return Appointment(
+      id: id,
+      type: type,
+      time: time,
+      duration: duration,
+      clientId: clientId,
+      invoiceId: null,
+    );
+  }
+
   AppointmentStatus status() {
     if (time.isAfter(DateTime.now())) {
       return AppointmentStatus.upcoming;

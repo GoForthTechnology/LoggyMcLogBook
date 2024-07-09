@@ -39,14 +39,18 @@ class Invoices extends ChangeNotifier {
   }
 
   Future<void> update(Invoice invoice) async {
-    var ref = await _ref(invoice.clientID);
-    ref.doc(invoice.id).update(invoice.toJson());
+    try {
+      var ref = await _ref(invoice.clientID);
+      ref.doc(invoice.id).update(invoice.toJson());
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Stream<Invoice?> get(
       {required String clientID, required String invoiceID}) async* {
     var ref = await _ref(clientID);
-    yield* ref.doc(invoiceID).snapshots().map((s) => s.data());
+    yield* ref.doc(invoiceID).snapshots().map((s) => s.data()?.setId(s.id));
   }
 
   Stream<Invoice?> getPending({required String clientID}) async* {
@@ -58,7 +62,8 @@ class Invoices extends ChangeNotifier {
       if (e.docs.length > 1) {
         throw Exception("Found multiple pending invoices!");
       }
-      return e.docs[0].data();
+      var doc = e.docs[0];
+      return doc.data().setId(doc.id);
     });
   }
 
@@ -164,8 +169,7 @@ class Invoices extends ChangeNotifier {
         .toList();
     var updatedInvoice = invoice.copyWith(appointmentEntries: updatedEntries);
     try {
-      await appointmentRepo
-          .updateAppointment(appointment.copyWith(invoiceID: null));
+      await appointmentRepo.updateAppointment(appointment.clearInvoice());
       await update(updatedInvoice);
       return updatedInvoice;
     } catch (e) {

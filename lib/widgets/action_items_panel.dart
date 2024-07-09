@@ -1,15 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
-import 'package:lmlb/entities/reminder.dart';
-import 'package:lmlb/repos/appointments.dart';
-import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/ai_repo.dart';
 import 'package:lmlb/repos/invoices.dart';
-import 'package:lmlb/repos/reminders.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
+
+extension NextStepActionExt on NextStepAction {
+  String get label {
+    switch (this) {
+      case NextStepAction.addAppointmentToPendingInvoice:
+        return "Add to Invoice";
+      case NextStepAction.addAppointmentToNewInvoice:
+        return "Create new Invoice";
+      case NextStepAction.scheduleReminder:
+        return "SCHEDULE";
+      case NextStepAction.snoozeReminder:
+        return "SNOOZE";
+      case NextStepAction.dismissReminder:
+        return "DISMISS";
+      case NextStepAction.assignClientNum:
+        return "ASSIGN";
+    }
+  }
+}
+
+extension ActionItemSeverityExt on ActionItemSeverity {
+  OverviewAttentionLevel get attentionLevel {
+    switch (this) {
+      case ActionItemSeverity.urgent:
+        return OverviewAttentionLevel.RED;
+      case ActionItemSeverity.warning:
+        return OverviewAttentionLevel.YELLOW;
+      case ActionItemSeverity.info:
+        return OverviewAttentionLevel.GREY;
+      case ActionItemSeverity.encourage:
+        return OverviewAttentionLevel.GREEN;
+    }
+  }
+}
+
+extension ActionItemCategoryExt on ActionItemCategory {
+  IconData get icon {
+    switch (this) {
+      case ActionItemCategory.billing:
+        return Icons.receipt_long;
+      case ActionItemCategory.onboarding:
+        return Icons.approval;
+      case ActionItemCategory.reminder:
+        return Icons.event;
+    }
+  }
+}
 
 class ActionItemsPanel extends StatelessWidget {
   final String? clientID;
@@ -18,82 +61,46 @@ class ActionItemsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Clients>(
-        builder: (context, clientRepo, child) => FutureBuilder<Client?>(
-              future: clientRepo.get(clientID!),
-              builder: (context, snapshot) {
-                if (snapshot.data?.num == null) {
-                  return ExpandableInfoPanel(
-                    title: "Action Items",
-                    subtitle: "",
-                    contents: [
-                      OverviewTile(
-                        attentionLevel: OverviewAttentionLevel.GREEN,
-                        title: "Assign Client Number",
-                        subtitle:
-                            "Assigning a client number will enable more functionality",
-                        icon: Icons.approval,
-                        actions: [
-                          OverviewAction(
-                              title: "Assign",
-                              onPress: () =>
-                                  clientRepo.assignClientNum(snapshot.data!)),
-                        ],
-                        comparable: "",
-                      ),
-                    ],
-                    initiallyExpanded: true,
-                  );
-                }
-                var client = snapshot.data!;
-                return Consumer3<Reminders, Appointments, Invoices>(
-                    builder:
-                        (context, reminders, appointments, invoices, child) =>
-                            StreamBuilder<List<OverviewTile>>(
-                              stream: actionItemTiles(context, client,
-                                  reminders, appointments, invoices),
-                              builder: (context, snapshot) {
-                                if (snapshot.data?.isEmpty ?? true) {
-                                  return const ExpandableInfoPanel(
-                                    title: "Action Items",
-                                    subtitle: "Nothing for now :-)",
-                                    contents: [],
-                                  );
-                                }
-                                var items = snapshot.data!;
-                                items.sort((a, b) => a.compareTo(b));
-                                return ExpandableInfoPanel(
-                                  title: "Action Items",
-                                  subtitle: "${items.length} outstanding",
-                                  contents: items,
-                                  initiallyExpanded: true,
-                                );
-                              },
-                            ));
-              },
-            ));
-  }
-
-  Stream<List<OverviewTile>> actionItemTiles(
-      BuildContext context,
-      Client client,
-      Reminders reminders,
-      Appointments appointments,
-      Invoices invoices) {
-    return Rx.combineLatest2<List<OverviewTile>, List<OverviewTile>,
-            List<OverviewTile>>(
-        reminders
-            .forClient(clientID!)
-            .map((rs) => rs.map((r) => ActionItemTile.forReminder(r)).toList()),
-        appointments
-            .streamAll((a) => a.invoiceId == null, clientID: clientID)
-            .map((as) => as
-                .map((a) => ActionItemTile.forUnbilledAppointment(a,
-                    onCreateInvoice: () =>
-                        createInvoice(context, invoices, client, as)))
-                .toList()),
-        (reminderActions, appointmentActions) =>
-            [reminderActions, appointmentActions].expand((x) => x).toList());
+    return Consumer<ActionItemRepo>(
+      builder: (context, aiRepo, child) => StreamBuilder<List<ActionItem>>(
+        stream: aiRepo.getActionItems(clientID: clientID!),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
+          var actionItems = snapshot.data!;
+          if (actionItems.isEmpty) {
+            return const ExpandableInfoPanel(
+              title: "Action Items",
+              subtitle: "Nothing for now :-)",
+              contents: [],
+            );
+          }
+          var items = actionItems
+              .map((ai) => OverviewTile(
+                  attentionLevel: ai.severity.attentionLevel,
+                  title: ai.title,
+                  subtitle: ai.subtitle,
+                  icon: ai.category.icon,
+                  actions: ai.actions
+                      .map((a) => OverviewAction(
+                          title: a.label,
+                          onPress: () async {
+                            var messenger = ScaffoldMessenger.of(context);
+                            var message = await aiRepo.handleAction(ai, a);
+                            var snackBar = SnackBar(content: Text(message));
+                            messenger.showSnackBar(snackBar);
+                          }))
+                      .toList()))
+              .toList();
+          return ExpandableInfoPanel(
+              title: "Action Items",
+              subtitle: "${actionItems.length} outstanding",
+              contents: items,
+              initiallyExpanded: true);
+        },
+      ),
+    );
   }
 
   void createInvoice(BuildContext context, Invoices invoiceRepo, Client client,
@@ -113,59 +120,5 @@ class ActionItemsPanel extends StatelessWidget {
       );
       messenger.showSnackBar(snackBar);
     }
-  }
-}
-
-class ActionItemTile {
-  static OverviewTile forUnbilledAppointment(Appointment appointment,
-      {required Function() onCreateInvoice}) {
-    int daysSinceAppointment =
-        DateTime.now().difference(appointment.time).inDays;
-    return OverviewTile(
-      title: "Unbilled Appointment",
-      subtitle: appointment.toString(),
-      attentionLevel: daysSinceAppointment < 0
-          ? OverviewAttentionLevel.GREY
-          : daysSinceAppointment > 30
-              ? OverviewAttentionLevel.RED
-              : OverviewAttentionLevel.YELLOW,
-      icon: Icons.event,
-      actions: [
-        OverviewAction(
-            title: "CREATE INVOICE", onPress: () => onCreateInvoice())
-      ],
-      comparable: appointment.time,
-    );
-  }
-
-  static OverviewTile forReminder(Reminder reminder) {
-    var hasTriggered = reminder.triggerTime.isBefore(DateTime.now());
-    List<OverviewAction> actions = [];
-    String subtitle;
-    if (hasTriggered) {
-      actions = [
-        OverviewAction(title: "SCHEDULE"),
-        OverviewAction(title: "SNOOZE"),
-        OverviewAction(title: "DISMISS"),
-      ];
-      subtitle =
-          "${reminder.triggerTime.difference(DateTime.now()).inDays} days overdue!";
-    } else {
-      actions = [
-        OverviewAction(title: "SCHEDULE"),
-        OverviewAction(title: "DISMISS"),
-      ];
-      subtitle = "Snoozed until ${reminder.triggerTime}";
-    }
-    return OverviewTile(
-      title: reminder.title,
-      subtitle: subtitle,
-      attentionLevel: hasTriggered
-          ? OverviewAttentionLevel.YELLOW
-          : OverviewAttentionLevel.GREY,
-      icon: Icons.event,
-      actions: actions,
-      comparable: reminder.triggerTime,
-    );
   }
 }
