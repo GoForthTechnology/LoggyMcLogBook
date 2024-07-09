@@ -26,7 +26,7 @@ class AppointmentEntry {
   Map<String, dynamic> toJson() => _$AppointmentEntryToJson(this);
 }
 
-enum InvoiceState { pending, billed, paid }
+enum InvoiceState { pending, billed, paid, overdue }
 
 @JsonSerializable(explicitToJson: true)
 class Invoice extends Indexable<Invoice> {
@@ -55,6 +55,9 @@ class Invoice extends Indexable<Invoice> {
       return InvoiceState.paid;
     }
     if (dateBilled != null) {
+      if (DateTime.now().difference(dateBilled!).inDays > 30) {
+        return InvoiceState.overdue;
+      }
       return InvoiceState.billed;
     }
     return InvoiceState.pending;

@@ -67,6 +67,15 @@ class Invoices extends ChangeNotifier {
     });
   }
 
+  Stream<List<Invoice>> getOutstanding({required String clientID}) async* {
+    var ref = await _ref(clientID);
+    yield* ref
+        .where("dateBilled", isNull: false)
+        .where("datePaid", isNull: true)
+        .snapshots()
+        .map((e) => e.docs.map((doc) => doc.data().setId(doc.id)).toList());
+  }
+
   Stream<List<Invoice>> list({String? clientID}) async* {
     var query = _db.collectionGroup("invoices");
     if (clientID != null) {

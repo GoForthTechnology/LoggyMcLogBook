@@ -76,11 +76,11 @@ class ActionItemRepo extends ChangeNotifier {
   Future<String> handleAction(ActionItem ai, NextStepAction a) async {
     switch (a) {
       case NextStepAction.assignClientNum:
-        return doAssignClientNum(ai);
+        return _doAssignClientNum(ai);
       case NextStepAction.addAppointmentToPendingInvoice:
-        return doAddToInvoice(ai);
+        return _doAddToInvoice(ai);
       case NextStepAction.addAppointmentToNewInvoice:
-        return doCreateInvoice(ai);
+        return _doCreateInvoice(ai);
       case NextStepAction.scheduleReminder:
         // TODO: Handle this case.
         break;
@@ -94,7 +94,7 @@ class ActionItemRepo extends ChangeNotifier {
     return "TODO!";
   }
 
-  Future<String> doAssignClientNum(ActionItem ai) async {
+  Future<String> _doAssignClientNum(ActionItem ai) async {
     var clientID = ai.identifiers.clientID;
     var client = await clientRepo.get(clientID);
     if (client == null) {
@@ -104,7 +104,7 @@ class ActionItemRepo extends ChangeNotifier {
     return "Client number assigned";
   }
 
-  Future<String> doAddToInvoice(ActionItem ai) async {
+  Future<String> _doAddToInvoice(ActionItem ai) async {
     var clientID = ai.identifiers.clientID;
     var appointmentID = ai.identifiers.appointmentID;
     var invoiceID = ai.identifiers.invoiceID;
@@ -143,7 +143,7 @@ class ActionItemRepo extends ChangeNotifier {
     return "Appointment added to invoice #${invoice.invoiceNumStr()}";
   }
 
-  Future<String> doCreateInvoice(ActionItem ai) async {
+  Future<String> _doCreateInvoice(ActionItem ai) async {
     var unbilledAppointments =
         await appointmentRepo.streamAll((a) => a.invoiceId == null).first;
     var client = await clientRepo.get(ai.identifiers.clientID);

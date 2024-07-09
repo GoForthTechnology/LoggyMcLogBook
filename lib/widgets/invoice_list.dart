@@ -71,11 +71,13 @@ extension InvoiceStatusExt on InvoiceState {
   Color get color {
     switch (this) {
       case InvoiceState.pending:
-        return Colors.red;
+        return Colors.blue;
       case InvoiceState.billed:
-        return Colors.yellow;
-      case InvoiceState.paid:
         return Colors.green;
+      case InvoiceState.paid:
+        return Colors.grey;
+      case InvoiceState.overdue:
+        return Colors.red;
     }
   }
 }
