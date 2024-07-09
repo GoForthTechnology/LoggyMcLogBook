@@ -150,9 +150,13 @@ class ActionItemRepo extends ChangeNotifier {
     if (client == null) {
       return "Could not find client";
     }
-    await invoiceRepo.create(ai.identifiers.clientID, client,
-        appointments: unbilledAppointments);
-    return "Invoice created";
+    try {
+      await invoiceRepo.create(ai.identifiers.clientID, client,
+          appointments: unbilledAppointments);
+      return "Invoice created";
+    } catch (e) {
+      return e.toString();
+    }
   }
 
   Stream<List<ActionItem>> _newClientAIs(String clientID) async* {
