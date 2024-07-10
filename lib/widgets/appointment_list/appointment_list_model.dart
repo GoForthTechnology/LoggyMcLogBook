@@ -91,7 +91,7 @@ class AppointmentData {
 
   static AppointmentData create(
       Appointment appointment, Client client, bool hasClientFilter) {
-    var title = "${appointment.type.name()} ${appointment.timeStr()}";
+    var title = "${appointment.type.prettyName()} ${appointment.timeStr()}";
     if (!hasClientFilter) {
       title = "${client.fullName()} - $title";
     }

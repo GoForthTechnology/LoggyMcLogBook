@@ -13,6 +13,8 @@ final _appointmentFilters = [
 ];
 
 class AppointmentListWidget extends StatelessWidget {
+  const AppointmentListWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return FilterableListView<AppointmentData>(
@@ -31,10 +33,7 @@ class AppointmentTile extends StatelessWidget {
   final AppointmentData appointment;
   final bool hasClientFilter;
 
-  AppointmentTile(
-    this.appointment,
-    this.hasClientFilter,
-  );
+  const AppointmentTile(this.appointment, this.hasClientFilter, {super.key});
 
   @override
   Widget build(BuildContext context) {

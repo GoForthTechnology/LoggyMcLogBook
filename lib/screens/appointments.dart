@@ -6,6 +6,8 @@ import 'package:lmlb/widgets/appointment_list/appointment_list_widget.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 
 class AppointmentsScreen extends StatelessWidget {
+  const AppointmentsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return AppointmentListModel.provide(
@@ -18,7 +20,7 @@ class AppointmentsScreen extends StatelessWidget {
           if (result != null && result as bool) {
             ScaffoldMessenger.of(context)
               ..removeCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text('Client updated')));
+              ..showSnackBar(const SnackBar(content: Text('Client updated')));
           }
         });
       },
@@ -27,17 +29,6 @@ class AppointmentsScreen extends StatelessWidget {
         title: const Text('Appointments'),
         content: AppointmentListWidget(),
       ),
-    );
-  }
-
-  Widget? buildFab(BuildContext context) {
-    return FloatingActionButton(
-      // isExtended: true,
-      child: Icon(Icons.add),
-      backgroundColor: Colors.green,
-      // TODO: Re-enable
-      //onPressed: () => addAppointment(context),
-      onPressed: () {},
     );
   }
 }
