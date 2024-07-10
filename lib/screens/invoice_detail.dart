@@ -66,7 +66,7 @@ class InvoiceDetailScreen extends StatelessWidget {
             throw Exception("Invoice not found!");
           }
           return NavigationRailScreen(
-            item: NavigationItem.BILLING,
+            item: NavigationItem.billing,
             title: const Text("Invoice Details"),
             content: Container(
                 alignment: Alignment.topCenter,

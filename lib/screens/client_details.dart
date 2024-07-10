@@ -49,7 +49,7 @@ class ClientDetailsScreen extends StatelessWidget {
                   )));
             }
             return NavigationRailScreen(
-              item: NavigationItem.CLIENTS,
+              item: NavigationItem.clients,
               title: Text(
                   'Details for ${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
               content: ListView(children: [

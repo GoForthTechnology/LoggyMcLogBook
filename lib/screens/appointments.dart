@@ -23,7 +23,7 @@ class AppointmentsScreen extends StatelessWidget {
         });
       },
       child: NavigationRailScreen(
-        item: NavigationItem.APPOINTMENTS,
+        item: NavigationItem.appointments,
         title: const Text('Appointments'),
         content: AppointmentListWidget(),
       ),

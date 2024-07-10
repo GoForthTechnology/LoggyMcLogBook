@@ -8,7 +8,7 @@ class InvoicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const NavigationRailScreen(
-      item: NavigationItem.BILLING,
+      item: NavigationItem.billing,
       title: Text('Billing'),
       content: InvoiceListWidget(),
     );

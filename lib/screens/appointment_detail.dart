@@ -34,7 +34,7 @@ class AppointmentDetailScreen extends StatelessWidget {
         (appointment) => clientWidget(
             appointment!.clientId,
             (client) => NavigationRailScreen(
-                  item: NavigationItem.APPOINTMENTS,
+                  item: NavigationItem.appointments,
                   title: Text(
                       "${appointment.type.name()} for ${client!.fullName()}"),
                   content: ListView(

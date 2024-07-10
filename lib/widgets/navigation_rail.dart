@@ -1,18 +1,17 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/routes.gr.dart';
 
 enum NavigationItem {
-  HOME(label: "Home", icon: Icons.home, route: OverviewScreenRoute()),
-  CLIENTS(label: "Clients", icon: Icons.contacts, route: ClientsScreenRoute()),
-  APPOINTMENTS(
+  home(label: "Home", icon: Icons.home, route: OverviewScreenRoute()),
+  clients(label: "Clients", icon: Icons.contacts, route: ClientsScreenRoute()),
+  appointments(
       label: "Appointments",
       icon: Icons.event,
       route: AppointmentsScreenRoute()),
-  BILLING(
+  billing(
       label: "Billing", icon: Icons.receipt_long, route: InvoicesScreenRoute()),
-  MATERIALS(label: "Materials", icon: Icons.inventory_2),
+  materials(label: "Materials", icon: Icons.inventory_2),
   ;
 
   final String label;

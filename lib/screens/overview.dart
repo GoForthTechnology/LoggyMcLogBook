@@ -15,7 +15,7 @@ class OverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigationRailScreen(
-      item: NavigationItem.HOME,
+      item: NavigationItem.home,
       title: const Text('Your Overview'),
       content: ListView(
         children: const [
