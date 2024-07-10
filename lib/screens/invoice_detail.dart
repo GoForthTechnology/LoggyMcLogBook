@@ -322,7 +322,7 @@ class AppointmentPanel extends StatelessWidget {
       subtitle: "$totalPrice ${invoice.currency.name}",
       contents: invoice.appointmentEntries
           .map((e) => OverviewTile(
-                attentionLevel: OverviewAttentionLevel.GREY,
+                attentionLevel: OverviewAttentionLevel.grey,
                 title:
                     "${e.price} ${invoice.currency.name} for ${e.appointmentType.name} on ${e.appointmentDate}",
                 icon: Icons.event,

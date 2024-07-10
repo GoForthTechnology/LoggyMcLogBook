@@ -1,14 +1,11 @@
+// ignore_for_file: constant_identifier_names
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:lmlb/entities/client_demographic_info.dart';
 
 part 'client_general_info.g.dart';
 
-enum InputType {
-  TEXT,
-  DATE_PICKER,
-  TIME_PICKER
-}
+enum InputType { TEXT, DATE_PICKER, TIME_PICKER }
 
 abstract class GifItem extends Enum {
   InputType get inputType;
@@ -56,15 +53,19 @@ enum GeneralInfoItem implements GifItem {
   REFERRAL_SOURCE(
     label: "Referral Source",
     optionsEnum: ReferralSource.values,
-  )
-  ;
+  );
 
+  @override
   final String label;
+  @override
   final List<Enum>? optionsEnum;
+  @override
   final InputType inputType;
+  @override
   final Set<Enum> explainOptions = const {};
 
-  const GeneralInfoItem({required this.label, this.optionsEnum, this.inputType = InputType.TEXT});
+  const GeneralInfoItem(
+      {required this.label, this.optionsEnum, this.inputType = InputType.TEXT});
 }
 
 enum DemographicInfoItem implements GifItem {
@@ -130,9 +131,13 @@ enum DemographicInfoItem implements GifItem {
   ),
   ;
 
+  @override
   final String label;
+  @override
   final List<Enum>? optionsEnum;
+  @override
   final InputType inputType = InputType.TEXT;
+  @override
   final Set<Enum> explainOptions = const {};
 
   const DemographicInfoItem({required this.label, this.optionsEnum});
@@ -170,9 +175,13 @@ enum PregnancyHistoryItem implements GifItem {
   ),
   ;
 
+  @override
   final String label;
+  @override
   final List<Enum>? optionsEnum;
+  @override
   final InputType inputType = InputType.TEXT;
+  @override
   final Set<Enum> explainOptions = const {};
 
   const PregnancyHistoryItem({required this.label, this.optionsEnum});
@@ -303,19 +312,20 @@ enum MedicalHistoryItem implements GifItem {
   ),
   ;
 
+  @override
   final String label;
+  @override
   final List<Enum>? optionsEnum;
+  @override
   final InputType inputType = InputType.TEXT;
+  @override
   final Set<Enum> explainOptions;
 
-  const MedicalHistoryItem({required this.label, this.optionsEnum, this.explainOptions = const {}});
+  const MedicalHistoryItem(
+      {required this.label, this.optionsEnum, this.explainOptions = const {}});
 }
 
-enum NatureOfCycles {
-  REGULAR,
-  IRREGULAR,
-  BOTH
-}
+enum NatureOfCycles { REGULAR, IRREGULAR, BOTH }
 
 enum MenstrualCrampSeverity {
   NONE,
@@ -343,9 +353,13 @@ enum FamilyPlanningHistoryItem implements GifItem {
   ),
   ;
 
+  @override
   final String label;
+  @override
   final List<Enum>? optionsEnum;
+  @override
   final InputType inputType = InputType.TEXT;
+  @override
   final Set<Enum> explainOptions = const {};
 
   const FamilyPlanningHistoryItem({required this.label, this.optionsEnum});
@@ -481,7 +495,7 @@ enum ReferralSource {
 }
 
 extension ReferralSourceX on ReferralSource {
-  int get code  => this.index + 1;
+  int get code => this.index + 1;
 }
 
 enum CompletedEducation {
@@ -507,14 +521,6 @@ enum OccupationalStatus {
   OTHER,
 }
 
-enum YesNo {
-  YES,
-  NO,
-  UNKNOWN
-}
+enum YesNo { YES, NO, UNKNOWN }
 
-enum DeliveryMethod {
-  VAGINAL,
-  CESAREAN,
-  BOTH
-}
+enum DeliveryMethod { VAGINAL, CESAREAN, BOTH }

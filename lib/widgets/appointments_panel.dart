@@ -66,8 +66,8 @@ class AppointmentsPanel extends StatelessWidget {
   Widget _appointmentTile(BuildContext context, Appointment a) {
     return OverviewTile(
       attentionLevel: a.time.isBefore(DateTime.now())
-          ? OverviewAttentionLevel.GREY
-          : OverviewAttentionLevel.GREEN,
+          ? OverviewAttentionLevel.grey
+          : OverviewAttentionLevel.green,
       title: a.type.name(),
       subtitle: a.timeStr(),
       icon: Icons.event,

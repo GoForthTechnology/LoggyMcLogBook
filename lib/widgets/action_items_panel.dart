@@ -30,13 +30,13 @@ extension ActionItemSeverityExt on ActionItemSeverity {
   OverviewAttentionLevel get attentionLevel {
     switch (this) {
       case ActionItemSeverity.urgent:
-        return OverviewAttentionLevel.RED;
+        return OverviewAttentionLevel.red;
       case ActionItemSeverity.warning:
-        return OverviewAttentionLevel.YELLOW;
+        return OverviewAttentionLevel.yellow;
       case ActionItemSeverity.info:
-        return OverviewAttentionLevel.GREY;
+        return OverviewAttentionLevel.grey;
       case ActionItemSeverity.encourage:
-        return OverviewAttentionLevel.GREEN;
+        return OverviewAttentionLevel.green;
     }
   }
 }

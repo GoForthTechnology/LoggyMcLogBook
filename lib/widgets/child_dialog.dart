@@ -24,12 +24,12 @@ class _ChildDialogState extends State<ChildDialog> {
     return Form(
       key: formKey,
       child: AlertDialog(
-        title: Text("New Child"),
+        title: const Text("New Child"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
-              decoration: InputDecoration(label: Text("Name")),
+              decoration: const InputDecoration(label: Text("Name")),
               controller: nameController,
               validator: ((value) {
                 if (value == null || value == "") {
@@ -39,14 +39,14 @@ class _ChildDialogState extends State<ChildDialog> {
               }),
             ),
             TextFormField(
-              decoration: InputDecoration(label: Text("Date of Birth")),
+              decoration: const InputDecoration(label: Text("Date of Birth")),
               controller: dateOfBirthController,
               onTap: () async {
                 final DateTime? picked = await showDatePicker(
                   context: context,
                   initialDate: DateTime.now(),
-                  firstDate: DateTime.now().subtract(Duration(days: 365)),
-                  lastDate: DateTime.now().add(Duration(days: 365)),
+                  firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
                 );
                 if (picked != null) {
                   dateOfBirthController.text = picked.toIso8601String();
@@ -60,7 +60,7 @@ class _ChildDialogState extends State<ChildDialog> {
               }),
             ),
             TextFormField(
-              decoration: InputDecoration(label: Text("Notes")),
+              decoration: const InputDecoration(label: Text("Notes")),
               controller: notecontroller,
               maxLines: null,
             ),
@@ -69,7 +69,7 @@ class _ChildDialogState extends State<ChildDialog> {
         actions: [
           TextButton(
               onPressed: () => AutoRouter.of(context).pop(),
-              child: Text("Cancel")),
+              child: const Text("Cancel")),
           Consumer<ChildModel>(
               builder: (context, model, child) => TextButton(
                   onPressed: () async {
@@ -79,11 +79,12 @@ class _ChildDialogState extends State<ChildDialog> {
                         dateOfBirth: DateTime.parse(dateOfBirthController.text),
                         note: notecontroller.text,
                       );
+                      var router = AutoRouter.of(context);
                       await model.addChild(widget.clientID, child);
-                      AutoRouter.of(context).pop();
+                      router.pop();
                     }
                   },
-                  child: Text("Submit"))),
+                  child: const Text("Submit"))),
         ],
       ),
     );

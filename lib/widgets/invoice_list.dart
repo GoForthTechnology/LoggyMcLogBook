@@ -26,8 +26,8 @@ class InvoiceListWidget extends StatelessWidget {
                   }
                   return FilterableListView<Invoice>(
                     itemStream: invoices.list(),
-                    filters: [],
-                    additionalSortingOptions: [],
+                    filters: const [],
+                    additionalSortingOptions: const [],
                     defaultSort: Sort<Invoice>(
                         label: 'By Date Created',
                         comparator: (a, b) =>

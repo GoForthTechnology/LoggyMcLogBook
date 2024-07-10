@@ -115,111 +115,111 @@ class Appointment extends Indexable<Appointment> {
 }
 
 enum AppointmentType {
-  GENERIC,
-  INFO,
-  INTRO,
-  FUP1,
-  FUP2,
-  FUP3,
-  FUP4,
-  FUP5,
-  FUP6,
-  FUP7,
-  FUP8,
-  FUP9,
-  FUP10,
-  FUP11,
-  FUP12,
-  PREG_EVAL
+  generic,
+  info,
+  intro,
+  fup1,
+  fup2,
+  fup3,
+  fup4,
+  fup5,
+  fup6,
+  fup7,
+  fup8,
+  fup9,
+  fup10,
+  fup11,
+  fup12,
+  pregEval
 }
 
 extension AppointmentTypeExt on AppointmentType {
   String prettyName() {
     switch (this) {
-      case AppointmentType.GENERIC:
+      case AppointmentType.generic:
         return "Generic";
-      case AppointmentType.INFO:
+      case AppointmentType.info:
         return "Info Session";
-      case AppointmentType.INTRO:
+      case AppointmentType.intro:
         return "Intro Session";
-      case AppointmentType.PREG_EVAL:
+      case AppointmentType.pregEval:
         return "Pregnancy Evaluation";
-      case AppointmentType.FUP1:
-      case AppointmentType.FUP2:
-      case AppointmentType.FUP3:
-      case AppointmentType.FUP4:
-      case AppointmentType.FUP5:
-      case AppointmentType.FUP6:
-      case AppointmentType.FUP7:
-      case AppointmentType.FUP8:
-      case AppointmentType.FUP9:
-      case AppointmentType.FUP10:
-      case AppointmentType.FUP11:
-      case AppointmentType.FUP12:
+      case AppointmentType.fup1:
+      case AppointmentType.fup2:
+      case AppointmentType.fup3:
+      case AppointmentType.fup4:
+      case AppointmentType.fup5:
+      case AppointmentType.fup6:
+      case AppointmentType.fup7:
+      case AppointmentType.fup8:
+      case AppointmentType.fup9:
+      case AppointmentType.fup10:
+      case AppointmentType.fup11:
+      case AppointmentType.fup12:
         return "Follow Up #${followUpNum()}";
     }
   }
 
   int? followUpNum() {
     switch (this) {
-      case AppointmentType.GENERIC:
-      case AppointmentType.INFO:
-      case AppointmentType.INTRO:
-      case AppointmentType.PREG_EVAL:
+      case AppointmentType.generic:
+      case AppointmentType.info:
+      case AppointmentType.intro:
+      case AppointmentType.pregEval:
         return null;
-      case AppointmentType.FUP1:
+      case AppointmentType.fup1:
         return 1;
-      case AppointmentType.FUP2:
+      case AppointmentType.fup2:
         return 2;
-      case AppointmentType.FUP3:
+      case AppointmentType.fup3:
         return 3;
-      case AppointmentType.FUP4:
+      case AppointmentType.fup4:
         return 4;
-      case AppointmentType.FUP5:
+      case AppointmentType.fup5:
         return 5;
-      case AppointmentType.FUP6:
+      case AppointmentType.fup6:
         return 6;
-      case AppointmentType.FUP7:
+      case AppointmentType.fup7:
         return 7;
-      case AppointmentType.FUP8:
+      case AppointmentType.fup8:
         return 8;
-      case AppointmentType.FUP9:
+      case AppointmentType.fup9:
         return 9;
-      case AppointmentType.FUP10:
+      case AppointmentType.fup10:
         return 10;
-      case AppointmentType.FUP11:
+      case AppointmentType.fup11:
         return 11;
-      case AppointmentType.FUP12:
+      case AppointmentType.fup12:
         return 11;
     }
   }
 
   AppointmentType? next() {
     switch (this) {
-      case AppointmentType.INTRO:
-        return AppointmentType.FUP1;
-      case AppointmentType.FUP1:
-        return AppointmentType.FUP2;
-      case AppointmentType.FUP2:
-        return AppointmentType.FUP3;
-      case AppointmentType.FUP3:
-        return AppointmentType.FUP4;
-      case AppointmentType.FUP4:
-        return AppointmentType.FUP5;
-      case AppointmentType.FUP5:
-        return AppointmentType.FUP6;
-      case AppointmentType.FUP6:
-        return AppointmentType.FUP7;
-      case AppointmentType.FUP7:
-        return AppointmentType.FUP8;
-      case AppointmentType.FUP8:
-        return AppointmentType.FUP9;
-      case AppointmentType.FUP9:
-        return AppointmentType.FUP10;
-      case AppointmentType.FUP10:
-        return AppointmentType.FUP11;
-      case AppointmentType.FUP11:
-        return AppointmentType.FUP12;
+      case AppointmentType.intro:
+        return AppointmentType.fup1;
+      case AppointmentType.fup1:
+        return AppointmentType.fup2;
+      case AppointmentType.fup2:
+        return AppointmentType.fup3;
+      case AppointmentType.fup3:
+        return AppointmentType.fup4;
+      case AppointmentType.fup4:
+        return AppointmentType.fup5;
+      case AppointmentType.fup5:
+        return AppointmentType.fup6;
+      case AppointmentType.fup6:
+        return AppointmentType.fup7;
+      case AppointmentType.fup7:
+        return AppointmentType.fup8;
+      case AppointmentType.fup8:
+        return AppointmentType.fup9;
+      case AppointmentType.fup9:
+        return AppointmentType.fup10;
+      case AppointmentType.fup10:
+        return AppointmentType.fup11;
+      case AppointmentType.fup11:
+        return AppointmentType.fup12;
       default:
         return null;
     }

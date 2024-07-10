@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
 
 enum OverviewAttentionLevel {
-  GREEN,
-  GREY,
-  YELLOW,
-  RED;
+  green,
+  grey,
+  yellow,
+  red;
 
   get fillColor {
     switch (this) {
-      case OverviewAttentionLevel.GREEN:
-        return Color.fromRGBO(220, 233, 213, 1.0);
-      case OverviewAttentionLevel.GREY:
-        return Color.fromRGBO(239, 239, 239, 1.0);
-      case OverviewAttentionLevel.YELLOW:
-        return Color.fromRGBO(253, 242, 208, 1.0);
-      case OverviewAttentionLevel.RED:
-        return Color.fromRGBO(238, 205, 205, 1.0);
+      case OverviewAttentionLevel.green:
+        return const Color.fromRGBO(220, 233, 213, 1.0);
+      case OverviewAttentionLevel.grey:
+        return const Color.fromRGBO(239, 239, 239, 1.0);
+      case OverviewAttentionLevel.yellow:
+        return const Color.fromRGBO(253, 242, 208, 1.0);
+      case OverviewAttentionLevel.red:
+        return const Color.fromRGBO(238, 205, 205, 1.0);
     }
   }
 
   get borderColor {
     switch (this) {
-      case OverviewAttentionLevel.GREEN:
-        return Color.fromRGBO(120, 166, 90, 1.0);
-      case OverviewAttentionLevel.GREY:
-        return Color.fromRGBO(183, 183, 183, 1.0);
-      case OverviewAttentionLevel.YELLOW:
-        return Color.fromRGBO(234, 196, 81, 1.0);
-      case OverviewAttentionLevel.RED:
-        return Color.fromRGBO(187, 39, 26, 1.0);
+      case OverviewAttentionLevel.green:
+        return const Color.fromRGBO(120, 166, 90, 1.0);
+      case OverviewAttentionLevel.grey:
+        return const Color.fromRGBO(183, 183, 183, 1.0);
+      case OverviewAttentionLevel.yellow:
+        return const Color.fromRGBO(234, 196, 81, 1.0);
+      case OverviewAttentionLevel.red:
+        return const Color.fromRGBO(187, 39, 26, 1.0);
     }
   }
 }
@@ -67,20 +67,20 @@ class OverviewTile extends StatelessWidget implements Comparable<OverviewTile> {
     List<Widget> actions = this
         .actions
         .map((a) => Container(
-              margin: EdgeInsets.only(left: 8),
+              margin: const EdgeInsets.only(left: 8),
               child: TextButton(
-                child: Text(a.title.toUpperCase()),
                 onPressed: a.onPress,
+                child: Text(a.title.toUpperCase()),
               ),
             ))
         .toList();
     var listTile = ListTile(
         leading: Icon(
-          this.icon,
+          icon,
           color: attentionLevel.borderColor,
         ),
-        title: Text(this.title),
-        subtitle: this.subtitle != null ? Text(this.subtitle!) : null,
+        title: Text(title),
+        subtitle: subtitle != null ? Text(subtitle!) : null,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [...additionalTrailing, ...actions],
@@ -103,6 +103,6 @@ class OverviewTile extends StatelessWidget implements Comparable<OverviewTile> {
 
   @override
   int compareTo(OverviewTile other) {
-    return this.comparable.compareTo(other.comparable);
+    return comparable.compareTo(other.comparable);
   }
 }

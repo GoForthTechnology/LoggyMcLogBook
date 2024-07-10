@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 abstract class WidgetModel<S> extends ChangeNotifier {
-
-  StreamController<S> stateController = new StreamController.broadcast();
+  StreamController<S> stateController = StreamController.broadcast();
 
   Stream<S> state() {
     return stateController.stream;
@@ -17,23 +16,31 @@ abstract class WidgetModel<S> extends ChangeNotifier {
 
   S initialState();
 
+  @override
   void dispose() {
     super.dispose();
     stateController.close();
   }
 }
 
-abstract class StreamWidget<M extends WidgetModel<S>, S> extends StatelessWidget {
+abstract class StreamWidget<M extends WidgetModel<S>, S>
+    extends StatelessWidget {
+  const StreamWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
-    var streamProvider = (M model) => StreamProvider<S>.value(
+    return Consumer<M>(
+        builder: (context, model, child) => createProvider(model));
+  }
+
+  StreamProvider<S> createProvider(M model) {
+    return StreamProvider<S>.value(
       value: model.state(),
       initialData: model.initialState(),
       builder: (context, child) => Consumer<S>(
-          builder: (context, state, child) => render(context, state, model),
+        builder: (context, state, child) => render(context, state, model),
       ),
     );
-    return Consumer<M>(builder: (context, model, child) => streamProvider(model));
   }
 
   Widget render(BuildContext context, S state, M model);

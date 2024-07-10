@@ -104,7 +104,7 @@ class PreviousAppointmentPanel extends StatelessWidget {
         subtitle: appointment.toString(),
         contents: [
           OverviewTile(
-            attentionLevel: OverviewAttentionLevel.GREY,
+            attentionLevel: OverviewAttentionLevel.grey,
             title: "Notes",
             subtitle:
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
@@ -135,7 +135,7 @@ class NextStepsPanel extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return OverviewTile(
-                attentionLevel: OverviewAttentionLevel.GREY,
+                attentionLevel: OverviewAttentionLevel.grey,
                 title: "Schedule ${nextType.name()}",
                 icon: Icons.event,
                 actions: [
@@ -151,7 +151,7 @@ class NextStepsPanel extends StatelessWidget {
                   if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                     var reminder = snapshot.data!.first;
                     return OverviewTile(
-                      attentionLevel: OverviewAttentionLevel.GREY,
+                      attentionLevel: OverviewAttentionLevel.grey,
                       title: "Schedule ${nextType.name()}",
                       icon: Icons.event,
                       actions: [
@@ -163,7 +163,7 @@ class NextStepsPanel extends StatelessWidget {
                   }
                   var title = "Schedule ${nextType.name()}";
                   return OverviewTile(
-                    attentionLevel: OverviewAttentionLevel.GREEN,
+                    attentionLevel: OverviewAttentionLevel.green,
                     title: title,
                     icon: Icons.event,
                     actions: [
@@ -197,7 +197,7 @@ class NextStepsPanel extends StatelessWidget {
         ),
       ),
       OverviewTile(
-        attentionLevel: OverviewAttentionLevel.GREY,
+        attentionLevel: OverviewAttentionLevel.grey,
         title: "Order Materials",
         icon: Icons.palette,
         actions: [

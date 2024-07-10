@@ -21,14 +21,14 @@ class _NewReproductiveCategoryDialogState
   final formKey = GlobalKey<FormState>();
   var dateController = TextEditingController();
   var notecontroller = TextEditingController();
-  ReproductiveCategory? category = null;
+  ReproductiveCategory? category;
 
   @override
   Widget build(BuildContext context) {
     return Form(
         key: formKey,
         child: AlertDialog(
-          title: Text("New Repoductive Category"),
+          title: const Text("New Repoductive Category"),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             DropdownButtonFormField<ReproductiveCategory>(
               items: ReproductiveCategory.values
@@ -46,7 +46,7 @@ class _NewReproductiveCategoryDialogState
               },
             ),
             TextFormField(
-              decoration: InputDecoration(label: Text("Starting")),
+              decoration: const InputDecoration(label: Text("Starting")),
               validator: _notNullOrEmpty,
               controller: dateController,
               onTap: () async {
@@ -54,9 +54,9 @@ class _NewReproductiveCategoryDialogState
                   context: context,
                   initialDate: DateTime.now(),
                   firstDate: widget.previousEntry == null
-                      ? DateTime.now().subtract(Duration(days: 90))
+                      ? DateTime.now().subtract(const Duration(days: 90))
                       : widget.previousEntry!.sinceDate,
-                  lastDate: DateTime.now().add(Duration(days: 365)),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
                 );
                 if (picked != null) {
                   dateController.text = picked.toIso8601String();
@@ -64,7 +64,7 @@ class _NewReproductiveCategoryDialogState
               },
             ),
             TextFormField(
-              decoration: InputDecoration(label: Text("Note")),
+              decoration: const InputDecoration(label: Text("Note")),
               controller: notecontroller,
               maxLines: null,
             )
@@ -72,7 +72,7 @@ class _NewReproductiveCategoryDialogState
           actions: [
             TextButton(
                 onPressed: () => AutoRouter.of(context).pop(),
-                child: Text("Cancel")),
+                child: const Text("Cancel")),
             Consumer<ReproductiveCategoryModel>(
                 builder: (context, model, child) => TextButton(
                     onPressed: () async {
@@ -82,19 +82,20 @@ class _NewReproductiveCategoryDialogState
                           sinceDate: DateTime.parse(dateController.text),
                           note: notecontroller.text,
                         );
+                        var router = AutoRouter.of(context);
                         await model.addEntry(widget.clientID, entry);
-                        AutoRouter.of(context).pop();
+                        router.pop();
                       }
                     },
-                    child: Text("Submit"))),
+                    child: const Text("Submit"))),
           ],
         ));
   }
 }
 
-final _notNullOrEmpty = (String? value) {
+String? _notNullOrEmpty(String? value) {
   if (value == null || value.isEmpty) {
     return "Value required";
   }
   return null;
-};
+}

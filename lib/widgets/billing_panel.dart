@@ -26,9 +26,7 @@ class BillingPanel extends StatelessWidget {
             sortedInvoices
                 .sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
             List<Widget> contents = [
-              ...sortedInvoices
-                  .map((i) => InvoiceTile(invoice: i))
-                  .toList(growable: true),
+              ...sortedInvoices.map((i) => InvoiceTile(invoice: i)),
               PriceWidget(
                 clientID: clientID,
               ),
@@ -60,7 +58,7 @@ class InvoiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OverviewTile(
-      attentionLevel: OverviewAttentionLevel.GREY,
+      attentionLevel: OverviewAttentionLevel.grey,
       title: "Invoice #${invoice.invoiceNumStr()}",
       icon: Icons.receipt_long,
       actions: [
@@ -102,18 +100,16 @@ class _PriceWidgetState extends State<PriceWidget> {
             priceController.text =
                 client.defaultFollowUpPrice?.toString() ?? "";
           }
-          if (currency == null) {
-            currency = client.currency;
-          }
+          currency ??= client.currency;
           return Row(children: [
             Padding(
-                padding: EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.only(right: 10),
                 child: Text(
                   "Default Follow Up Price:",
                   style: Theme.of(context).textTheme.titleMedium,
                 )),
             ConstrainedBox(
-              constraints: BoxConstraints.tightFor(width: 60),
+              constraints: const BoxConstraints.tightFor(width: 60),
               child: TextFormField(
                 style: Theme.of(context).textTheme.titleMedium,
                 controller: priceController,
@@ -136,12 +132,13 @@ class _PriceWidgetState extends State<PriceWidget> {
                 var updatedClient = client.copyWith(
                     currency: currency,
                     defaultFollowUpPrice: int.parse(priceController.text));
-                await repo.update(updatedClient);
+                var messenger = ScaffoldMessenger.of(context);
                 const snackBar =
                     SnackBar(content: Text("Billing info updated"));
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                await repo.update(updatedClient);
+                messenger.showSnackBar(snackBar);
               },
-              child: Text("SAVE"),
+              child: const Text("SAVE"),
             ),
           ]);
         },

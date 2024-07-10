@@ -122,23 +122,20 @@ class ReproductiveCategoryColumn extends StatelessWidget {
                               previousEntry:
                                   entries.isEmpty ? null : entries.first,
                             )),
-                    child: Text("Update"));
+                    child: const Text("Update"));
                 return ListColumn(
                     title: "Reproductive Category",
                     trailing: updateButton,
                     children: [
-                      ...entries
-                          .map((entry) => ReproductiveEntryTile(
-                                entry: entry,
-                                onRemove: (entry) =>
-                                    model.removeEntry(clientID, entry),
-                                onSave: (existingEntry, newEntry) async {
-                                  await model.removeEntry(
-                                      clientID, existingEntry);
-                                  await model.addEntry(clientID, newEntry);
-                                },
-                              ))
-                          .toList(),
+                      ...entries.map((entry) => ReproductiveEntryTile(
+                            entry: entry,
+                            onRemove: (entry) =>
+                                model.removeEntry(clientID, entry),
+                            onSave: (existingEntry, newEntry) async {
+                              await model.removeEntry(clientID, existingEntry);
+                              await model.addEntry(clientID, newEntry);
+                            },
+                          )),
                     ]);
               },
             ));
@@ -162,25 +159,26 @@ class PregnancyColumn extends StatelessWidget {
               var pregnancies = snapshot.data ?? [];
               pregnancies.sort((a, b) => b.dueDate.compareTo(a.dueDate));
               return ListColumn(
-                  title: "Pregnancies",
-                  children: pregnancies
-                      .map((p) => PregnancyTile(
-                            pregnancy: p,
-                            onRemove: (p) => model.removePregnancy(clientID, p),
-                            onSave: (updatedPregnancy) async {
-                              await model.removePregnancy(clientID, p);
-                              await model.addPregnancy(
-                                  clientID, updatedPregnancy);
-                            },
-                          ))
-                      .toList(),
-                  trailing: ElevatedButton(
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (context) => PregnancyDialog(clientID: clientID),
-                    ),
-                    child: Text("Add Pregnancy"),
-                  ));
+                title: "Pregnancies",
+                trailing: ElevatedButton(
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) => PregnancyDialog(clientID: clientID),
+                  ),
+                  child: const Text("Add Pregnancy"),
+                ),
+                children: pregnancies
+                    .map((p) => PregnancyTile(
+                          pregnancy: p,
+                          onRemove: (p) => model.removePregnancy(clientID, p),
+                          onSave: (updatedPregnancy) async {
+                            await model.removePregnancy(clientID, p);
+                            await model.addPregnancy(
+                                clientID, updatedPregnancy);
+                          },
+                        ))
+                    .toList(),
+              );
             }));
   }
 }
@@ -202,24 +200,25 @@ class ChildrenColumn extends StatelessWidget {
               var children = snapshot.data ?? [];
               children.sort((a, b) => a.dateOfBirth.compareTo(b.dateOfBirth));
               return ListColumn(
-                  title: "Children",
-                  children: children
-                      .map((c) => ChildTile(
-                            child: c,
-                            onRemove: (p) => model.removeChild(clientID, p),
-                            onSave: (existingChild, updatedChild) async {
-                              await model.removeChild(clientID, existingChild);
-                              await model.addChild(clientID, updatedChild);
-                            },
-                          ))
-                      .toList(),
-                  trailing: ElevatedButton(
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (context) => ChildDialog(clientID: clientID),
-                    ),
-                    child: Text("Add Child"),
-                  ));
+                title: "Children",
+                trailing: ElevatedButton(
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) => ChildDialog(clientID: clientID),
+                  ),
+                  child: const Text("Add Child"),
+                ),
+                children: children
+                    .map((c) => ChildTile(
+                          child: c,
+                          onRemove: (p) => model.removeChild(clientID, p),
+                          onSave: (existingChild, updatedChild) async {
+                            await model.removeChild(clientID, existingChild);
+                            await model.addChild(clientID, updatedChild);
+                          },
+                        ))
+                    .toList(),
+              );
             }));
   }
 }
@@ -258,14 +257,14 @@ class _ListColumnState extends State<ListColumn> {
                 showAll = false;
               });
             },
-            child: Text("Show Less"))
+            child: const Text("Show Less"))
         : TextButton(
             onPressed: () {
               setState(() {
                 showAll = true;
               });
             },
-            child: Text("Show All"));
+            child: const Text("Show All"));
 
     return Column(
       children: [

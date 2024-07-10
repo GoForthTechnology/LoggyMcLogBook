@@ -57,7 +57,7 @@ class AppointmentOverviewTile extends StatelessWidget {
                 )),
         builder: (context, snapshot) {
           return OverviewTile(
-            attentionLevel: OverviewAttentionLevel.GREY,
+            attentionLevel: OverviewAttentionLevel.grey,
             title: "Appointment Overview",
             icon: Icons.event,
             subtitle:
@@ -107,7 +107,7 @@ class InvoiceOverviewTile extends StatelessWidget {
         }),
         builder: (context, snapshot) {
           return OverviewTile(
-            attentionLevel: OverviewAttentionLevel.GREY,
+            attentionLevel: OverviewAttentionLevel.grey,
             title: "Billing Overview",
             icon: Icons.receipt_long,
             subtitle:

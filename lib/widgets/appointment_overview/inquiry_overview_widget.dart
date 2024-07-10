@@ -1,14 +1,11 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 
 class InquiryOverviewWidget extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return OverviewTile(
-      attentionLevel: OverviewAttentionLevel.GREY,
+      attentionLevel: OverviewAttentionLevel.grey,
       title: "Recent Inquiries",
       subtitle: "Last Week: 0 Last Month: 4",
       icon: Icons.contact_support,
@@ -21,6 +18,4 @@ class InquiryOverviewWidget extends StatelessWidget {
   }
 }
 
-class AppointmentOverviewModel extends ChangeNotifier {
-
-}
+class AppointmentOverviewModel extends ChangeNotifier {}

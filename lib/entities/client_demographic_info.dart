@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 class ClientDemographicInfo {
   final Ethnicity? ethnicityWoman;
   final Ethnicity? ethnicityMan;
@@ -26,7 +28,7 @@ enum Ethnicity {
 }
 
 extension EthnicityX on Ethnicity {
-  int get code  => this.index + 1;
+  int get code => this.index + 1;
 }
 
 enum Religion {
@@ -41,19 +43,11 @@ enum Religion {
 }
 
 extension ReligionX on Religion {
-  int get code  => this.index + 1;
+  int get code => this.index + 1;
 }
 
-enum MaritalStatus {
-  SINGLE,
-  ENGAGED,
-  MARRIED,
-  DIVORCED,
-  WIDOWED,
-  SEPARATED
-}
+enum MaritalStatus { SINGLE, ENGAGED, MARRIED, DIVORCED, WIDOWED, SEPARATED }
 
 extension MaritalStatusX on MaritalStatus {
-  int get code  => this.index + 1;
+  int get code => this.index + 1;
 }
-

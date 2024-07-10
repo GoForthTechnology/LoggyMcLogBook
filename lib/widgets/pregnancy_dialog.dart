@@ -65,8 +65,9 @@ class _PregnancyDialogState extends State<PregnancyDialog> {
                     if (formKey.currentState?.validate() ?? false) {
                       var pregnancy = Pregnancy(
                           dueDate: DateTime.parse(dateController.text));
+                      var router = AutoRouter.of(context);
                       await model.addPregnancy(widget.clientID, pregnancy);
-                      AutoRouter.of(context).pop();
+                      router.pop();
                     }
                   },
                   child: Text("Submit"))),

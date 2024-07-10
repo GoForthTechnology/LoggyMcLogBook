@@ -68,7 +68,7 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
               builder: (context, snapshot) {
                 Appointment? appointment = snapshot.data;
                 AppointmentType previousType =
-                    appointment?.type ?? AppointmentType.INFO;
+                    appointment?.type ?? AppointmentType.info;
                 DateTime previousAppointmentTime =
                     appointment?.time ?? DateTime.now();
                 return Form(

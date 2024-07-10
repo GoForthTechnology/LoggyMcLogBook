@@ -54,19 +54,20 @@ class _ChildTileState extends State<ChildTile> {
         subtitle: subtitle,
         contents: [
           TextFormField(
-            decoration: InputDecoration(label: Text("Name")),
+            decoration: const InputDecoration(label: Text("Name")),
             controller: nameController,
           ),
           TextFormField(
-            decoration: InputDecoration(label: Text("Date of Birth")),
+            decoration: const InputDecoration(label: Text("Date of Birth")),
             controller: dateOfBirthController,
             onTap: () async {
               final DateTime? picked = await showDatePicker(
                 context: context,
                 initialDate: widget.child.dateOfBirth,
-                firstDate:
-                    widget.child.dateOfBirth.subtract(Duration(days: 366)),
-                lastDate: widget.child.dateOfBirth.add(Duration(days: 366)),
+                firstDate: widget.child.dateOfBirth
+                    .subtract(const Duration(days: 366)),
+                lastDate:
+                    widget.child.dateOfBirth.add(const Duration(days: 366)),
               );
               if (picked != null) {
                 setState(() {
@@ -76,7 +77,7 @@ class _ChildTileState extends State<ChildTile> {
             },
           ),
           TextFormField(
-            decoration: InputDecoration(label: Text("Notes")),
+            decoration: const InputDecoration(label: Text("Notes")),
             controller: notesController,
             maxLines: null,
           ),
