@@ -11,7 +11,7 @@ enum NavigationItem {
       route: AppointmentsScreenRoute()),
   billing(
       label: "Billing", icon: Icons.receipt_long, route: InvoicesScreenRoute()),
-  materials(label: "Materials", icon: Icons.inventory_2),
+  materials(label: "Materials", icon: Icons.palette),
   ;
 
   final String label;
