@@ -224,8 +224,4 @@ extension AppointmentTypeExt on AppointmentType {
         return null;
     }
   }
-
-  String name() {
-    return toString().split(".")[1];
-  }
 }

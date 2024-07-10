@@ -36,7 +36,7 @@ class AppointmentDetailScreen extends StatelessWidget {
             (client) => NavigationRailScreen(
                   item: NavigationItem.appointments,
                   title: Text(
-                      "${appointment.type.name()} for ${client!.fullName()}"),
+                      "${appointment.type.prettyName()} for ${client!.fullName()}"),
                   content: ListView(
                     children: [
                       ReproductiveHistoryPanel(
@@ -136,7 +136,7 @@ class NextStepsPanel extends StatelessWidget {
             if (snapshot.hasData) {
               return OverviewTile(
                 attentionLevel: OverviewAttentionLevel.grey,
-                title: "Schedule ${nextType.name()}",
+                title: "Schedule ${nextType.prettyName()}",
                 icon: Icons.event,
                 actions: [
                   OverviewAction(
@@ -152,7 +152,7 @@ class NextStepsPanel extends StatelessWidget {
                     var reminder = snapshot.data!.first;
                     return OverviewTile(
                       attentionLevel: OverviewAttentionLevel.grey,
-                      title: "Schedule ${nextType.name()}",
+                      title: "Schedule ${nextType.prettyName()}",
                       icon: Icons.event,
                       actions: [
                         OverviewAction(
@@ -161,7 +161,7 @@ class NextStepsPanel extends StatelessWidget {
                       ],
                     );
                   }
-                  var title = "Schedule ${nextType.name()}";
+                  var title = "Schedule ${nextType.prettyName()}";
                   return OverviewTile(
                     attentionLevel: OverviewAttentionLevel.green,
                     title: title,

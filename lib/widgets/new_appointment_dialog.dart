@@ -141,7 +141,7 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
           .where((t) => t.index > previousType.index)
           .map((t) => DropdownMenuItem<AppointmentType>(
                 value: t,
-                child: Text(t.name()),
+                child: Text(t.prettyName()),
               ))
           .toList(),
       onChanged: (value) => setState(() {
