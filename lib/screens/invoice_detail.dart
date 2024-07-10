@@ -3,6 +3,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/client_general_info.dart';
+import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/gif_repo.dart';
@@ -328,6 +329,10 @@ class AppointmentPanel extends StatelessWidget {
                 icon: Icons.event,
                 additionalTrailing: [
                   IconButton(
+                    onPressed: () => promptForNewPrice(context, e),
+                    icon: const Icon(Icons.edit),
+                  ),
+                  IconButton(
                     onPressed: () async {
                       if (await confirmAppointmentRemoval(context)) {
                         await invoiceRepo.removeAppointment(
@@ -340,6 +345,33 @@ class AppointmentPanel extends StatelessWidget {
               ))
           .toList(),
     );
+  }
+
+  Future<void> promptForNewPrice(
+      BuildContext context, AppointmentEntry entry) async {
+    var controller = TextEditingController(text: entry.price.toString());
+    var newPrice = await showDialog<int?>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Appointment Price (${invoice.currency.name})"),
+        content: TextFormField(
+          controller: controller,
+        ),
+        actions: [
+          TextButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(int.parse(controller.text)),
+              child: const Text("Save")),
+          TextButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: const Text("Cancel")),
+        ],
+      ),
+    );
+    if (newPrice != null) {
+      await invoiceRepo.updateAppointmentPrice(
+          invoice.clientID, invoice.id!, entry.appointmentID, newPrice);
+    }
   }
 
   Future<bool> confirmAppointmentRemoval(BuildContext context) async {

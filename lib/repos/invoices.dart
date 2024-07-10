@@ -165,6 +165,29 @@ class Invoices extends ChangeNotifier {
     return invoiceID;
   }
 
+  Future<void> updateAppointmentPrice(String clientID, String invoiceID,
+      String appointmentID, int newPrice) async {
+    var invoice = await get(clientID: clientID, invoiceID: invoiceID).first;
+    if (invoice == null) {
+      throw Exception("could not find invoice!");
+    }
+    List<AppointmentEntry> updatedAppointmentEntries = [];
+    for (var entry in invoice.appointmentEntries) {
+      if (entry.appointmentID != appointmentID) {
+        updatedAppointmentEntries.add(entry);
+        continue;
+      }
+      updatedAppointmentEntries.add(AppointmentEntry(
+        appointmentID: entry.appointmentID,
+        appointmentType: entry.appointmentType,
+        appointmentDate: entry.appointmentDate,
+        price: newPrice,
+      ));
+    }
+    await update(
+        invoice.copyWith(appointmentEntries: updatedAppointmentEntries));
+  }
+
   Future<Invoice> removeAppointment(
       Invoice invoice, String appointmentID) async {
     var appointment = await appointmentRepo
