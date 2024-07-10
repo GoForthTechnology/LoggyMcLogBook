@@ -1,0 +1,9 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/loggy-mclogbook/github:$COMMIT_SHA', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', 'gcr.io/loggy-mclogbook/github:$COMMIT_SHA' ]
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [ 'beta', 'run', 'deploy', 'fmfu-image', '--image=gcr.io/loggy-mclogbook/github:$COMMIT_SHA', '--region=us-central1' ]
+options:
+  machineType: 'E2_HIGHCPU_8'
