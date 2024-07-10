@@ -53,7 +53,7 @@ class _PregnancyTileState extends State<PregnancyTile> {
         subtitle: "",
         contents: [
           TextFormField(
-            decoration: InputDecoration(label: Text("Due Date")),
+            decoration: const InputDecoration(label: Text("Due Date")),
             controller: dueDateController,
             onTap: () async {
               final DateTime? picked = await promptForDate(
@@ -70,7 +70,8 @@ class _PregnancyTileState extends State<PregnancyTile> {
               children: [
                 Flexible(
                     child: TextFormField(
-                  decoration: InputDecoration(label: Text("Miscarrage Date")),
+                  decoration:
+                      const InputDecoration(label: Text("Miscarrage Date")),
                   controller: misscarrageDateController,
                 )),
                 IconButton(
@@ -79,7 +80,7 @@ class _PregnancyTileState extends State<PregnancyTile> {
                         misscarrageDateController.text = "";
                       });
                     },
-                    icon: Icon(Icons.clear)),
+                    icon: const Icon(Icons.clear)),
               ],
             ),
           if (deliveryDateController.text.isNotEmpty)
@@ -87,7 +88,8 @@ class _PregnancyTileState extends State<PregnancyTile> {
               children: [
                 Flexible(
                     child: TextFormField(
-                  decoration: InputDecoration(label: Text("Delivery Date")),
+                  decoration:
+                      const InputDecoration(label: Text("Delivery Date")),
                   controller: deliveryDateController,
                 )),
                 IconButton(
@@ -96,11 +98,11 @@ class _PregnancyTileState extends State<PregnancyTile> {
                         deliveryDateController.text = "";
                       });
                     },
-                    icon: Icon(Icons.clear)),
+                    icon: const Icon(Icons.clear)),
               ],
             ),
           TextFormField(
-            decoration: InputDecoration(label: Text("Notes")),
+            decoration: const InputDecoration(label: Text("Notes")),
             controller: notesController,
             maxLines: null,
           ),
@@ -115,7 +117,7 @@ class _PregnancyTileState extends State<PregnancyTile> {
                             date?.toIso8601String() ?? "";
                       });
                     },
-                    child: Text("Record Miscarrage")),
+                    child: const Text("Record Miscarrage")),
                 TextButton(
                     onPressed: () async {
                       var date = await promptForDate();
@@ -124,7 +126,7 @@ class _PregnancyTileState extends State<PregnancyTile> {
                             date?.toIso8601String() ?? "";
                       });
                     },
-                    child: Text("Record Birth")),
+                    child: const Text("Record Birth")),
               ],
             ),
         ],
@@ -151,11 +153,11 @@ class _PregnancyTileState extends State<PregnancyTile> {
   }
 
   Pregnancy pregnancy() {
-    DateTime? dateOfDelivery = null;
+    DateTime? dateOfDelivery;
     if (deliveryDateController.text.isNotEmpty) {
       dateOfDelivery = DateTime.parse(deliveryDateController.text);
     }
-    DateTime? dateOfMiscarrage = null;
+    DateTime? dateOfMiscarrage;
     if (misscarrageDateController.text.isNotEmpty) {
       dateOfMiscarrage = DateTime.parse(misscarrageDateController.text);
     }
@@ -175,8 +177,8 @@ class _PregnancyTileState extends State<PregnancyTile> {
   Future<DateTime?> promptForDate({DateTime? initialDate}) {
     return showDatePicker(
         context: context,
-        firstDate: DateTime.now().subtract(Duration(days: 365)),
-        lastDate: DateTime.now().add(Duration(days: 365)),
+        firstDate: DateTime.now().subtract(const Duration(days: 365)),
+        lastDate: DateTime.now().add(const Duration(days: 365)),
         initialDate: initialDate ?? DateTime.now());
   }
 }
