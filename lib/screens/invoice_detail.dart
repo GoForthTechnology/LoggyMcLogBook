@@ -3,7 +3,6 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/client_general_info.dart';
-import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/gif_repo.dart';

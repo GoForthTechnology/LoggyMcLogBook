@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
