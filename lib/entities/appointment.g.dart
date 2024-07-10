@@ -10,8 +10,8 @@ Appointment _$AppointmentFromJson(Map<String, dynamic> json) => Appointment(
       type: $enumDecode(_$AppointmentTypeEnumMap, json['type']),
       time: DateTime.parse(json['time'] as String),
       duration: Duration(microseconds: (json['duration'] as num).toInt()),
-      clientId: json['clientId'] as String,
-      invoiceId: json['invoiceId'] as String?,
+      clientID: json['clientId'] as String,
+      invoiceID: json['invoiceId'] as String?,
     );
 
 Map<String, dynamic> _$AppointmentToJson(Appointment instance) =>
@@ -19,8 +19,8 @@ Map<String, dynamic> _$AppointmentToJson(Appointment instance) =>
       'type': _$AppointmentTypeEnumMap[instance.type]!,
       'time': instance.time.toIso8601String(),
       'duration': instance.duration.inMicroseconds,
-      'clientId': instance.clientId,
-      'invoiceId': instance.invoiceId,
+      'clientId': instance.clientID,
+      'invoiceId': instance.invoiceID,
     };
 
 const _$AppointmentTypeEnumMap = {

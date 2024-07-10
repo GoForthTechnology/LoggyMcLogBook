@@ -30,7 +30,7 @@ class AppointmentsPanel extends StatelessWidget {
                   .map((a) => _appointmentTile(context, a))
                   .toList(),
               trailing: TextButton(
-                child: Text("Add Next"),
+                child: const Text("Add Next"),
                 onPressed: () => showDialog(
                   context: context,
                   builder: (context) => NewAppointmentDialog(
@@ -68,7 +68,7 @@ class AppointmentsPanel extends StatelessWidget {
       attentionLevel: a.time.isBefore(DateTime.now())
           ? OverviewAttentionLevel.grey
           : OverviewAttentionLevel.green,
-      title: a.type.name(),
+      title: a.type.prettyName(),
       subtitle: a.timeStr(),
       icon: Icons.event,
       actions: [
@@ -76,7 +76,7 @@ class AppointmentsPanel extends StatelessWidget {
             title: "View",
             onPress: () => AutoRouter.of(context).push(
                 AppointmentDetailScreenRoute(
-                    appointmentID: a.id!, clientID: a.clientId))),
+                    appointmentID: a.id!, clientID: a.clientID))),
       ],
     );
   }

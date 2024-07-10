@@ -31,16 +31,16 @@ class Appointment extends Indexable<Appointment> {
   final AppointmentType type;
   final DateTime time;
   final Duration duration;
-  final String clientId;
-  final String? invoiceId;
+  final String clientID;
+  final String? invoiceID;
 
   Appointment({
     required this.type,
     required this.time,
     required this.duration,
-    required this.clientId,
+    required this.clientID,
     this.id,
-    this.invoiceId,
+    this.invoiceID,
   });
 
   Appointment copyWith({
@@ -56,8 +56,8 @@ class Appointment extends Indexable<Appointment> {
       type: type ?? this.type,
       time: time ?? this.time,
       duration: duration ?? this.duration,
-      clientId: clientID ?? this.clientId,
-      invoiceId: invoiceID ?? this.invoiceId,
+      clientID: clientID ?? this.clientID,
+      invoiceID: invoiceID ?? this.invoiceID,
     );
   }
 
@@ -67,8 +67,8 @@ class Appointment extends Indexable<Appointment> {
       type: type,
       time: time,
       duration: duration,
-      clientId: clientId,
-      invoiceId: null,
+      clientID: clientID,
+      invoiceID: null,
     );
   }
 
@@ -76,7 +76,7 @@ class Appointment extends Indexable<Appointment> {
     if (time.isAfter(DateTime.now())) {
       return AppointmentStatus.upcoming;
     }
-    if (invoiceId != null) {
+    if (invoiceID != null) {
       return AppointmentStatus.billed;
     }
     return AppointmentStatus.billable;
@@ -88,7 +88,7 @@ class Appointment extends Indexable<Appointment> {
 
   @override
   String toString() {
-    return "${type.name()} on ${timeStr()}";
+    return "${type.prettyName()} on ${timeStr()}";
   }
 
   String timeStr() {

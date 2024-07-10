@@ -145,7 +145,7 @@ class ActionItemRepo extends ChangeNotifier {
 
   Future<String> _doCreateInvoice(ActionItem ai) async {
     var unbilledAppointments =
-        await appointmentRepo.streamAll((a) => a.invoiceId == null).first;
+        await appointmentRepo.streamAll((a) => a.invoiceID == null).first;
     var client = await clientRepo.get(ai.identifiers.clientID);
     if (client == null) {
       return "Could not find client";
@@ -217,7 +217,7 @@ class ActionItemRepo extends ChangeNotifier {
   Stream<List<ActionItem>> _appointmentAIs(String clientID) async* {
     var pendingInvoice = await invoiceRepo.getPending(clientID: clientID).first;
     var unbilledAppointments = appointmentRepo
-        .streamAll((a) => a.invoiceId == null, clientID: clientID);
+        .streamAll((a) => a.invoiceID == null, clientID: clientID);
     yield* unbilledAppointments.map((as) => as.map((a) {
           int daysSinceAppointment = DateTime.now().difference(a.time).inDays;
           var severity = daysSinceAppointment < 0

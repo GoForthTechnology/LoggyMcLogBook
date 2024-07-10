@@ -59,7 +59,7 @@ class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
     return Consumer<Appointments>(
         builder: (context, repo, child) => FutureBuilder<Appointment>(
               future: repo
-                  .streamAll((a) => a.clientId == widget.clientID)
+                  .streamAll((a) => a.clientID == widget.clientID)
                   .first
                   .then((as) {
                 as.sort((a, b) => a.type.index.compareTo(b.type.index));

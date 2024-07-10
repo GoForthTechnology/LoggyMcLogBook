@@ -64,13 +64,13 @@ class AppointmentListData {
     }
     List<AppointmentData> data = [];
     for (var appointment in appointments) {
-      var client = clientIndex[appointment.clientId];
+      var client = clientIndex[appointment.clientID];
       if (client == null) {
-        print("Null client for ID ${appointment.clientId}");
+        print("Null client for ID ${appointment.clientID}");
         continue;
       }
       data.add(AppointmentData.create(
-          appointment, clientIndex[appointment.clientId]!, false));
+          appointment, clientIndex[appointment.clientID]!, false));
     }
     return AppointmentListData(data);
   }
@@ -99,7 +99,7 @@ class AppointmentData {
     final textColor = isInPast ? Colors.grey : Colors.black;
     List<String> warnings = [];
     if (appointment.time.isBefore(DateTime.now()) &&
-        appointment.invoiceId == null) {
+        appointment.invoiceID == null) {
       warnings.add("Not yet invoiced");
     }
     return AppointmentData(
@@ -110,6 +110,6 @@ class AppointmentData {
         isInPast,
         appointment.time,
         warnings,
-        appointment.clientId);
+        appointment.clientID);
   }
 }

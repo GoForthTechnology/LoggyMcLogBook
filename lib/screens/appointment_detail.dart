@@ -32,7 +32,7 @@ class AppointmentDetailScreen extends StatelessWidget {
         appointmentID,
         clientID,
         (appointment) => clientWidget(
-            appointment!.clientId,
+            appointment!.clientID,
             (client) => NavigationRailScreen(
                   item: NavigationItem.appointments,
                   title: Text(
@@ -66,7 +66,7 @@ class AppointmentDetailScreen extends StatelessWidget {
                                       .textTheme
                                       .titleMedium))),
                       GifForm(
-                        clientID: appointment.clientId,
+                        clientID: appointment.clientID,
                       ),
                     ],
                   ),
@@ -186,7 +186,7 @@ class NextStepsPanel extends StatelessWidget {
                           onPress: () => showDialog(
                                 context: context,
                                 builder: (context) => NewAppointmentDialog(
-                                    clientID: appointment.clientId),
+                                    clientID: appointment.clientID),
                               )),
                     ],
                   );

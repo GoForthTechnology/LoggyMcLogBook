@@ -49,7 +49,7 @@ class AppointmentOverviewTile extends StatelessWidget {
                 .map((as) => as.length),
             repo
                 .streamAll((a) =>
-                    !a.time.isAfter(DateTime.now()) && a.invoiceId == null)
+                    !a.time.isAfter(DateTime.now()) && a.invoiceID == null)
                 .map((as) => as.length),
             (numUpcoming, numUnbilled) => AppointmentOverviewState(
                   numUnbilled: numUnbilled,

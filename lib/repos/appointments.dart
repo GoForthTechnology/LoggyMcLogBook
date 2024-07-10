@@ -36,7 +36,7 @@ class Appointments extends ChangeNotifier {
 
   Future<Appointment?> getNext(Appointment appointment) {
     return streamAll((a) =>
-        a.clientId == appointment.clientId &&
+        a.clientID == appointment.clientID &&
         a.time.isAfter(appointment.time)).first.then((as) {
       if (as.isEmpty) {
         return null;
@@ -48,7 +48,7 @@ class Appointments extends ChangeNotifier {
 
   Future<Appointment?> getPrevious(Appointment appointment) {
     return streamAll((a) =>
-        a.clientId == appointment.clientId &&
+        a.clientID == appointment.clientID &&
         a.time.isBefore(appointment.time)).first.then((as) {
       if (as.isEmpty) {
         return null;
@@ -94,7 +94,7 @@ class Appointments extends ChangeNotifier {
             type: type,
             time: startTime,
             duration: duration,
-            clientId: clientId))
+            clientID: clientId))
         .ignore();
   }
 
@@ -109,7 +109,7 @@ class Appointments extends ChangeNotifier {
   }
 
   Future<void> updateAppointment(Appointment updatedAppointemnt) async {
-    var ref = await _ref(updatedAppointemnt.clientId);
+    var ref = await _ref(updatedAppointemnt.clientID);
     ref.doc(updatedAppointemnt.id!).update(updatedAppointemnt.toJson());
   }
 }
