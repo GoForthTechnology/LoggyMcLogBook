@@ -24,22 +24,22 @@ Map<String, dynamic> _$AppointmentEntryToJson(AppointmentEntry instance) =>
     };
 
 const _$AppointmentTypeEnumMap = {
-  AppointmentType.generic: 'GENERIC',
-  AppointmentType.info: 'INFO',
-  AppointmentType.intro: 'INTRO',
-  AppointmentType.fup1: 'FUP1',
-  AppointmentType.fup2: 'FUP2',
-  AppointmentType.fup3: 'FUP3',
-  AppointmentType.fup4: 'FUP4',
-  AppointmentType.fup5: 'FUP5',
-  AppointmentType.fup6: 'FUP6',
-  AppointmentType.fup7: 'FUP7',
-  AppointmentType.fup8: 'FUP8',
-  AppointmentType.fup9: 'FUP9',
-  AppointmentType.fup10: 'FUP10',
-  AppointmentType.fup11: 'FUP11',
-  AppointmentType.fup12: 'FUP12',
-  AppointmentType.pregEval: 'PREG_EVAL',
+  AppointmentType.generic: 'generic',
+  AppointmentType.info: 'info',
+  AppointmentType.intro: 'intro',
+  AppointmentType.fup1: 'fup1',
+  AppointmentType.fup2: 'fup2',
+  AppointmentType.fup3: 'fup3',
+  AppointmentType.fup4: 'fup4',
+  AppointmentType.fup5: 'fup5',
+  AppointmentType.fup6: 'fup6',
+  AppointmentType.fup7: 'fup7',
+  AppointmentType.fup8: 'fup8',
+  AppointmentType.fup9: 'fup9',
+  AppointmentType.fup10: 'fup10',
+  AppointmentType.fup11: 'fup11',
+  AppointmentType.fup12: 'fup12',
+  AppointmentType.pregEval: 'pregEval',
 };
 
 Invoice _$InvoiceFromJson(Map<String, dynamic> json) => Invoice(

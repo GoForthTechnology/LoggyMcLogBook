@@ -1,11 +1,10 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 
 class Clients extends ChangeNotifier {
-  StreamingCrudInterface<Client> _persistence;
+  final StreamingCrudInterface<Client> _persistence;
 
   Clients(this._persistence) {
     _persistence.addListener(() => init());
@@ -54,7 +53,8 @@ class Clients extends ChangeNotifier {
       return null;
     }
     var clients = await getAll();
-    return clients.firstWhere((client) => client.num == clientNum, orElse: null);
+    return clients.firstWhere((client) => client.num == clientNum,
+        orElse: null);
   }
 
   Future<Client> newClient(String firstName, String lastName) async {
@@ -83,17 +83,22 @@ class Clients extends ChangeNotifier {
       }
     });
     var updatedClient = client.copyWith(num: maxClientNum + 1);
-    return _persistence.update(updatedClient)
+    return _persistence
+        .update(updatedClient)
         .then((_) => activate(updatedClient))
         .then((_) => notifyListeners());
   }
 
   Future<void> activate(Client client) {
-    return _persistence.update(client.copyWith(active: true)).then((_) => notifyListeners());
+    return _persistence
+        .update(client.copyWith(active: true))
+        .then((_) => notifyListeners());
   }
 
   Future<void> deactivate(Client client) {
-    return _persistence.update(client.copyWith(active: false)).then((_) => notifyListeners());
+    return _persistence
+        .update(client.copyWith(active: false))
+        .then((_) => notifyListeners());
   }
 
   Future<void> update(Client client) {

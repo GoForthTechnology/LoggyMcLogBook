@@ -1,20 +1,19 @@
-
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/reminder.dart';
 import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 
 class Reminders extends ChangeNotifier {
-
   final StreamingCrudInterface<Reminder> _persistence;
 
   Reminders(this._persistence);
 
   Stream<List<Reminder>> forAppointment(String appointmentID) async* {
-    yield* _persistence.getWhere("appointmentID", isEqualTo: appointmentID);
+    yield* _persistence
+        .getWhere([Criteria("appointmentID", isEqualTo: appointmentID)]);
   }
 
   Stream<List<Reminder>> forClient(String clientID) async* {
-    yield* _persistence.getWhere("clientID", isEqualTo: clientID);
+    yield* _persistence.getWhere([Criteria("clientID", isEqualTo: clientID)]);
   }
 
   Future<void> addReminder({

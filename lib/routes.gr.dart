@@ -36,7 +36,7 @@ class AppRouter extends _i10.RootStackRouter {
     OverviewScreenRoute.name: (routeData) {
       return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i1.OverviewScreen(),
+        child: const _i1.OverviewScreen(),
       );
     },
     AppointmentDetailScreenRoute.name: (routeData) {
@@ -58,13 +58,13 @@ class AppRouter extends _i10.RootStackRouter {
     AppointmentsScreenRoute.name: (routeData) {
       return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i3.AppointmentsScreen(),
+        child: const _i3.AppointmentsScreen(),
       );
     },
     InvoicesScreenRoute.name: (routeData) {
       return _i10.AdaptivePage<dynamic>(
         routeData: routeData,
-        child: _i4.InvoicesScreen(),
+        child: const _i4.InvoicesScreen(),
       );
     },
     InvoiceDetailScreenRoute.name: (routeData) {

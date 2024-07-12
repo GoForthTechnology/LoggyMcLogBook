@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,17 +5,18 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
 
-class StreamingFirebaseCrud<T extends Indexable> extends StreamingCrudInterface<T> {
+class StreamingFirebaseCrud<T extends Indexable>
+    extends StreamingCrudInterface<T> {
   final String directory;
   final FirebaseDatabase db;
   final T Function(Map<String, dynamic>) fromJson;
   final Map<String, dynamic> Function(T) toJson;
-  final userCompleter = new Completer<User>();
+  final userCompleter = Completer<User>();
 
-  StreamingFirebaseCrud({required this.directory, required this.fromJson, required this.toJson}) : db = FirebaseDatabase.instance {
-    FirebaseAuth.instance
-        .authStateChanges()
-        .listen((user) {
+  StreamingFirebaseCrud(
+      {required this.directory, required this.fromJson, required this.toJson})
+      : db = FirebaseDatabase.instance {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user != null && !userCompleter.isCompleted) {
         userCompleter.complete(user);
         notifyListeners();
@@ -36,16 +36,17 @@ class StreamingFirebaseCrud<T extends Indexable> extends StreamingCrudInterface<
   @override
   Stream<T?> get(String id) async* {
     var ref = await _ref(id: id);
-    yield* db.ref(ref).onValue
-      .map((e) => e.snapshot.value as Map<String, dynamic>)
-      .map(fromJson);
+    yield* db
+        .ref(ref)
+        .onValue
+        .map((e) => e.snapshot.value as Map<String, dynamic>)
+        .map(fromJson);
   }
 
   @override
   Stream<List<T>> getAll() async* {
     var ref = await _ref(id: null);
-    yield* db.ref(ref).onValue
-      .map((e) => e.snapshot.children
+    yield* db.ref(ref).onValue.map((e) => e.snapshot.children
         .map((snapshot) => snapshot.value as Map<String, dynamic>)
         .map(fromJson)
         .toList());
@@ -82,7 +83,7 @@ class StreamingFirebaseCrud<T extends Indexable> extends StreamingCrudInterface<
   }
 
   @override
-  Stream<List<T>> getWhere(Object field, {Object? isEqualTo, Object? isNotEqualTo, bool? isNull}) {
+  Stream<List<T>> getWhere(List<Criteria> criteria) {
     throw UnimplementedError();
   }
 }

@@ -32,7 +32,7 @@ class FirestoreFormCrud<E> extends StreamingFormCrud {
   }
 
   Future<CollectionReference<FormValue>> _formReference(FormKey key) async {
-    var user = await userCompleter.future.timeout(Duration(seconds: 10));
+    var user = await userCompleter.future.timeout(const Duration(seconds: 10));
     return db
         .collection("users")
         .doc(user.uid)
@@ -66,9 +66,9 @@ class FirestoreFormCrud<E> extends StreamingFormCrud {
     var ref = await _formReference(key);
     yield* ref.snapshots().map((snapshot) {
       Map<String, FormValue> out = {};
-      snapshot.docs.forEach((doc) {
+      for (var doc in snapshot.docs) {
         out.putIfAbsent(doc.id, () => doc.data());
-      });
+      }
       return out;
     });
   }
@@ -84,7 +84,7 @@ class FirestoreFormCrud<E> extends StreamingFormCrud {
           .set(value)
           .onError((error, stackTrace) => print("FOO: $error")));
     });
-    await futures;
+    await Future.wait(futures);
   }
 
   @override

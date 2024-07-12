@@ -1,134 +1,75 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
+import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 import 'package:lmlb/repos/appointments.dart';
 
 class Invoices extends ChangeNotifier {
-  final _userCompleter = Completer<User>();
-  final FirebaseFirestore _db;
+  final StreamingCrudInterface<Invoice> _persistence;
 
   final Appointments appointmentRepo;
 
-  Invoices(this.appointmentRepo) : _db = FirebaseFirestore.instance {
-    FirebaseAuth.instance.authStateChanges().listen((user) async {
-      if (user != null && !_userCompleter.isCompleted) {
-        _userCompleter.complete(user);
-        notifyListeners();
-      }
-    });
-  }
-
-  Future<CollectionReference<Invoice>> _ref(String clientID) async {
-    var user = await _userCompleter.future.timeout(const Duration(seconds: 10));
-    return _db
-        .collection("users")
-        .doc(user.uid)
-        .collection("clients")
-        .doc(clientID)
-        .collection("invoices")
-        .withConverter<Invoice>(
-          fromFirestore: (snapshots, _) =>
-              Invoice.fromJson(snapshots.data() ?? {}),
-          toFirestore: (value, _) => value.toJson(),
-        );
-  }
+  Invoices(this._persistence, this.appointmentRepo);
 
   Future<void> update(Invoice invoice) async {
-    try {
-      var ref = await _ref(invoice.clientID);
-      ref.doc(invoice.id).update(invoice.toJson());
-    } catch (e) {
-      rethrow;
-    }
+    return _persistence.update(invoice).ignore();
   }
 
   Stream<Invoice?> get(
       {required String clientID, required String invoiceID}) async* {
-    var ref = await _ref(clientID);
-    yield* ref.doc(invoiceID).snapshots().map((s) => s.data()?.setId(s.id));
+    // TODO: remove clientID as a required parameter
+    yield* _persistence.get(invoiceID);
   }
 
   Stream<Invoice?> getPending({required String clientID}) async* {
-    var ref = await _ref(clientID);
-    yield* ref.where("dateBilled", isNull: true).snapshots().map((e) {
-      if (e.docs.isEmpty) {
+    yield* _persistence
+        .getWhere([Criteria("dateBilled", isNull: true)]).map((invoices) {
+      if (invoices.isEmpty) {
         return null;
       }
-      if (e.docs.length > 1) {
+      if (invoices.length > 1) {
         throw Exception("Found multiple pending invoices!");
       }
-      var doc = e.docs[0];
-      return doc.data().setId(doc.id);
+      return invoices.first;
     });
   }
 
   Stream<List<Invoice>> getOutstanding({required String clientID}) async* {
-    var ref = await _ref(clientID);
-    yield* ref
-        .where("dateBilled", isNull: false)
-        .where("datePaid", isNull: true)
-        .snapshots()
-        .map((e) => e.docs.map((doc) => doc.data().setId(doc.id)).toList());
+    yield* _persistence.getWhere([
+      Criteria("dateBilled", isNull: false),
+      Criteria("datePaid", isNull: true),
+    ]);
   }
 
   Stream<List<Invoice>> list({String? clientID}) async* {
-    var query = _db.collectionGroup("invoices");
-    if (clientID != null) {
-      query = query.where("clientID", isEqualTo: clientID);
-    }
-    yield* query
-        .withConverter<Invoice>(
-            fromFirestore: (snapshots, _) =>
-                Invoice.fromJson(snapshots.data() ?? {}).setId(snapshots.id),
-            toFirestore: (value, _) => value.toJson())
-        .snapshots()
-        .map((snapshots) =>
-            snapshots.docs.map((e) => e.data().setId(e.id)).toList());
+    yield* _persistence.getAll();
   }
 
   Future<int> _nextInvoiceNum() async {
-    try {
-      var query = _db
-          .collectionGroup("invoices")
-          .orderBy("num", descending: true)
-          .limit(1);
-      var snapshot = await query.get();
-      if (snapshot.docs.isEmpty) {
-        return 1;
-      }
-      if (snapshot.docs.length != 1) {
-        throw Exception("Expected only one doc!");
-      }
-      var doc = snapshot.docs[0];
-      int num = doc.data()["num"];
-      return num + 1;
-    } catch (e) {
-      rethrow;
+    var invoices = await list().first;
+    if (invoices.isEmpty) {
+      return 1;
     }
+    invoices = invoices.where((i) => i.num != null).toList();
+    invoices.sort((a, b) => a.num!.compareTo(b.num!));
+    return invoices.last.num! + 1;
   }
 
   Future<Invoice?> _pendingInvoice(String clientID) async {
-    var ref = await _ref(clientID);
-    var snapshot = await ref
-        .where("dateBilled", isNull: true)
-        .withConverter<Invoice>(
-            fromFirestore: (snapshots, _) =>
-                Invoice.fromJson(snapshots.data() ?? {}).setId(snapshots.id),
-            toFirestore: (value, _) => value.toJson())
-        .get();
-    if (snapshot.docs.isEmpty) {
-      return null;
-    }
-    if (snapshot.docs.length > 1) {
-      throw Exception(
-          "Only one invoice should be pending for client $clientID");
-    }
-    return snapshot.docs[0].data();
+    return _persistence
+        .getWhere([Criteria("fieldateBilled", isNull: true)]).map((invoices) {
+      if (invoices.isEmpty) {
+        return null;
+      }
+      if (invoices.length > 1) {
+        throw Exception(
+            "Only one invoice should be pending for client $clientID");
+      }
+      return invoices.first;
+    }).first;
   }
 
   Future<String> create(String clientID, Client client,
@@ -142,22 +83,19 @@ class Invoices extends ChangeNotifier {
       throw Exception("Client is missing a currency selection!");
     }
     var nextInvoiceNum = await _nextInvoiceNum();
-    var ref = await _ref(clientID);
-    var invoiceID = await ref
-        .add(Invoice(
-          clientID: clientID,
-          currency: client.currency!,
-          dateCreated: DateTime.now(),
-          num: nextInvoiceNum,
-          appointmentEntries: appointments
-              .map((a) => AppointmentEntry(
-                  appointmentID: a.id!,
-                  appointmentType: a.type,
-                  appointmentDate: a.time,
-                  price: client.defaultFollowUpPrice ?? 0))
-              .toList(),
-        ))
-        .then((doc) => doc.id);
+    var invoiceID = await _persistence.insert(Invoice(
+      clientID: clientID,
+      currency: client.currency!,
+      dateCreated: DateTime.now(),
+      num: nextInvoiceNum,
+      appointmentEntries: appointments
+          .map((a) => AppointmentEntry(
+              appointmentID: a.id!,
+              appointmentType: a.type,
+              appointmentDate: a.time,
+              price: client.defaultFollowUpPrice ?? 0))
+          .toList(),
+    ));
     await Future.wait(appointments
         .map((a) =>
             appointmentRepo.updateAppointment(a.copyWith(invoiceID: invoiceID)))

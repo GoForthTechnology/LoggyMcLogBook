@@ -5,7 +5,9 @@ import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lmlb/auth.dart';
+import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
+import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/entities/reminder.dart';
 import 'package:lmlb/models/child_model.dart';
 import 'package:lmlb/models/pregnancy_model.dart';
@@ -41,17 +43,23 @@ Future<Widget> init(Widget app, bool isWeb) {
     fromJson: Client.fromJson,
     toJson: (c) => c.toJson(),
   ));
-  final reminderRepo = Reminders(
-    FirestoreCrud(
-        collectionName: "reminders",
-        fromJson: Reminder.fromJson,
-        toJson: (r) => r.toJson()),
-  );
+  final reminderRepo = Reminders(FirestoreCrud(
+      collectionName: "reminders",
+      fromJson: Reminder.fromJson,
+      toJson: (r) => r.toJson()));
   final gifRepo = GifRepo(FirestoreFormCrud());
   //final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
   final init = Future.value(null);
-  final appointmentRepo = Appointments();
-  final invoiceRepo = Invoices(appointmentRepo);
+  final appointmentRepo = Appointments(FirestoreCrud(
+      collectionName: "appointments",
+      fromJson: Appointment.fromJson,
+      toJson: (a) => a.toJson()));
+  final invoiceRepo = Invoices(
+      FirestoreCrud(
+          collectionName: "invoices",
+          fromJson: Invoice.fromJson,
+          toJson: (i) => i.toJson()),
+      appointmentRepo);
   final aiRepo =
       ActionItemRepo(invoiceRepo, appointmentRepo, reminderRepo, clients);
   return init.then((_) => MultiProvider(providers: [
