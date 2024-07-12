@@ -7,6 +7,7 @@ import 'package:lmlb/screens/clients.dart';
 import 'package:lmlb/screens/gif.dart';
 import 'package:lmlb/screens/invoice_detail.dart';
 import 'package:lmlb/screens/invoices.dart';
+import 'package:lmlb/screens/materials_overview.dart';
 import 'package:lmlb/screens/overview.dart';
 
 @AdaptiveAutoRouter(
@@ -41,6 +42,11 @@ import 'package:lmlb/screens/overview.dart';
     AutoRoute(
       path: '/clients',
       page: ClientsScreen,
+      guards: [AuthGuard],
+    ),
+    AutoRoute(
+      path: '/materials',
+      page: MaterialsOverviewScreen,
       guards: [AuthGuard],
     ),
     AutoRoute(
