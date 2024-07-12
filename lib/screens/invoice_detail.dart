@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/client_general_info.dart';
 import 'package:lmlb/entities/invoice.dart';
@@ -324,7 +325,7 @@ class AppointmentPanel extends StatelessWidget {
           .map((e) => OverviewTile(
                 attentionLevel: OverviewAttentionLevel.grey,
                 title:
-                    "${e.price} ${invoice.currency.name} for ${e.appointmentType.name} on ${e.appointmentDate}",
+                    "${e.price} ${invoice.currency.name} for ${e.appointmentType.prettyName()} on ${e.appointmentDate}",
                 icon: Icons.event,
                 additionalTrailing: [
                   IconButton(
