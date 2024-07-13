@@ -109,6 +109,7 @@ class RestockOrdersPanel extends StatelessWidget {
             return Container();
           }
           var orders = snapshot.data!;
+          orders.sort((a, b) => a.dateCreated.compareTo(b.dateCreated));
           var numOutstanding =
               orders.where((o) => o.dateReceived == null).length;
           return ExpandableInfoPanel(
@@ -140,7 +141,11 @@ class RestockOrdersPanel extends StatelessWidget {
     var attentionLevel = OverviewAttentionLevel.grey;
     if (order.dateReceived == null) {
       attentionLevel = OverviewAttentionLevel.yellow;
-      actions.add(OverviewAction(title: "Mark Received", onPress: () {}));
+      actions.add(OverviewAction(
+          title: "Mark Received",
+          onPress: () async {
+            await repo.markRestockAsReceived(order);
+          }));
     }
     return OverviewTile(
       attentionLevel: attentionLevel,

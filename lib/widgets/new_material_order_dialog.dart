@@ -129,7 +129,15 @@ class _NewMaterialOrderDialogState extends State<NewMaterialOrderDialog> {
             materialID: e.key, pricePerItem: price, quantity: quantity);
       }).toList();
       var shippingPrice = double.parse(shippingPriceController.text);
-      await widget.repo.createRestockOrder(entries, shippingPrice);
+
+      if (widget.order == null) {
+        await widget.repo.createRestockOrder(entries, shippingPrice);
+      } else {
+        await widget.repo.updateRestockOrder(widget.order!.copyWith(
+          entries: entries,
+          shippingPrice: shippingPrice,
+        ));
+      }
     }
   }
 }

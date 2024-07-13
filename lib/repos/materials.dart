@@ -38,6 +38,19 @@ class MaterialsRepo extends ChangeNotifier {
         dateCreated: DateTime.now()));
   }
 
+  Future<void> markRestockAsReceived(RestockOrder order) {
+    List<Future<void>> futures = [];
+    for (var entry in order.entries) {
+      futures.add(_materials.get(entry.materialID).first.then((material) {
+        return _materials.update(material!.copyWith(
+            currentQuantity: material.currentQuantity + entry.quantity));
+      }));
+    }
+    futures.add(
+        _restockOrders.update(order.copyWith(dateReceived: DateTime.now())));
+    return Future.wait(futures);
+  }
+
   Future<void> updateRestockOrder(RestockOrder order) {
     return _restockOrders.update(order);
   }
