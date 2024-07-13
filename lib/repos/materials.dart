@@ -4,10 +4,10 @@ import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 
 class MaterialsRepo extends ChangeNotifier {
   final StreamingCrudInterface<MaterialItem> _materials;
-  final StreamingCrudInterface<Order> _replacementOrders;
+  final StreamingCrudInterface<RestockOrder> _restockOrders;
   final StreamingCrudInterface<ClientOrder> _clientOrders;
 
-  MaterialsRepo(this._materials, this._replacementOrders, this._clientOrders);
+  MaterialsRepo(this._materials, this._restockOrders, this._clientOrders);
 
   Stream<List<MaterialItem>> currentInventory() {
     return _materials.getAll();
@@ -21,11 +21,24 @@ class MaterialsRepo extends ChangeNotifier {
     return _materials.update(item);
   }
 
-  Stream<List<Order>> replacementOrders() {
-    return _replacementOrders.getAll();
+  Stream<List<RestockOrder>> restockOrders() {
+    return _restockOrders.getAll();
   }
 
-  Stream<List<Order>> clientOrders() {
+  Stream<List<ClientOrder>> clientOrders() {
     return _clientOrders.getAll();
+  }
+
+  Future<void> createRestockOrder(
+      List<OrderEntry> entries, double shippingPrice) {
+    return _restockOrders.insert(RestockOrder(
+        dateReceived: null,
+        entries: entries,
+        shippingPrice: shippingPrice,
+        dateCreated: DateTime.now()));
+  }
+
+  Future<void> updateRestockOrder(RestockOrder order) {
+    return _restockOrders.update(order);
   }
 }

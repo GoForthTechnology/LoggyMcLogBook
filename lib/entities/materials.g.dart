@@ -39,33 +39,60 @@ const _$CurrencyEnumMap = {
   Currency.GBP: 'GBP',
 };
 
-Order _$OrderFromJson(Map<String, dynamic> json) => Order(
+_Order _$OrderFromJson(Map<String, dynamic> json) => _Order(
       entries: (json['entries'] as List<dynamic>)
           .map((e) => OrderEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
-      shippingPrice: (json['shippingPrice'] as num).toInt(),
+      shippingPrice: (json['shippingPrice'] as num).toDouble(),
+      dateCreated: DateTime.parse(json['dateCreated'] as String),
     );
 
-Map<String, dynamic> _$OrderToJson(Order instance) => <String, dynamic>{
+Map<String, dynamic> _$OrderToJson(_Order instance) => <String, dynamic>{
       'entries': instance.entries.map((e) => e.toJson()).toList(),
       'shippingPrice': instance.shippingPrice,
+      'dateCreated': instance.dateCreated.toIso8601String(),
+    };
+
+RestockOrder _$RestockOrderFromJson(Map<String, dynamic> json) => RestockOrder(
+      dateReceived: json['dateReceived'] == null
+          ? null
+          : DateTime.parse(json['dateReceived'] as String),
+      entries: (json['entries'] as List<dynamic>)
+          .map((e) => OrderEntry.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      shippingPrice: (json['shippingPrice'] as num).toDouble(),
+      dateCreated: DateTime.parse(json['dateCreated'] as String),
+    );
+
+Map<String, dynamic> _$RestockOrderToJson(RestockOrder instance) =>
+    <String, dynamic>{
+      'entries': instance.entries.map((e) => e.toJson()).toList(),
+      'shippingPrice': instance.shippingPrice,
+      'dateCreated': instance.dateCreated.toIso8601String(),
+      'dateReceived': instance.dateReceived?.toIso8601String(),
     };
 
 ClientOrder _$ClientOrderFromJson(Map<String, dynamic> json) => ClientOrder(
       entries: (json['entries'] as List<dynamic>)
           .map((e) => OrderEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
-      shippingPrice: (json['shippingPrice'] as num).toInt(),
-      clientID: json['clientID'] as String,
+      shippingPrice: (json['shippingPrice'] as num).toDouble(),
       invoiceID: json['invoiceID'] as String?,
+      clientID: json['clientID'] as String,
+      dateShipped: json['dateShipped'] == null
+          ? null
+          : DateTime.parse(json['dateShipped'] as String),
+      dateCreated: DateTime.parse(json['dateCreated'] as String),
     );
 
 Map<String, dynamic> _$ClientOrderToJson(ClientOrder instance) =>
     <String, dynamic>{
       'entries': instance.entries.map((e) => e.toJson()).toList(),
       'shippingPrice': instance.shippingPrice,
+      'dateCreated': instance.dateCreated.toIso8601String(),
       'clientID': instance.clientID,
       'invoiceID': instance.invoiceID,
+      'dateShipped': instance.dateShipped?.toIso8601String(),
     };
 
 OrderEntry _$OrderEntryFromJson(Map<String, dynamic> json) => OrderEntry(

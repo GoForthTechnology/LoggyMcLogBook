@@ -71,8 +71,8 @@ Future<Widget> init(Widget app, bool isWeb) {
       toJson: (i) => i.toJson(),
     ),
     FirestoreCrud(
-      collectionName: "replacementOrders",
-      fromJson: Order.fromJson,
+      collectionName: "restockOrders",
+      fromJson: RestockOrder.fromJson,
       toJson: (i) => i.toJson(),
     ),
     FirestoreCrud(

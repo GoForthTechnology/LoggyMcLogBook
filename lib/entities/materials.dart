@@ -61,13 +61,18 @@ class MaterialItem implements Indexable<MaterialItem> {
 }
 
 @JsonSerializable(explicitToJson: true)
-class Order implements Indexable<Order> {
+class _Order implements Indexable<_Order> {
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String? id;
   final List<OrderEntry> entries;
-  final int shippingPrice;
+  final double shippingPrice;
+  final DateTime dateCreated;
 
-  Order({this.id, required this.entries, required this.shippingPrice});
+  _Order(
+      {this.id,
+      required this.entries,
+      required this.shippingPrice,
+      required this.dateCreated});
 
   @override
   String? getId() {
@@ -75,43 +80,85 @@ class Order implements Indexable<Order> {
   }
 
   @override
-  Order setId(String id) {
-    return Order(id: id, entries: entries, shippingPrice: shippingPrice);
+  _Order setId(String id) {
+    return copyWith(id: id);
   }
 
-  Order copyWith({String? id, List<OrderEntry>? entries, int? shippingPrice}) {
-    return Order(
-        id: id ?? this.id,
-        entries: entries ?? this.entries,
-        shippingPrice: shippingPrice ?? this.shippingPrice);
+  _Order copyWith(
+      {String? id, List<OrderEntry>? entries, double? shippingPrice}) {
+    return _Order(
+      id: id ?? this.id,
+      entries: entries ?? this.entries,
+      shippingPrice: shippingPrice ?? this.shippingPrice,
+      dateCreated: dateCreated,
+    );
   }
 
-  factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
+  factory _Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
   Map<String, dynamic> toJson() => _$OrderToJson(this);
 }
 
 @JsonSerializable(explicitToJson: true)
-class ClientOrder extends Order {
+class RestockOrder extends _Order {
+  final DateTime? dateReceived;
+
+  RestockOrder(
+      {super.id,
+      required this.dateReceived,
+      required super.entries,
+      required super.shippingPrice,
+      required super.dateCreated});
+
+  @override
+  RestockOrder copyWith({
+    String? id,
+    List<OrderEntry>? entries,
+    DateTime? dateReceived,
+    double? shippingPrice,
+  }) {
+    return RestockOrder(
+      id: id ?? this.id,
+      entries: entries ?? this.entries,
+      shippingPrice: shippingPrice ?? this.shippingPrice,
+      dateReceived: dateReceived ?? this.dateReceived,
+      dateCreated: dateCreated,
+    );
+  }
+
+  factory RestockOrder.fromJson(Map<String, dynamic> json) =>
+      _$RestockOrderFromJson(json);
+  @override
+  Map<String, dynamic> toJson() => _$RestockOrderToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class ClientOrder extends _Order {
   final String clientID;
   final String? invoiceID;
+  final DateTime? dateShipped;
 
   ClientOrder(
       {required super.entries,
       required super.shippingPrice,
       super.id,
+      this.invoiceID,
       required this.clientID,
-      this.invoiceID});
+      required this.dateShipped,
+      required super.dateCreated});
 
   @override
   ClientOrder copyWith(
       {String? id,
       List<OrderEntry>? entries,
-      int? shippingPrice,
+      double? shippingPrice,
+      DateTime? dateShipped,
       String? invoiceID}) {
     return ClientOrder(
       id: id ?? this.id,
       entries: entries ?? this.entries,
       shippingPrice: shippingPrice ?? this.shippingPrice,
+      dateCreated: dateCreated,
+      dateShipped: dateShipped ?? this.dateShipped,
       clientID: clientID,
       invoiceID: invoiceID ?? this.invoiceID,
     );
@@ -119,6 +166,7 @@ class ClientOrder extends Order {
 
   factory ClientOrder.fromJson(Map<String, dynamic> json) =>
       _$ClientOrderFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$ClientOrderToJson(this);
 }
 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:lmlb/entities/currency.dart';
+import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/materials.dart';
+import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/materials.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
+import 'package:lmlb/widgets/new_material_item_dialog.dart';
+import 'package:lmlb/widgets/new_material_order_dialog.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -23,8 +25,8 @@ class MaterialsOverviewScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       CurrentInventoryPanel(repo: repo),
-                      const RestockOrdersPanel(),
-                      const ClientOrdersPanel(),
+                      RestockOrdersPanel(repo: repo),
+                      ClientOrdersPanel(repo: repo),
                     ],
                   ),
                 ))));
@@ -93,151 +95,119 @@ class CurrentInventoryPanel extends StatelessWidget {
   }
 }
 
-class NewItemDialog extends StatefulWidget {
+class RestockOrdersPanel extends StatelessWidget {
   final MaterialsRepo repo;
-  final MaterialItem? item;
 
-  const NewItemDialog({super.key, required this.repo, this.item});
-
-  @override
-  State<NewItemDialog> createState() => _NewItemDialogState();
-}
-
-class _NewItemDialogState extends State<NewItemDialog> {
-  var displayNameController = TextEditingController();
-  var defaultPriceController = TextEditingController();
-  var reoderPointController = TextEditingController();
-  var languageController = TextEditingController();
-  Language? language;
-
-  @override
-  void initState() {
-    var item = widget.item;
-    if (item == null) {
-      _updateLanguage(Language.english);
-      reoderPointController.text = "0";
-      defaultPriceController.text = "0";
-    } else {
-      _updateLanguage(item.language);
-      displayNameController.text = item.displayName;
-      reoderPointController.text = item.reorderQuantity.toString();
-      defaultPriceController.text =
-          item.defaultPrices[Currency.USD]!.toString();
-    }
-
-    super.initState();
-  }
-
-  void _updateLanguage(Language? language) {
-    languageController.text = language?.name ?? "";
-    this.language = language;
-  }
-
-  Future<void> _saveItem() async {
-    var messenger = ScaffoldMessenger.of(context);
-    var navigator = Navigator.of(context);
-    try {
-      if (widget.item == null) {
-        await widget.repo.createItem(MaterialItem(
-          language: language!,
-          defaultPrices: {Currency.USD: int.parse(defaultPriceController.text)},
-          displayName: displayNameController.text,
-          reorderQuantity: int.parse(reoderPointController.text),
-          currentQuantity: 0,
-        ));
-      } else {
-        await widget.repo.updateItem(widget.item!.copyWith(
-          language: language,
-          defaultPrices: {Currency.USD: int.parse(defaultPriceController.text)},
-          reorderQuantity: int.parse(reoderPointController.text),
-          displayName: displayNameController.text,
-        ));
-      }
-      messenger.showSnackBar(const SnackBar(
-        content: Text("Success!"),
-      ));
-    } catch (e, s) {
-      print("$e $s");
-    }
-    navigator.pop();
-  }
+  const RestockOrdersPanel({super.key, required this.repo});
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text("New Item"),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text("Cancel"),
-        ),
-        TextButton(
-          onPressed: _saveItem,
-          child: const Text("Save"),
-        ),
-      ],
-      content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Add a type of item to materials tracking."),
-            TextFormField(
-              decoration: const InputDecoration(label: Text("Display Name")),
-              controller: displayNameController,
-            ),
-            TextFormField(
-              decoration:
-                  const InputDecoration(label: Text("Default Price (USD)")),
-              controller: defaultPriceController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-            ),
-            TextFormField(
-              decoration:
-                  const InputDecoration(label: Text("Restock Quantity")),
-              controller: reoderPointController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-            ),
-            Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: DropdownMenu<Language>(
-                    width: 200,
-                    label: const Text("Language"),
-                    onSelected: (l) => setState(() => _updateLanguage(l)),
-                    controller: languageController,
-                    dropdownMenuEntries: Language.values
-                        .map((l) => DropdownMenuEntry(value: l, label: l.name))
-                        .toList())),
-          ]),
+    return StreamBuilder<List<RestockOrder>>(
+        stream: repo.restockOrders(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
+          var orders = snapshot.data!;
+          var numOutstanding =
+              orders.where((o) => o.dateReceived == null).length;
+          return ExpandableInfoPanel(
+            title: "Restock Orders",
+            subtitle: "$numOutstanding order(s) pending",
+            trailing: Tooltip(
+                message: "Add New Order",
+                child: IconButton(
+                    onPressed: () => showDialog(
+                          context: context,
+                          builder: (context) =>
+                              NewMaterialOrderDialog(repo: repo),
+                        ),
+                    icon: const Icon(Icons.add))),
+            contents: orders.map((o) => _orderTile(context, o)).toList(),
+          );
+        });
+  }
+
+  Widget _orderTile(BuildContext context, RestockOrder order) {
+    List<OverviewAction> actions = [
+      OverviewAction(
+          title: "Edit",
+          onPress: () => showDialog(
+              context: context,
+              builder: (context) =>
+                  NewMaterialOrderDialog(repo: repo, order: order))),
+    ];
+    var attentionLevel = OverviewAttentionLevel.grey;
+    if (order.dateReceived == null) {
+      attentionLevel = OverviewAttentionLevel.yellow;
+      actions.add(OverviewAction(title: "Mark Received", onPress: () {}));
+    }
+    return OverviewTile(
+      attentionLevel: attentionLevel,
+      title: "Order created on ${order.dateCreated}",
+      icon: Icons.receipt,
+      actions: actions,
     );
   }
 }
 
-class RestockOrdersPanel extends StatelessWidget {
-  const RestockOrdersPanel({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const ExpandableInfoPanel(
-        title: "Restock Orders",
-        subtitle: "No orders pending",
-        contents: [Placeholder()]);
-  }
-}
-
 class ClientOrdersPanel extends StatelessWidget {
-  const ClientOrdersPanel({super.key});
+  final MaterialsRepo repo;
+
+  const ClientOrdersPanel({super.key, required this.repo});
 
   @override
   Widget build(BuildContext context) {
-    return const ExpandableInfoPanel(
-        title: "Client Orders",
-        subtitle: "No orders pending",
-        contents: [Placeholder()]);
+    return StreamBuilder<List<ClientOrder>>(
+        stream: repo.clientOrders(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
+          var orders = snapshot.data!;
+          var numOutstanding =
+              orders.where((o) => o.dateShipped == null).length;
+          return ExpandableInfoPanel(
+            title: "Client Orders",
+            subtitle: "$numOutstanding order(s) to ship",
+            trailing: Tooltip(
+                message: "Add New Order",
+                child: IconButton(
+                    onPressed: () => showDialog(
+                          context: context,
+                          builder: (context) =>
+                              NewMaterialOrderDialog(repo: repo),
+                        ),
+                    icon: const Icon(Icons.add))),
+            contents: orders.map((o) => _orderTile(context, o)).toList(),
+          );
+        });
+  }
+
+  Widget _orderTile(BuildContext context, ClientOrder order) {
+    List<OverviewAction> actions = [];
+    var attentionLevel = OverviewAttentionLevel.grey;
+    if (order.dateShipped == null) {
+      attentionLevel = OverviewAttentionLevel.yellow;
+      actions.add(OverviewAction(title: "Mark Shipped", onPress: () {}));
+    }
+    return Consumer<Clients>(
+      builder: (context, clients, child) => FutureBuilder<Client?>(
+        future: clients.get(order.clientID),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
+          var client = snapshot.data!;
+          return OverviewTile(
+            attentionLevel: attentionLevel,
+            title:
+                "Order for ${client.fullName()} created on ${order.dateCreated}",
+            icon: Icons.receipt,
+            actions: actions,
+          );
+        },
+      ),
+    );
   }
 }
