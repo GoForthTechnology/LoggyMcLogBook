@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/materials.dart';
 import 'package:lmlb/repos/materials.dart';
@@ -40,11 +41,13 @@ class CurrentInventoryPanel extends StatelessWidget {
           return Container();
         }
         var items = snapshot.data!;
+        var itemsBelowReorderPoint =
+            items.where((i) => i.currentQuantity <= i.reorderQuantity).length;
         var subtitle = items.isEmpty
             ? "No items"
-            : items
-                .map((i) => "${i.displayName} ${i.currentQuantity}")
-                .join(", ");
+            : itemsBelowReorderPoint > 0
+                ? "$itemsBelowReorderPoint items to reorder"
+                : "";
         return ExpandableInfoPanel(
             title: "Current Inventory",
             subtitle: subtitle,
@@ -56,26 +59,31 @@ class CurrentInventoryPanel extends StatelessWidget {
                           builder: (context) => NewItemDialog(repo: repo),
                         ),
                     icon: const Icon(Icons.add))),
-            contents: items
-                .map((i) => OverviewTile(
-                      attentionLevel: OverviewAttentionLevel.grey,
-                      title: i.displayName,
-                      subtitle: "Current quantity ${i.currentQuantity}",
-                      icon: Icons.palette,
-                      actions: [
-                        OverviewAction(
-                          title: "EDIT",
-                          onPress: () => showDialog(
-                            context: context,
-                            builder: (context) => NewItemDialog(
-                              repo: repo,
-                              item: i,
-                            ),
-                          ),
-                        )
-                      ],
-                    ))
-                .toList());
+            contents: items.map((i) {
+              int numBeforeReorder = i.currentQuantity - i.reorderQuantity;
+              return OverviewTile(
+                attentionLevel: numBeforeReorder <= 0
+                    ? OverviewAttentionLevel.red
+                    : numBeforeReorder < 0.5 * i.reorderQuantity
+                        ? OverviewAttentionLevel.yellow
+                        : OverviewAttentionLevel.grey,
+                title: i.displayName,
+                subtitle: "Current quantity ${i.currentQuantity}",
+                icon: Icons.palette,
+                actions: [
+                  OverviewAction(
+                    title: "EDIT",
+                    onPress: () => showDialog(
+                      context: context,
+                      builder: (context) => NewItemDialog(
+                        repo: repo,
+                        item: i,
+                      ),
+                    ),
+                  )
+                ],
+              );
+            }).toList());
       },
     );
   }
@@ -94,6 +102,7 @@ class NewItemDialog extends StatefulWidget {
 class _NewItemDialogState extends State<NewItemDialog> {
   var displayNameController = TextEditingController();
   var defaultPriceController = TextEditingController();
+  var reoderPointController = TextEditingController();
   var languageController = TextEditingController();
   Language? language;
 
@@ -102,9 +111,12 @@ class _NewItemDialogState extends State<NewItemDialog> {
     var item = widget.item;
     if (item == null) {
       _updateLanguage(Language.english);
+      reoderPointController.text = "0";
+      defaultPriceController.text = "0";
     } else {
       _updateLanguage(item.language);
       displayNameController.text = item.displayName;
+      reoderPointController.text = item.reorderQuantity.toString();
       defaultPriceController.text =
           item.defaultPrices[Currency.USD]!.toString();
     }
@@ -114,34 +126,34 @@ class _NewItemDialogState extends State<NewItemDialog> {
 
   void _updateLanguage(Language? language) {
     languageController.text = language?.name ?? "";
-    language = language;
+    this.language = language;
   }
 
   Future<void> _saveItem() async {
     var messenger = ScaffoldMessenger.of(context);
     var navigator = Navigator.of(context);
-    if (language == null) {}
     try {
       if (widget.item == null) {
         await widget.repo.createItem(MaterialItem(
           language: language!,
           defaultPrices: {Currency.USD: int.parse(defaultPriceController.text)},
           displayName: displayNameController.text,
+          reorderQuantity: int.parse(reoderPointController.text),
           currentQuantity: 0,
-          reorderQuantity: 0,
         ));
       } else {
         await widget.repo.updateItem(widget.item!.copyWith(
           language: language,
           defaultPrices: {Currency.USD: int.parse(defaultPriceController.text)},
+          reorderQuantity: int.parse(reoderPointController.text),
           displayName: displayNameController.text,
         ));
       }
       messenger.showSnackBar(const SnackBar(
         content: Text("Success!"),
       ));
-    } catch (e) {
-      print(e);
+    } catch (e, s) {
+      print("$e $s");
     }
     navigator.pop();
   }
@@ -173,6 +185,19 @@ class _NewItemDialogState extends State<NewItemDialog> {
               decoration:
                   const InputDecoration(label: Text("Default Price (USD)")),
               controller: defaultPriceController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+            ),
+            TextFormField(
+              decoration:
+                  const InputDecoration(label: Text("Restock Quantity")),
+              controller: reoderPointController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
             ),
             Padding(
                 padding: const EdgeInsets.only(top: 10),
