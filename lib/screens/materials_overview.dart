@@ -51,9 +51,7 @@ class CurrentInventoryPanel extends StatelessWidget {
             items.where((i) => i.currentQuantity <= i.reorderQuantity).length;
         var subtitle = items.isEmpty
             ? "No items"
-            : itemsBelowReorderPoint > 0
-                ? "$itemsBelowReorderPoint items to reorder"
-                : "";
+            : "$itemsBelowReorderPoint items to reorder";
         return ExpandableInfoPanel(
             title: "Current Inventory",
             subtitle: subtitle,
