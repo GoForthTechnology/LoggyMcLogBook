@@ -8,6 +8,7 @@ import 'package:lmlb/auth.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
+import 'package:lmlb/entities/materials.dart';
 import 'package:lmlb/entities/reminder.dart';
 import 'package:lmlb/models/child_model.dart';
 import 'package:lmlb/models/pregnancy_model.dart';
@@ -20,6 +21,7 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/fup_repo.dart';
 import 'package:lmlb/repos/gif_repo.dart';
 import 'package:lmlb/repos/invoices.dart';
+import 'package:lmlb/repos/materials.dart';
 import 'package:lmlb/repos/reminders.dart';
 import 'package:provider/provider.dart';
 
@@ -62,6 +64,23 @@ Future<Widget> init(Widget app, bool isWeb) {
       appointmentRepo);
   final aiRepo =
       ActionItemRepo(invoiceRepo, appointmentRepo, reminderRepo, clients);
+  final materialsRepo = MaterialsRepo(
+    FirestoreCrud(
+      collectionName: "materials",
+      fromJson: MaterialItem.fromJson,
+      toJson: (i) => i.toJson(),
+    ),
+    FirestoreCrud(
+      collectionName: "replacementOrders",
+      fromJson: Order.fromJson,
+      toJson: (i) => i.toJson(),
+    ),
+    FirestoreCrud(
+      collectionName: "clientOrders",
+      fromJson: ClientOrder.fromJson,
+      toJson: (i) => i.toJson(),
+    ),
+  );
   return init.then((_) => MultiProvider(providers: [
         ChangeNotifierProvider.value(value: clients),
         ChangeNotifierProvider.value(value: appointmentRepo),
@@ -69,6 +88,7 @@ Future<Widget> init(Widget app, bool isWeb) {
         ChangeNotifierProvider.value(value: gifRepo),
         ChangeNotifierProvider.value(value: reminderRepo),
         ChangeNotifierProvider.value(value: aiRepo),
+        ChangeNotifierProvider.value(value: materialsRepo),
         ChangeNotifierProvider.value(value: ReproductiveCategoryModel()),
         ChangeNotifierProvider.value(value: PregnancyModel()),
         ChangeNotifierProvider.value(value: ChildModel()),

@@ -6,20 +6,25 @@ part of 'materials.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Material _$MaterialFromJson(Map<String, dynamic> json) => Material(
+MaterialItem _$MaterialItemFromJson(Map<String, dynamic> json) => MaterialItem(
       language: $enumDecode(_$LanguageEnumMap, json['language']),
       defaultPrices: (json['defaultPrices'] as Map<String, dynamic>).map(
         (k, e) =>
             MapEntry($enumDecode(_$CurrencyEnumMap, k), (e as num).toInt()),
       ),
       displayName: json['displayName'] as String,
+      currentQuantity: (json['currentQuantity'] as num).toInt(),
+      reorderQuantity: (json['reorderQuantity'] as num).toInt(),
     );
 
-Map<String, dynamic> _$MaterialToJson(Material instance) => <String, dynamic>{
+Map<String, dynamic> _$MaterialItemToJson(MaterialItem instance) =>
+    <String, dynamic>{
       'displayName': instance.displayName,
       'language': _$LanguageEnumMap[instance.language]!,
       'defaultPrices': instance.defaultPrices
           .map((k, e) => MapEntry(_$CurrencyEnumMap[k]!, e)),
+      'currentQuantity': instance.currentQuantity,
+      'reorderQuantity': instance.reorderQuantity,
     };
 
 const _$LanguageEnumMap = {

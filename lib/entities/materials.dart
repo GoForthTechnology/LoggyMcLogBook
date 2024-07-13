@@ -10,18 +10,22 @@ enum Language {
 }
 
 @JsonSerializable(explicitToJson: true)
-class Material implements Indexable<Material> {
+class MaterialItem implements Indexable<MaterialItem> {
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String? id;
   final String displayName;
   final Language language;
   final Map<Currency, int> defaultPrices;
+  final int currentQuantity;
+  final int reorderQuantity;
 
-  Material(
+  MaterialItem(
       {required this.language,
       required this.defaultPrices,
       this.id,
-      required this.displayName});
+      required this.displayName,
+      required this.currentQuantity,
+      required this.reorderQuantity});
 
   @override
   String? getId() {
@@ -29,26 +33,31 @@ class Material implements Indexable<Material> {
   }
 
   @override
-  Material setId(String id) {
+  MaterialItem setId(String id) {
     return copyWith(id: id);
   }
 
-  Material copyWith(
-      {String? id,
-      String? displayName,
-      Language? language,
-      Map<Currency, int>? defaultPrices}) {
-    return Material(
+  MaterialItem copyWith({
+    String? id,
+    String? displayName,
+    Language? language,
+    Map<Currency, int>? defaultPrices,
+    int? currentQuantity,
+    int? reorderQuantity,
+  }) {
+    return MaterialItem(
       id: id ?? this.id,
       language: language ?? this.language,
       displayName: displayName ?? this.displayName,
       defaultPrices: defaultPrices ?? this.defaultPrices,
+      currentQuantity: currentQuantity ?? this.currentQuantity,
+      reorderQuantity: reorderQuantity ?? this.reorderQuantity,
     );
   }
 
-  factory Material.fromJson(Map<String, dynamic> json) =>
-      _$MaterialFromJson(json);
-  Map<String, dynamic> toJson() => _$MaterialToJson(this);
+  factory MaterialItem.fromJson(Map<String, dynamic> json) =>
+      _$MaterialItemFromJson(json);
+  Map<String, dynamic> toJson() => _$MaterialItemToJson(this);
 }
 
 @JsonSerializable(explicitToJson: true)
