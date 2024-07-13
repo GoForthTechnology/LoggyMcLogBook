@@ -17,13 +17,17 @@ class MaterialsOverviewScreen extends StatelessWidget {
         item: NavigationItem.materials,
         title: const Text('Materials'),
         content: Consumer<MaterialsRepo>(
-            builder: (context, repo, child) => Column(
-                  children: [
-                    CurrentInventoryPanel(repo: repo),
-                    const RestockOrdersPanel(),
-                    const ClientOrdersPanel(),
-                  ],
-                )));
+            builder: (context, repo, child) => Container(
+                alignment: Alignment.topCenter,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      CurrentInventoryPanel(repo: repo),
+                      const RestockOrdersPanel(),
+                      const ClientOrdersPanel(),
+                    ],
+                  ),
+                ))));
   }
 }
 
