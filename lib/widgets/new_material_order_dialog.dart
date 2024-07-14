@@ -3,17 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:lmlb/entities/materials.dart';
 import 'package:lmlb/repos/materials.dart';
 
-class NewMaterialOrderDialog extends StatefulWidget {
+class NewRestockOrderDialog extends StatefulWidget {
   final MaterialsRepo repo;
   final RestockOrder? order;
 
-  const NewMaterialOrderDialog({super.key, required this.repo, this.order});
+  const NewRestockOrderDialog({super.key, required this.repo, this.order});
 
   @override
-  State<NewMaterialOrderDialog> createState() => _NewMaterialOrderDialogState();
+  State<NewRestockOrderDialog> createState() => _NewRestockOrderDialogState();
 }
 
-class _NewMaterialOrderDialogState extends State<NewMaterialOrderDialog> {
+class _NewRestockOrderDialogState extends State<NewRestockOrderDialog> {
   final Map<String, TextEditingController> itemCounts = {};
   final Map<String, TextEditingController> itemPrices = {};
   final shippingPriceController = TextEditingController();

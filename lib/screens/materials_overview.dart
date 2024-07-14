@@ -119,7 +119,7 @@ class RestockOrdersPanel extends StatelessWidget {
                     onPressed: () => showDialog(
                           context: context,
                           builder: (context) =>
-                              NewMaterialOrderDialog(repo: repo),
+                              NewRestockOrderDialog(repo: repo),
                         ),
                     icon: const Icon(Icons.add))),
             contents: orders.map((o) => _orderTile(context, o)).toList(),
@@ -134,7 +134,7 @@ class RestockOrdersPanel extends StatelessWidget {
           onPress: () => showDialog(
               context: context,
               builder: (context) =>
-                  NewMaterialOrderDialog(repo: repo, order: order))),
+                  NewRestockOrderDialog(repo: repo, order: order))),
     ];
     var attentionLevel = OverviewAttentionLevel.grey;
     if (order.dateReceived == null) {
@@ -173,15 +173,6 @@ class ClientOrdersPanel extends StatelessWidget {
           return ExpandableInfoPanel(
             title: "Client Orders",
             subtitle: "$numOutstanding order(s) to ship",
-            trailing: Tooltip(
-                message: "Add New Order",
-                child: IconButton(
-                    onPressed: () => showDialog(
-                          context: context,
-                          builder: (context) =>
-                              NewMaterialOrderDialog(repo: repo),
-                        ),
-                    icon: const Icon(Icons.add))),
             contents: orders.map((o) => _orderTile(context, o)).toList(),
           );
         });
