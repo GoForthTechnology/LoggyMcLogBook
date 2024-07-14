@@ -5,6 +5,7 @@ import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/reminder.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/materials.dart';
 import 'package:lmlb/repos/reminders.dart';
 import 'package:lmlb/widgets/appointment_info_panel.dart';
 import 'package:lmlb/widgets/fup_form.dart';
@@ -12,6 +13,7 @@ import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/new_appointment_dialog.dart';
+import 'package:lmlb/widgets/new_material_client_order_dialog.dart';
 import 'package:lmlb/widgets/new_reminder_dialog.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:lmlb/widgets/reproductive_history_panel.dart';
@@ -201,7 +203,17 @@ class NextStepsPanel extends StatelessWidget {
         title: "Order Materials",
         icon: Icons.palette,
         actions: [
-          OverviewAction(title: "Order", onPress: () {}),
+          OverviewAction(
+            title: "Order",
+            onPress: () => showDialog(
+                context: context,
+                builder: (context) => Consumer<MaterialsRepo>(
+                    builder: (context, repo, child) => NewClientOrderDialog(
+                          repo: repo,
+                          clientID: client.id!,
+                          editingEnabled: true,
+                        ))),
+          ),
         ],
       ),
     ]);
@@ -258,6 +270,7 @@ Widget clientWidget(String clientID, Widget Function(Client?) build) {
           ));
 }
 
+// TODO: delete this dead code
 /*class AppointmentDetailModel extends ClientSelectorModel {
   final Appointments appointmentRepo;
   final formKey = GlobalKey<FormState>();

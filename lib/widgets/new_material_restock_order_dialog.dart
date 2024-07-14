@@ -6,8 +6,13 @@ import 'package:lmlb/repos/materials.dart';
 class NewRestockOrderDialog extends StatefulWidget {
   final MaterialsRepo repo;
   final RestockOrder? order;
+  final bool editingEnabled;
 
-  const NewRestockOrderDialog({super.key, required this.repo, this.order});
+  const NewRestockOrderDialog(
+      {super.key,
+      required this.repo,
+      this.order,
+      required this.editingEnabled});
 
   @override
   State<NewRestockOrderDialog> createState() => _NewRestockOrderDialogState();
@@ -41,6 +46,7 @@ class _NewRestockOrderDialogState extends State<NewRestockOrderDialog> {
 
   @override
   Widget build(BuildContext context) {
+    var title = widget.order == null ? "New Order" : "Edit Order";
     return StreamBuilder<List<MaterialItem>>(
         stream: widget.repo.currentInventory(),
         builder: (context, snapshot) {
@@ -48,22 +54,30 @@ class _NewRestockOrderDialogState extends State<NewRestockOrderDialog> {
             return Container();
           }
           var items = snapshot.data!;
+          var actions = widget.editingEnabled
+              ? [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("Cancel"),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      var navigator = Navigator.of(context);
+                      await _saveItem(items);
+                      navigator.pop();
+                    },
+                    child: const Text("Save"),
+                  ),
+                ]
+              : [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("Close"),
+                  ),
+                ];
           return AlertDialog(
-            title: const Text("New Order"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () async {
-                  var navigator = Navigator.of(context);
-                  await _saveItem(items);
-                  navigator.pop();
-                },
-                child: const Text("Save"),
-              ),
-            ],
+            title: Text(title),
+            actions: actions,
             content: Form(
                 key: formKey,
                 child: Column(
@@ -77,9 +91,18 @@ class _NewRestockOrderDialogState extends State<NewRestockOrderDialog> {
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
                       ],
+                      enabled: widget.editingEnabled,
                       validator: (value) =>
                           (value ?? "") == "" ? "Value Required!" : null,
                     ),
+                    if (!widget.editingEnabled)
+                      TextFormField(
+                        enabled: false,
+                        decoration:
+                            const InputDecoration(labelText: "Date Recieved"),
+                        initialValue:
+                            widget.order?.dateReceived!.toIso8601String(),
+                      )
                   ],
                 )),
           );
@@ -94,18 +117,7 @@ class _NewRestockOrderDialogState extends State<NewRestockOrderDialog> {
         ConstrainedBox(
             constraints: const BoxConstraints.tightFor(width: 60),
             child: TextFormField(
-              controller: itemPrices.putIfAbsent(
-                  item.id!, () => TextEditingController()),
-              decoration: const InputDecoration(labelText: "Price"),
-              validator: (v) =>
-                  (v ?? "") == "" && (itemCounts[item.id!]?.text ?? "") != ""
-                      ? "Value Required!"
-                      : null,
-            )),
-        const SizedBox(width: 10),
-        ConstrainedBox(
-            constraints: const BoxConstraints.tightFor(width: 60),
-            child: TextFormField(
+              enabled: widget.editingEnabled,
               controller: itemCounts.putIfAbsent(
                   item.id!, () => TextEditingController()),
               decoration: const InputDecoration(labelText: "Quantity"),
@@ -114,11 +126,26 @@ class _NewRestockOrderDialogState extends State<NewRestockOrderDialog> {
                       ? "Value Required!"
                       : null,
             )),
+        const SizedBox(width: 10),
+        ConstrainedBox(
+            constraints: const BoxConstraints.tightFor(width: 60),
+            child: TextFormField(
+              enabled: widget.editingEnabled,
+              controller: itemPrices.putIfAbsent(
+                  item.id!, () => TextEditingController()),
+              decoration: const InputDecoration(labelText: "Price"),
+              validator: (v) =>
+                  (v ?? "") == "" && (itemCounts[item.id!]?.text ?? "") != ""
+                      ? "Value Required!"
+                      : null,
+            )),
       ],
     );
   }
 
   Future<void> _saveItem(List<MaterialItem> items) async {
+    assert(widget.editingEnabled);
+
     if (formKey.currentState?.validate() ?? false) {
       var entries = itemCounts.entries
           .where((e) => itemCounts[e.key]!.text != "")

@@ -5,8 +5,9 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/materials.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
+import 'package:lmlb/widgets/new_material_client_order_dialog.dart';
 import 'package:lmlb/widgets/new_material_item_dialog.dart';
-import 'package:lmlb/widgets/new_material_order_dialog.dart';
+import 'package:lmlb/widgets/new_material_restock_order_dialog.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -118,8 +119,10 @@ class RestockOrdersPanel extends StatelessWidget {
                 child: IconButton(
                     onPressed: () => showDialog(
                           context: context,
-                          builder: (context) =>
-                              NewRestockOrderDialog(repo: repo),
+                          builder: (context) => NewRestockOrderDialog(
+                            repo: repo,
+                            editingEnabled: true,
+                          ),
                         ),
                     icon: const Icon(Icons.add))),
             contents: orders.map((o) => _orderTile(context, o)).toList(),
@@ -128,14 +131,32 @@ class RestockOrdersPanel extends StatelessWidget {
   }
 
   Widget _orderTile(BuildContext context, RestockOrder order) {
-    List<OverviewAction> actions = [
-      OverviewAction(
-          title: "Edit",
-          onPress: () => showDialog(
-              context: context,
-              builder: (context) =>
-                  NewRestockOrderDialog(repo: repo, order: order))),
-    ];
+    List<OverviewAction> actions = [];
+    if (order.dateReceived == null) {
+      actions = [
+        OverviewAction(
+            title: "Edit",
+            onPress: () => showDialog(
+                context: context,
+                builder: (context) => NewRestockOrderDialog(
+                      repo: repo,
+                      order: order,
+                      editingEnabled: true,
+                    ))),
+      ];
+    } else {
+      actions = [
+        OverviewAction(
+            title: "View",
+            onPress: () => showDialog(
+                context: context,
+                builder: (context) => NewRestockOrderDialog(
+                      repo: repo,
+                      order: order,
+                      editingEnabled: false,
+                    ))),
+      ];
+    }
     var attentionLevel = OverviewAttentionLevel.grey;
     if (order.dateReceived == null) {
       attentionLevel = OverviewAttentionLevel.yellow;
@@ -170,9 +191,13 @@ class ClientOrdersPanel extends StatelessWidget {
           var orders = snapshot.data!;
           var numOutstanding =
               orders.where((o) => o.dateShipped == null).length;
+          var numToInvoice = orders
+              .where((o) => o.dateShipped != null && o.invoiceID == null)
+              .length;
           return ExpandableInfoPanel(
             title: "Client Orders",
-            subtitle: "$numOutstanding order(s) to ship",
+            subtitle:
+                "$numOutstanding order(s) to ship, $numToInvoice order(s) to invoice",
             contents: orders.map((o) => _orderTile(context, o)).toList(),
           );
         });
@@ -183,7 +208,38 @@ class ClientOrdersPanel extends StatelessWidget {
     var attentionLevel = OverviewAttentionLevel.grey;
     if (order.dateShipped == null) {
       attentionLevel = OverviewAttentionLevel.yellow;
-      actions.add(OverviewAction(title: "Mark Shipped", onPress: () {}));
+      actions.add(OverviewAction(
+          title: "Mark Shipped",
+          onPress: () async {
+            await repo.markClientOrderAsShipped(order);
+          }));
+      actions.add(OverviewAction(
+          title: "Edit",
+          onPress: () => showDialog(
+              context: context,
+              builder: (context) => NewClientOrderDialog(
+                    clientID: order.clientID,
+                    repo: repo,
+                    order: order,
+                    editingEnabled: true,
+                  ))));
+    }
+    if (order.dateShipped != null && order.invoiceID == null) {
+      actions.add(OverviewAction(
+          title: "",
+          onPress: () async {
+            await repo.markClientOrderAsShipped(order);
+          }));
+      actions.add(OverviewAction(
+          title: "View",
+          onPress: () => showDialog(
+              context: context,
+              builder: (context) => NewClientOrderDialog(
+                    clientID: order.clientID,
+                    repo: repo,
+                    order: order,
+                    editingEnabled: false,
+                  ))));
     }
     return Consumer<Clients>(
       builder: (context, clients, child) => FutureBuilder<Client?>(

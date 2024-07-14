@@ -54,4 +54,31 @@ class MaterialsRepo extends ChangeNotifier {
   Future<void> updateRestockOrder(RestockOrder order) {
     return _restockOrders.update(order);
   }
+
+  Future<void> createClientOrder(
+      String clientID, List<OrderEntry> entries, double shippingPrice) {
+    return _clientOrders.insert(ClientOrder(
+        clientID: clientID,
+        dateShipped: null,
+        entries: entries,
+        shippingPrice: shippingPrice,
+        dateCreated: DateTime.now()));
+  }
+
+  Future<void> markClientOrderAsShipped(ClientOrder order) {
+    List<Future<void>> futures = [];
+    for (var entry in order.entries) {
+      futures.add(_materials.get(entry.materialID).first.then((material) {
+        return _materials.update(material!.copyWith(
+            currentQuantity: material.currentQuantity - entry.quantity));
+      }));
+    }
+    futures
+        .add(_clientOrders.update(order.copyWith(dateShipped: DateTime.now())));
+    return Future.wait(futures);
+  }
+
+  Future<void> updateClientOrder(ClientOrder order) {
+    return _clientOrders.update(order);
+  }
 }
