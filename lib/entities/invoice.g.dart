@@ -50,6 +50,9 @@ Invoice _$InvoiceFromJson(Map<String, dynamic> json) => Invoice(
       appointmentEntries: (json['appointmentEntries'] as List<dynamic>)
           .map((e) => AppointmentEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
+      materialOrderIDs: (json['materialOrderIDs'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
       dateBilled: json['dateBilled'] == null
           ? null
           : DateTime.parse(json['dateBilled'] as String),
@@ -67,6 +70,7 @@ Map<String, dynamic> _$InvoiceToJson(Invoice instance) => <String, dynamic>{
       'datePaid': instance.datePaid?.toIso8601String(),
       'appointmentEntries':
           instance.appointmentEntries.map((e) => e.toJson()).toList(),
+      'materialOrderIDs': instance.materialOrderIDs,
     };
 
 const _$CurrencyEnumMap = {

@@ -62,10 +62,13 @@ class ClientOrdersPanel extends StatelessWidget {
                   ))));
     }
     if (order.dateShipped != null && order.invoiceID == null) {
+      attentionLevel = OverviewAttentionLevel.yellow;
       actions.add(OverviewAction(
-          title: "",
+          title: "Invoice",
           onPress: () async {
-            await repo.markClientOrderAsShipped(order);
+            var messenger = ScaffoldMessenger.of(context);
+            var message = await repo.invoiceClientOrder(order);
+            messenger.showSnackBar(SnackBar(content: Text(message)));
           }));
       actions.add(OverviewAction(
           title: "View",

@@ -80,6 +80,8 @@ Future<Widget> init(Widget app, bool isWeb) {
       fromJson: ClientOrder.fromJson,
       toJson: (i) => i.toJson(),
     ),
+    invoiceRepo,
+    clients,
   );
   return init.then((_) => MultiProvider(providers: [
         ChangeNotifierProvider.value(value: clients),

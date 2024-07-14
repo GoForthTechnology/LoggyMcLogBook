@@ -38,6 +38,7 @@ class Invoice extends Indexable<Invoice> {
   DateTime? dateBilled;
   DateTime? datePaid;
   final List<AppointmentEntry> appointmentEntries;
+  final List<String> materialOrderIDs;
 
   Invoice(
       {this.id,
@@ -46,6 +47,7 @@ class Invoice extends Indexable<Invoice> {
       required this.currency,
       required this.dateCreated,
       required this.appointmentEntries,
+      required this.materialOrderIDs,
       this.dateBilled,
       this.datePaid});
 
@@ -62,10 +64,12 @@ class Invoice extends Indexable<Invoice> {
     return InvoiceState.pending;
   }
 
-  Invoice copyWith(
-      {DateTime? dateBilled,
-      DateTime? datePaid,
-      List<AppointmentEntry>? appointmentEntries}) {
+  Invoice copyWith({
+    DateTime? dateBilled,
+    DateTime? datePaid,
+    List<AppointmentEntry>? appointmentEntries,
+    List<String>? materialOrderIDs,
+  }) {
     return Invoice(
         id: this.id,
         num: this.num,
@@ -73,6 +77,7 @@ class Invoice extends Indexable<Invoice> {
         currency: this.currency,
         dateCreated: this.dateCreated,
         appointmentEntries: appointmentEntries ?? this.appointmentEntries,
+        materialOrderIDs: materialOrderIDs ?? this.materialOrderIDs,
         dateBilled: dateBilled ?? this.dateBilled,
         datePaid: datePaid ?? this.datePaid);
   }
@@ -85,6 +90,7 @@ class Invoice extends Indexable<Invoice> {
         currency: currency,
         dateCreated: dateCreated,
         appointmentEntries: appointmentEntries,
+        materialOrderIDs: materialOrderIDs,
         dateBilled: null,
         datePaid: datePaid);
   }
@@ -97,6 +103,7 @@ class Invoice extends Indexable<Invoice> {
         currency: currency,
         dateCreated: dateCreated,
         appointmentEntries: appointmentEntries,
+        materialOrderIDs: materialOrderIDs,
         dateBilled: dateBilled,
         datePaid: null);
   }

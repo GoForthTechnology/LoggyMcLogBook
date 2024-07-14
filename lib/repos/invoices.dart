@@ -73,7 +73,8 @@ class Invoices extends ChangeNotifier {
   }
 
   Future<String> create(String clientID, Client client,
-      {List<Appointment> appointments = const []}) async {
+      {List<Appointment> appointments = const [],
+      List<String> materialOrderIDs = const []}) async {
     var pendingInvoice = await _pendingInvoice(clientID);
     if (pendingInvoice != null) {
       throw Exception(
@@ -95,6 +96,7 @@ class Invoices extends ChangeNotifier {
               appointmentDate: a.time,
               price: client.defaultFollowUpPrice ?? 0))
           .toList(),
+      materialOrderIDs: materialOrderIDs,
     ));
     await Future.wait(appointments
         .map((a) =>
