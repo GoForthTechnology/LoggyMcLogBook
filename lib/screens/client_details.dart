@@ -5,6 +5,7 @@ import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/widgets/action_items_panel.dart';
 import 'package:lmlb/widgets/appointments_panel.dart';
 import 'package:lmlb/widgets/billing_panel.dart';
+import 'package:lmlb/widgets/client_orders_panel.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/notes_panel.dart';
@@ -57,6 +58,10 @@ class ClientDetailsScreen extends StatelessWidget {
                   clientID: clientId,
                 ),
                 AppointmentsPanel(
+                  clientID: clientId,
+                ),
+                ClientOrdersPanel(
+                  title: "Material Orders",
                   clientID: clientId,
                 ),
                 BillingPanel(

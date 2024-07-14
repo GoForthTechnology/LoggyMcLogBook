@@ -25,8 +25,12 @@ class MaterialsRepo extends ChangeNotifier {
     return _restockOrders.getAll();
   }
 
-  Stream<List<ClientOrder>> clientOrders() {
-    return _clientOrders.getAll();
+  Stream<List<ClientOrder>> clientOrders({String? clientID}) {
+    List<Criteria> criteria = [];
+    if (clientID != null) {
+      criteria.add(Criteria("clientID", isEqualTo: clientID));
+    }
+    return _clientOrders.getWhere(criteria);
   }
 
   Future<void> createRestockOrder(

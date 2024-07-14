@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/materials.dart';
-import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/materials.dart';
+import 'package:lmlb/widgets/client_orders_panel.dart';
+import 'package:lmlb/widgets/current_inventory_panel.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
-import 'package:lmlb/widgets/new_material_client_order_dialog.dart';
-import 'package:lmlb/widgets/new_material_item_dialog.dart';
 import 'package:lmlb/widgets/new_material_restock_order_dialog.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
@@ -25,72 +23,14 @@ class MaterialsOverviewScreen extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      CurrentInventoryPanel(repo: repo),
+                      const CurrentInventoryPanel(),
                       RestockOrdersPanel(repo: repo),
-                      ClientOrdersPanel(repo: repo),
+                      const ClientOrdersPanel(
+                        title: "Client Orders",
+                      ),
                     ],
                   ),
                 ))));
-  }
-}
-
-class CurrentInventoryPanel extends StatelessWidget {
-  final MaterialsRepo repo;
-
-  const CurrentInventoryPanel({super.key, required this.repo});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<List<MaterialItem>>(
-      stream: repo.currentInventory(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Container();
-        }
-        var items = snapshot.data!;
-        var itemsBelowReorderPoint =
-            items.where((i) => i.currentQuantity <= i.reorderQuantity).length;
-        var subtitle = items.isEmpty
-            ? "No items"
-            : "$itemsBelowReorderPoint items to reorder";
-        return ExpandableInfoPanel(
-            title: "Current Inventory",
-            subtitle: subtitle,
-            trailing: Tooltip(
-                message: "Add New Item",
-                child: IconButton(
-                    onPressed: () => showDialog(
-                          context: context,
-                          builder: (context) => NewItemDialog(repo: repo),
-                        ),
-                    icon: const Icon(Icons.add))),
-            contents: items.map((i) {
-              int numBeforeReorder = i.currentQuantity - i.reorderQuantity;
-              return OverviewTile(
-                attentionLevel: numBeforeReorder <= 0
-                    ? OverviewAttentionLevel.red
-                    : numBeforeReorder < 0.5 * i.reorderQuantity
-                        ? OverviewAttentionLevel.yellow
-                        : OverviewAttentionLevel.grey,
-                title: i.displayName,
-                subtitle: "Current quantity ${i.currentQuantity}",
-                icon: Icons.palette,
-                actions: [
-                  OverviewAction(
-                    title: "EDIT",
-                    onPress: () => showDialog(
-                      context: context,
-                      builder: (context) => NewItemDialog(
-                        repo: repo,
-                        item: i,
-                      ),
-                    ),
-                  )
-                ],
-              );
-            }).toList());
-      },
-    );
   }
 }
 
@@ -171,93 +111,6 @@ class RestockOrdersPanel extends StatelessWidget {
       title: "Order created on ${order.dateCreated}",
       icon: Icons.receipt,
       actions: actions,
-    );
-  }
-}
-
-class ClientOrdersPanel extends StatelessWidget {
-  final MaterialsRepo repo;
-
-  const ClientOrdersPanel({super.key, required this.repo});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<List<ClientOrder>>(
-        stream: repo.clientOrders(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Container();
-          }
-          var orders = snapshot.data!;
-          var numOutstanding =
-              orders.where((o) => o.dateShipped == null).length;
-          var numToInvoice = orders
-              .where((o) => o.dateShipped != null && o.invoiceID == null)
-              .length;
-          return ExpandableInfoPanel(
-            title: "Client Orders",
-            subtitle:
-                "$numOutstanding order(s) to ship, $numToInvoice order(s) to invoice",
-            contents: orders.map((o) => _orderTile(context, o)).toList(),
-          );
-        });
-  }
-
-  Widget _orderTile(BuildContext context, ClientOrder order) {
-    List<OverviewAction> actions = [];
-    var attentionLevel = OverviewAttentionLevel.grey;
-    if (order.dateShipped == null) {
-      attentionLevel = OverviewAttentionLevel.yellow;
-      actions.add(OverviewAction(
-          title: "Mark Shipped",
-          onPress: () async {
-            await repo.markClientOrderAsShipped(order);
-          }));
-      actions.add(OverviewAction(
-          title: "Edit",
-          onPress: () => showDialog(
-              context: context,
-              builder: (context) => NewClientOrderDialog(
-                    clientID: order.clientID,
-                    repo: repo,
-                    order: order,
-                    editingEnabled: true,
-                  ))));
-    }
-    if (order.dateShipped != null && order.invoiceID == null) {
-      actions.add(OverviewAction(
-          title: "",
-          onPress: () async {
-            await repo.markClientOrderAsShipped(order);
-          }));
-      actions.add(OverviewAction(
-          title: "View",
-          onPress: () => showDialog(
-              context: context,
-              builder: (context) => NewClientOrderDialog(
-                    clientID: order.clientID,
-                    repo: repo,
-                    order: order,
-                    editingEnabled: false,
-                  ))));
-    }
-    return Consumer<Clients>(
-      builder: (context, clients, child) => FutureBuilder<Client?>(
-        future: clients.get(order.clientID),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Container();
-          }
-          var client = snapshot.data!;
-          return OverviewTile(
-            attentionLevel: attentionLevel,
-            title:
-                "Order for ${client.fullName()} created on ${order.dateCreated}",
-            icon: Icons.receipt,
-            actions: actions,
-          );
-        },
-      ),
     );
   }
 }

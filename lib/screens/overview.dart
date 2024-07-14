@@ -4,6 +4,7 @@ import 'package:lmlb/entities/invoice.dart';
 import 'package:lmlb/repos/appointments.dart';
 import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/routes.gr.dart';
+import 'package:lmlb/widgets/current_inventory_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ class OverviewScreen extends StatelessWidget {
         children: const [
           AppointmentOverviewTile(),
           InvoiceOverviewTile(),
+          CurrentInventoryPanel(),
         ],
       ),
     );
