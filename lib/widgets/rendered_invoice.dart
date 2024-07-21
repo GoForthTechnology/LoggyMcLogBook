@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lmlb/entities/appointment.dart';
+import 'package:lmlb/entities/currency.dart';
 import 'package:lmlb/entities/invoice.dart';
 
 const rightHeaderColumnWidth = 200.0;
@@ -60,13 +61,37 @@ class RenderedInvoiceWidget extends StatelessWidget {
               const SizedBox(
                 height: 20,
               ),
-              EntryTableWidget(invoice: invoice),
+              EntryTableWidget(
+                invoice: invoice,
+              ),
               const SizedBox(
                 height: 20,
               ),
               const InvoiceFooter(),
             ])));
   }
+}
+
+TableRow _createRow({
+  required String label,
+  required int quantity,
+  required double price,
+  required Currency currency,
+}) {
+  return TableRow(
+    children: [
+      ...[
+        label,
+        quantity.toString(),
+        price.toString(),
+        "$price ${currency.name}",
+      ].mapIndexed((i, e) => Container(
+            alignment: i == 0 ? Alignment.centerLeft : Alignment.center,
+            padding: const EdgeInsets.all(tableCellPadding),
+            child: Text(e),
+          )),
+    ],
+  );
 }
 
 class EntryTableWidget extends StatelessWidget {
@@ -77,21 +102,27 @@ class EntryTableWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<TableRow> appointmentRows = invoice.appointmentEntries
-        .map((e) => TableRow(
-              children: [
-                ...[
+        .map((e) => _createRow(
+              label:
                   "${e.appointmentType.prettyName()} on ${formatter.format(e.appointmentDate)}",
-                  "1",
-                  "${e.price}",
-                  "${e.price} ${invoice.currency.name}",
-                ].mapIndexed((i, e) => Container(
-                      alignment:
-                          i == 0 ? Alignment.centerLeft : Alignment.center,
-                      padding: const EdgeInsets.all(tableCellPadding),
-                      child: Text(e),
-                    )),
-              ],
+              quantity: 1,
+              price: e.price.toDouble(),
+              currency: invoice.currency,
             ))
+        .toList();
+    List<TableRow> materialsRows = invoice.materialOrderSummaries
+        .map((s) {
+          List<TableRow> rows = s.entries
+              .map((e) => _createRow(
+                    label: e.materialName,
+                    quantity: e.quantity,
+                    price: e.price.toDouble(),
+                    currency: invoice.currency,
+                  ))
+              .toList();
+          return rows;
+        })
+        .expand((e) => e)
         .toList();
     int total = invoice.appointmentEntries.map((e) => e.price).sum;
     return Padding(
@@ -127,6 +158,7 @@ class EntryTableWidget extends StatelessWidget {
                       )),
                 ]),
             ...appointmentRows,
+            ...materialsRows,
             TableRow(
                 decoration: const BoxDecoration(
                     border: Border(

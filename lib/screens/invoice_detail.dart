@@ -5,12 +5,15 @@ import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/client_general_info.dart';
 import 'package:lmlb/entities/invoice.dart';
+import 'package:lmlb/entities/materials.dart';
 import 'package:lmlb/repos/clients.dart';
 import 'package:lmlb/repos/gif_repo.dart';
 import 'package:lmlb/repos/invoices.dart';
+import 'package:lmlb/repos/materials.dart';
 import 'package:lmlb/widgets/gif_form.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/navigation_rail.dart';
+import 'package:lmlb/widgets/new_material_client_order_dialog.dart';
 import 'package:lmlb/widgets/overview_tile.dart';
 import 'package:lmlb/widgets/rendered_invoice.dart';
 import 'package:provider/provider.dart';
@@ -82,9 +85,8 @@ class InvoiceDetailScreen extends StatelessWidget {
                     ),
                     ClientInfoPanel(clientID: clientID),
                     AppointmentPanel(
-                      invoice: invoice,
-                      invoiceRepo: invoiceRepo,
-                    ),
+                        invoice: invoice, invoiceRepo: invoiceRepo),
+                    MaterialsPanel(invoice: invoice, invoiceRepo: invoiceRepo),
                     if (invoice.dateBilled != null)
                       InoviceRenderPanel(
                         invoice: invoice,
@@ -303,6 +305,60 @@ class _DatePanelState extends State<DatePanel> {
         firstDate: DateTime.now().subtract(const Duration(days: 365)),
         lastDate: DateTime.now().add(const Duration(days: 365)),
         initialDate: initialDate ?? DateTime.now());
+  }
+}
+
+class MaterialsPanel extends StatelessWidget {
+  final Invoice invoice;
+  final Invoices invoiceRepo;
+
+  const MaterialsPanel(
+      {super.key, required this.invoice, required this.invoiceRepo});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<MaterialsRepo>(
+        builder: (context, materialsRepo, child) =>
+            StreamBuilder<List<ClientOrder>>(
+              stream: materialsRepo.clientOrders(invoiceID: invoice.id!),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Container();
+                }
+                var orders = snapshot.data!;
+                double totalPrice = orders
+                    .map((o) => o.totalPrice())
+                    .reduce((value, element) => value + element);
+                return ExpandableInfoPanel(
+                  title: "Materials",
+                  subtitle: "$totalPrice ${invoice.currency.name}",
+                  contents: orders
+                      .map((o) => OverviewTile(
+                            attentionLevel: OverviewAttentionLevel.grey,
+                            title: "Order for TODO -- ${o.totalPrice()}",
+                            icon: Icons.palette,
+                            additionalTrailing: [
+                              IconButton(
+                                onPressed: () => showDialog(
+                                    context: context,
+                                    builder: (context) => NewClientOrderDialog(
+                                        repo: materialsRepo,
+                                        clientID: invoice.clientID,
+                                        editingEnabled: true)),
+                                icon: const Icon(Icons.edit),
+                              ),
+                              IconButton(
+                                onPressed: () async {
+                                  // TODO: finish this
+                                },
+                                icon: const Icon(Icons.remove_circle_outline),
+                              )
+                            ],
+                          ))
+                      .toList(),
+                );
+              },
+            ));
   }
 }
 
