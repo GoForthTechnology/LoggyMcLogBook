@@ -42,6 +42,40 @@ const _$AppointmentTypeEnumMap = {
   AppointmentType.pregEval: 'pregEval',
 };
 
+MaterialOrderSummary _$MaterialOrderSummaryFromJson(
+        Map<String, dynamic> json) =>
+    MaterialOrderSummary(
+      orderID: json['orderID'] as String,
+      entries: (json['entries'] as List<dynamic>)
+          .map((e) => MaterialEntry.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      shippingPrice: (json['shippingPrice'] as num).toDouble(),
+    );
+
+Map<String, dynamic> _$MaterialOrderSummaryToJson(
+        MaterialOrderSummary instance) =>
+    <String, dynamic>{
+      'orderID': instance.orderID,
+      'entries': instance.entries.map((e) => e.toJson()).toList(),
+      'shippingPrice': instance.shippingPrice,
+    };
+
+MaterialEntry _$MaterialEntryFromJson(Map<String, dynamic> json) =>
+    MaterialEntry(
+      materialName: json['materialName'] as String,
+      materialID: json['materialID'] as String,
+      price: (json['price'] as num).toInt(),
+      quantity: (json['quantity'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$MaterialEntryToJson(MaterialEntry instance) =>
+    <String, dynamic>{
+      'materialName': instance.materialName,
+      'materialID': instance.materialID,
+      'price': instance.price,
+      'quantity': instance.quantity,
+    };
+
 Invoice _$InvoiceFromJson(Map<String, dynamic> json) => Invoice(
       num: (json['num'] as num?)?.toInt(),
       clientID: json['clientID'] as String,
@@ -50,8 +84,8 @@ Invoice _$InvoiceFromJson(Map<String, dynamic> json) => Invoice(
       appointmentEntries: (json['appointmentEntries'] as List<dynamic>)
           .map((e) => AppointmentEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
-      materialOrderIDs: (json['materialOrderIDs'] as List<dynamic>)
-          .map((e) => e as String)
+      materialOrderSummaries: (json['materialOrderSummaries'] as List<dynamic>)
+          .map((e) => MaterialOrderSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       dateBilled: json['dateBilled'] == null
           ? null
@@ -70,7 +104,8 @@ Map<String, dynamic> _$InvoiceToJson(Invoice instance) => <String, dynamic>{
       'datePaid': instance.datePaid?.toIso8601String(),
       'appointmentEntries':
           instance.appointmentEntries.map((e) => e.toJson()).toList(),
-      'materialOrderIDs': instance.materialOrderIDs,
+      'materialOrderSummaries':
+          instance.materialOrderSummaries.map((e) => e.toJson()).toList(),
     };
 
 const _$CurrencyEnumMap = {

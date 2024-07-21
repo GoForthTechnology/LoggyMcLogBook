@@ -25,6 +25,40 @@ class AppointmentEntry {
   Map<String, dynamic> toJson() => _$AppointmentEntryToJson(this);
 }
 
+@JsonSerializable(explicitToJson: true)
+class MaterialOrderSummary {
+  final String orderID;
+  final List<MaterialEntry> entries;
+  final double shippingPrice;
+
+  MaterialOrderSummary(
+      {required this.orderID,
+      required this.entries,
+      required this.shippingPrice});
+
+  factory MaterialOrderSummary.fromJson(Map<String, dynamic> json) =>
+      _$MaterialOrderSummaryFromJson(json);
+  Map<String, dynamic> toJson() => _$MaterialOrderSummaryToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class MaterialEntry {
+  final String materialName;
+  final String materialID;
+  final int price;
+  final int quantity;
+
+  MaterialEntry(
+      {required this.materialName,
+      required this.materialID,
+      required this.price,
+      required this.quantity});
+
+  factory MaterialEntry.fromJson(Map<String, dynamic> json) =>
+      _$MaterialEntryFromJson(json);
+  Map<String, dynamic> toJson() => _$MaterialEntryToJson(this);
+}
+
 enum InvoiceState { pending, billed, paid, overdue }
 
 @JsonSerializable(explicitToJson: true)
@@ -38,7 +72,7 @@ class Invoice extends Indexable<Invoice> {
   DateTime? dateBilled;
   DateTime? datePaid;
   final List<AppointmentEntry> appointmentEntries;
-  final List<String> materialOrderIDs;
+  final List<MaterialOrderSummary> materialOrderSummaries;
 
   Invoice(
       {this.id,
@@ -47,7 +81,7 @@ class Invoice extends Indexable<Invoice> {
       required this.currency,
       required this.dateCreated,
       required this.appointmentEntries,
-      required this.materialOrderIDs,
+      required this.materialOrderSummaries,
       this.dateBilled,
       this.datePaid});
 
@@ -68,7 +102,7 @@ class Invoice extends Indexable<Invoice> {
     DateTime? dateBilled,
     DateTime? datePaid,
     List<AppointmentEntry>? appointmentEntries,
-    List<String>? materialOrderIDs,
+    List<MaterialOrderSummary>? materialOrderSummaries,
   }) {
     return Invoice(
         id: this.id,
@@ -77,7 +111,8 @@ class Invoice extends Indexable<Invoice> {
         currency: this.currency,
         dateCreated: this.dateCreated,
         appointmentEntries: appointmentEntries ?? this.appointmentEntries,
-        materialOrderIDs: materialOrderIDs ?? this.materialOrderIDs,
+        materialOrderSummaries:
+            materialOrderSummaries ?? this.materialOrderSummaries,
         dateBilled: dateBilled ?? this.dateBilled,
         datePaid: datePaid ?? this.datePaid);
   }
@@ -90,7 +125,7 @@ class Invoice extends Indexable<Invoice> {
         currency: currency,
         dateCreated: dateCreated,
         appointmentEntries: appointmentEntries,
-        materialOrderIDs: materialOrderIDs,
+        materialOrderSummaries: materialOrderSummaries,
         dateBilled: null,
         datePaid: datePaid);
   }
@@ -103,7 +138,7 @@ class Invoice extends Indexable<Invoice> {
         currency: currency,
         dateCreated: dateCreated,
         appointmentEntries: appointmentEntries,
-        materialOrderIDs: materialOrderIDs,
+        materialOrderSummaries: materialOrderSummaries,
         dateBilled: dateBilled,
         datePaid: null);
   }

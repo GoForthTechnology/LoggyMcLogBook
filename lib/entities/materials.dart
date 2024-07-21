@@ -164,6 +164,14 @@ class ClientOrder extends _Order {
     );
   }
 
+  double totalPrice() {
+    double total = shippingPrice;
+    for (var entry in entries) {
+      total += entry.pricePerItem * entry.quantity;
+    }
+    return total;
+  }
+
   factory ClientOrder.fromJson(Map<String, dynamic> json) =>
       _$ClientOrderFromJson(json);
   @override
