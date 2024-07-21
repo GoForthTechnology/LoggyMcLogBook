@@ -97,6 +97,7 @@ Map<String, dynamic> _$ClientOrderToJson(ClientOrder instance) =>
 
 OrderEntry _$OrderEntryFromJson(Map<String, dynamic> json) => OrderEntry(
       materialID: json['materialID'] as String,
+      displayName: json['displayName'] as String,
       pricePerItem: (json['pricePerItem'] as num).toInt(),
       quantity: (json['quantity'] as num).toInt(),
     );
@@ -104,6 +105,7 @@ OrderEntry _$OrderEntryFromJson(Map<String, dynamic> json) => OrderEntry(
 Map<String, dynamic> _$OrderEntryToJson(OrderEntry instance) =>
     <String, dynamic>{
       'materialID': instance.materialID,
+      'displayName': instance.displayName,
       'pricePerItem': instance.pricePerItem,
       'quantity': instance.quantity,
     };

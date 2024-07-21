@@ -198,24 +198,23 @@ class NextStepsPanel extends StatelessWidget {
           },
         ),
       ),
-      OverviewTile(
-        attentionLevel: OverviewAttentionLevel.grey,
-        title: "Order Materials",
-        icon: Icons.palette,
-        actions: [
-          OverviewAction(
-            title: "Order",
-            onPress: () => showDialog(
-                context: context,
-                builder: (context) => Consumer<MaterialsRepo>(
-                    builder: (context, repo, child) => NewClientOrderDialog(
-                          repo: repo,
-                          clientID: client.id!,
-                          editingEnabled: true,
-                        ))),
-          ),
-        ],
-      ),
+      Consumer<MaterialsRepo>(
+          builder: (context, repo, child) => OverviewTile(
+                attentionLevel: OverviewAttentionLevel.grey,
+                title: "Order Materials",
+                icon: Icons.palette,
+                actions: [
+                  OverviewAction(
+                      title: "Order",
+                      onPress: () => showDialog(
+                          context: context,
+                          builder: (context) => NewClientOrderDialog(
+                                repo: repo,
+                                clientID: client.id!,
+                                editingEnabled: true,
+                              ))),
+                ],
+              )),
     ]);
   }
 }

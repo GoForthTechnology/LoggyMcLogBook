@@ -4,15 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:lmlb/entities/appointment.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/invoice.dart';
+import 'package:lmlb/entities/materials.dart';
 import 'package:lmlb/persistence/StreamingCrudInterface.dart';
 import 'package:lmlb/repos/appointments.dart';
+import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/materials.dart';
 
 class Invoices extends ChangeNotifier {
   final StreamingCrudInterface<Invoice> _persistence;
 
   final Appointments appointmentRepo;
+  final MaterialsRepo materialsRepo;
+  final Clients clientRepo;
 
-  Invoices(this._persistence, this.appointmentRepo);
+  Invoices(this._persistence, this.appointmentRepo, this.materialsRepo,
+      this.clientRepo);
 
   Future<void> update(Invoice invoice) async {
     return _persistence.update(invoice).ignore();
@@ -74,7 +80,7 @@ class Invoices extends ChangeNotifier {
 
   Future<String> create(String clientID, Client client,
       {List<Appointment> appointments = const [],
-      List<String> materialOrderIDs = const []}) async {
+      List<ClientOrder> materialOrders = const []}) async {
     var pendingInvoice = await _pendingInvoice(clientID);
     if (pendingInvoice != null) {
       throw Exception(
@@ -96,13 +102,43 @@ class Invoices extends ChangeNotifier {
               appointmentDate: a.time,
               price: client.defaultFollowUpPrice ?? 0))
           .toList(),
-      materialOrderIDs: materialOrderIDs,
+      materialOrderSummaries:
+          materialOrders.map(MaterialOrderSummary.from).toList(),
     ));
     await Future.wait(appointments
         .map((a) =>
             appointmentRepo.updateAppointment(a.copyWith(invoiceID: invoiceID)))
         .toList());
+    await Future.wait(materialOrders
+        .map((o) =>
+            materialsRepo.updateClientOrder(o.copyWith(invoiceID: invoiceID)))
+        .toList());
     return invoiceID;
+  }
+
+  Future<String> invoiceClientOrder(ClientOrder order) async {
+    if (order.invoiceID != null) {
+      return "Order alreay invoiced!";
+    }
+
+    var pendingInvoice = await getPending(clientID: order.clientID).first;
+    if (pendingInvoice != null) {
+      var summaries = pendingInvoice.materialOrderSummaries;
+      var summary = MaterialOrderSummary.from(order);
+      await update(pendingInvoice
+          .copyWith(materialOrderSummaries: [summary, ...summaries]));
+      await materialsRepo
+          .updateClientOrder(order.copyWith(invoiceID: pendingInvoice.id));
+      return "Added to pending invoice";
+    }
+
+    var client = await clientRepo.get(order.clientID);
+    if (client == null) {
+      return "Could not find client!";
+    }
+    var invoiceID = await create(client.id!, client, materialOrders: [order]);
+    await materialsRepo.updateClientOrder(order.copyWith(invoiceID: invoiceID));
+    return "Added to new invoice";
   }
 
   Future<void> updateAppointmentPrice(String clientID, String invoiceID,

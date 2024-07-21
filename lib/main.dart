@@ -56,14 +56,6 @@ Future<Widget> init(Widget app, bool isWeb) {
       collectionName: "appointments",
       fromJson: Appointment.fromJson,
       toJson: (a) => a.toJson()));
-  final invoiceRepo = Invoices(
-      FirestoreCrud(
-          collectionName: "invoices",
-          fromJson: Invoice.fromJson,
-          toJson: (i) => i.toJson()),
-      appointmentRepo);
-  final aiRepo =
-      ActionItemRepo(invoiceRepo, appointmentRepo, reminderRepo, clients);
   final materialsRepo = MaterialsRepo(
     FirestoreCrud(
       collectionName: "materials",
@@ -80,9 +72,17 @@ Future<Widget> init(Widget app, bool isWeb) {
       fromJson: ClientOrder.fromJson,
       toJson: (i) => i.toJson(),
     ),
-    invoiceRepo,
-    clients,
   );
+  final invoiceRepo = Invoices(
+      FirestoreCrud(
+          collectionName: "invoices",
+          fromJson: Invoice.fromJson,
+          toJson: (i) => i.toJson()),
+      appointmentRepo,
+      materialsRepo,
+      clients);
+  final aiRepo =
+      ActionItemRepo(invoiceRepo, appointmentRepo, reminderRepo, clients);
   return init.then((_) => MultiProvider(providers: [
         ChangeNotifierProvider.value(value: clients),
         ChangeNotifierProvider.value(value: appointmentRepo),

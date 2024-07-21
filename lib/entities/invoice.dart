@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:lmlb/entities/appointment.dart';
+import 'package:lmlb/entities/materials.dart';
 import 'package:lmlb/persistence/local/Indexable.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -35,6 +36,21 @@ class MaterialOrderSummary {
       {required this.orderID,
       required this.entries,
       required this.shippingPrice});
+
+  static MaterialOrderSummary from(ClientOrder o) {
+    return MaterialOrderSummary(
+      orderID: o.id!,
+      entries: o.entries
+          .map((e) => MaterialEntry(
+                materialName: e.displayName,
+                materialID: e.materialID,
+                price: e.pricePerItem,
+                quantity: e.quantity,
+              ))
+          .toList(),
+      shippingPrice: o.shippingPrice,
+    );
+  }
 
   factory MaterialOrderSummary.fromJson(Map<String, dynamic> json) =>
       _$MaterialOrderSummaryFromJson(json);

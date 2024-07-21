@@ -320,7 +320,7 @@ class MaterialsPanel extends StatelessWidget {
     return Consumer<MaterialsRepo>(
         builder: (context, materialsRepo, child) =>
             StreamBuilder<List<ClientOrder>>(
-              stream: materialsRepo.clientOrders(invoiceID: invoice.id!),
+              stream: materialsRepo.clientOrders(clientID: invoice.clientID),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Container();
@@ -371,9 +371,11 @@ class AppointmentPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int totalPrice = invoice.appointmentEntries
-        .map((e) => e.price)
-        .reduce((value, element) => value + element);
+    int totalPrice = invoice.appointmentEntries.isEmpty
+        ? 0
+        : invoice.appointmentEntries
+            .map((e) => e.price)
+            .reduce((value, element) => value + element);
     return ExpandableInfoPanel(
       title: "Appointments",
       subtitle: "$totalPrice ${invoice.currency.name}",

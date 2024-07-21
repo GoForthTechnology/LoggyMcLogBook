@@ -23,6 +23,7 @@ class NewClientOrderDialog extends StatefulWidget {
 class _NewClientOrderDialogState extends State<NewClientOrderDialog> {
   final Map<String, TextEditingController> itemCounts = {};
   final Map<String, TextEditingController> itemPrices = {};
+  final Map<String, String> displayNames = {};
   final shippingPriceController = TextEditingController();
   final dateShippedController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -41,6 +42,7 @@ class _NewClientOrderDialogState extends State<NewClientOrderDialog> {
         var priceController = itemPrices.putIfAbsent(
             entry.materialID, () => TextEditingController());
         priceController.text = entry.pricePerItem.toString();
+        displayNames[entry.materialID] = entry.displayName;
       }
     }
     super.initState();
@@ -112,6 +114,7 @@ class _NewClientOrderDialogState extends State<NewClientOrderDialog> {
   }
 
   Widget _itemControls(MaterialItem item) {
+    displayNames[item.id!] = item.displayName;
     return Row(
       children: [
         Text(item.displayName),
@@ -154,8 +157,13 @@ class _NewClientOrderDialogState extends State<NewClientOrderDialog> {
           .map((e) {
         var price = int.parse(itemPrices[e.key]!.text);
         var quantity = int.parse(itemCounts[e.key]!.text);
+        var displayName = displayNames[e.key]!;
         return OrderEntry(
-            materialID: e.key, pricePerItem: price, quantity: quantity);
+          materialID: e.key,
+          pricePerItem: price,
+          quantity: quantity,
+          displayName: displayName,
+        );
       }).toList();
       var shippingPrice = double.parse(shippingPriceController.text);
 

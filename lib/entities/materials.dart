@@ -181,11 +181,13 @@ class ClientOrder extends _Order {
 @JsonSerializable(explicitToJson: true)
 class OrderEntry {
   final String materialID;
+  final String displayName;
   final int pricePerItem;
   final int quantity;
 
   OrderEntry(
       {required this.materialID,
+      required this.displayName,
       required this.pricePerItem,
       required this.quantity});
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lmlb/entities/client.dart';
 import 'package:lmlb/entities/materials.dart';
 import 'package:lmlb/repos/clients.dart';
+import 'package:lmlb/repos/invoices.dart';
 import 'package:lmlb/repos/materials.dart';
 import 'package:lmlb/widgets/info_panel.dart';
 import 'package:lmlb/widgets/new_material_client_order_dialog.dart';
@@ -16,31 +17,34 @@ class ClientOrdersPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MaterialsRepo>(
-        builder: (context, repo, child) => StreamBuilder<List<ClientOrder>>(
-            stream: repo.clientOrders(clientID: clientID),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Container();
-              }
-              var orders = snapshot.data!;
-              var numOutstanding =
-                  orders.where((o) => o.dateShipped == null).length;
-              var numToInvoice = orders
-                  .where((o) => o.dateShipped != null && o.invoiceID == null)
-                  .length;
-              return ExpandableInfoPanel(
-                title: title,
-                subtitle:
-                    "$numOutstanding order(s) to ship, $numToInvoice order(s) to invoice",
-                contents:
-                    orders.map((o) => _orderTile(context, repo, o)).toList(),
-              );
-            }));
+    return Consumer2<MaterialsRepo, Invoices>(
+        builder: (context, repo, invoiceRepo, child) =>
+            StreamBuilder<List<ClientOrder>>(
+                stream: repo.clientOrders(clientID: clientID),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container();
+                  }
+                  var orders = snapshot.data!;
+                  var numOutstanding =
+                      orders.where((o) => o.dateShipped == null).length;
+                  var numToInvoice = orders
+                      .where(
+                          (o) => o.dateShipped != null && o.invoiceID == null)
+                      .length;
+                  return ExpandableInfoPanel(
+                    title: title,
+                    subtitle:
+                        "$numOutstanding order(s) to ship, $numToInvoice order(s) to invoice",
+                    contents: orders
+                        .map((o) => _orderTile(context, repo, invoiceRepo, o))
+                        .toList(),
+                  );
+                }));
   }
 
-  Widget _orderTile(
-      BuildContext context, MaterialsRepo repo, ClientOrder order) {
+  Widget _orderTile(BuildContext context, MaterialsRepo repo,
+      Invoices invoiceRepo, ClientOrder order) {
     List<OverviewAction> actions = [];
     var attentionLevel = OverviewAttentionLevel.grey;
     if (order.dateShipped == null) {
@@ -67,7 +71,7 @@ class ClientOrdersPanel extends StatelessWidget {
           title: "Invoice",
           onPress: () async {
             var messenger = ScaffoldMessenger.of(context);
-            var message = await repo.invoiceClientOrder(order);
+            var message = await invoiceRepo.invoiceClientOrder(order);
             messenger.showSnackBar(SnackBar(content: Text(message)));
           }));
       actions.add(OverviewAction(
