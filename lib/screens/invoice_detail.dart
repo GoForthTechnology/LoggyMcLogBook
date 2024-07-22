@@ -320,15 +320,18 @@ class MaterialsPanel extends StatelessWidget {
     return Consumer<MaterialsRepo>(
         builder: (context, materialsRepo, child) =>
             StreamBuilder<List<ClientOrder>>(
-              stream: materialsRepo.clientOrders(clientID: invoice.clientID),
+              stream: materialsRepo.clientOrders(
+                  clientID: invoice.clientID, invoiceID: invoice.id),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Container();
                 }
                 var orders = snapshot.data!;
-                double totalPrice = orders
-                    .map((o) => o.totalPrice())
-                    .reduce((value, element) => value + element);
+                double totalPrice = orders.isEmpty
+                    ? 0
+                    : orders
+                        .map((o) => o.totalPrice())
+                        .reduce((value, element) => value + element);
                 return ExpandableInfoPanel(
                   title: "Materials",
                   subtitle: "$totalPrice ${invoice.currency.name}",
@@ -349,7 +352,10 @@ class MaterialsPanel extends StatelessWidget {
                               ),
                               IconButton(
                                 onPressed: () async {
-                                  // TODO: finish this
+                                  if (await confirmOrderRemoval(context)) {
+                                    await invoiceRepo.removeOrder(
+                                        invoice, o.id!);
+                                  }
                                 },
                                 icon: const Icon(Icons.remove_circle_outline),
                               )
@@ -359,6 +365,26 @@ class MaterialsPanel extends StatelessWidget {
                 );
               },
             ));
+  }
+
+  Future<bool> confirmOrderRemoval(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Confirm Removal"),
+            content: const Text(
+                "Would you like to remove this order from the invoice?"),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("Yes")),
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("No")),
+            ],
+          ),
+        ) ??
+        false;
   }
 }
 

@@ -25,10 +25,14 @@ class MaterialsRepo extends ChangeNotifier {
     return _restockOrders.getAll();
   }
 
-  Stream<List<ClientOrder>> clientOrders({String? clientID}) {
+  Stream<List<ClientOrder>> clientOrders(
+      {String? clientID, String? invoiceID}) {
     List<Criteria> criteria = [];
     if (clientID != null) {
       criteria.add(Criteria("clientID", isEqualTo: clientID));
+    }
+    if (invoiceID != null) {
+      criteria.add(Criteria("invoiceID", isEqualTo: invoiceID));
     }
     return _clientOrders.getWhere(criteria);
   }
@@ -84,5 +88,9 @@ class MaterialsRepo extends ChangeNotifier {
 
   Future<void> updateClientOrder(ClientOrder order) {
     return _clientOrders.update(order);
+  }
+
+  Stream<ClientOrder?> getClientOrder(String orderID) {
+    return _clientOrders.get(orderID);
   }
 }

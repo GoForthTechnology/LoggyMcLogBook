@@ -164,6 +164,26 @@ class Invoices extends ChangeNotifier {
         invoice.copyWith(appointmentEntries: updatedAppointmentEntries));
   }
 
+  Future<Invoice> removeOrder(Invoice invoice, String orderID) async {
+    var order = await materialsRepo.getClientOrder(orderID).first;
+    if (order == null) {
+      throw Exception("No order found for ID $orderID");
+    }
+    var updatedSummaries = invoice.materialOrderSummaries
+        .where((s) => s.orderID != orderID)
+        .toList();
+    var updatedInvoice =
+        invoice.copyWith(materialOrderSummaries: updatedSummaries);
+    try {
+      await materialsRepo.updateClientOrder(order.clearInvoice());
+      await update(updatedInvoice);
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+    return updatedInvoice;
+  }
+
   Future<Invoice> removeAppointment(
       Invoice invoice, String appointmentID) async {
     var appointment = await appointmentRepo

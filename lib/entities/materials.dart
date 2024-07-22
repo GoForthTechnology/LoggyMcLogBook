@@ -172,6 +172,18 @@ class ClientOrder extends _Order {
     return total;
   }
 
+  ClientOrder clearInvoice() {
+    return ClientOrder(
+      id: id,
+      entries: entries,
+      shippingPrice: shippingPrice,
+      clientID: clientID,
+      dateShipped: dateShipped,
+      dateCreated: dateCreated,
+      invoiceID: null,
+    );
+  }
+
   factory ClientOrder.fromJson(Map<String, dynamic> json) =>
       _$ClientOrderFromJson(json);
   @override
