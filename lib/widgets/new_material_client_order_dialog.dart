@@ -1,7 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lmlb/entities/materials.dart';
 import 'package:lmlb/repos/materials.dart';
+import 'package:lmlb/routes.gr.dart';
 
 class NewClientOrderDialog extends StatefulWidget {
   final String clientID;
@@ -106,7 +108,17 @@ class _NewClientOrderDialogState extends State<NewClientOrderDialog> {
                             const InputDecoration(labelText: "Date Shipped"),
                         initialValue:
                             widget.order?.dateShipped!.toIso8601String(),
-                      )
+                      ),
+                    if (widget.order?.invoiceID != null)
+                      Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: TextButton(
+                            onPressed: () => AutoRouter.of(context).push(
+                                InvoiceDetailScreenRoute(
+                                    invoiceID: widget.order!.invoiceID!,
+                                    clientID: widget.clientID)),
+                            child: const Text("View Invoice"),
+                          )),
                   ],
                 )),
           );

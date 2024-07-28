@@ -64,16 +64,7 @@ class ClientOrdersPanel extends StatelessWidget {
                     order: order,
                     editingEnabled: true,
                   ))));
-    }
-    if (order.dateShipped != null && order.invoiceID == null) {
-      attentionLevel = OverviewAttentionLevel.yellow;
-      actions.add(OverviewAction(
-          title: "Invoice",
-          onPress: () async {
-            var messenger = ScaffoldMessenger.of(context);
-            var message = await invoiceRepo.invoiceClientOrder(order);
-            messenger.showSnackBar(SnackBar(content: Text(message)));
-          }));
+    } else {
       actions.add(OverviewAction(
           title: "View",
           onPress: () => showDialog(
@@ -84,6 +75,16 @@ class ClientOrdersPanel extends StatelessWidget {
                     order: order,
                     editingEnabled: false,
                   ))));
+    }
+    if (order.dateShipped != null && order.invoiceID == null) {
+      attentionLevel = OverviewAttentionLevel.yellow;
+      actions.add(OverviewAction(
+          title: "Invoice",
+          onPress: () async {
+            var messenger = ScaffoldMessenger.of(context);
+            var message = await invoiceRepo.invoiceClientOrder(order);
+            messenger.showSnackBar(SnackBar(content: Text(message)));
+          }));
     }
     return Consumer<Clients>(
       builder: (context, clients, child) => FutureBuilder<Client?>(
