@@ -8,9 +8,9 @@ import 'package:lmlb/widgets/info_panel.dart';
 import 'package:provider/provider.dart';
 
 class ClientID extends ChangeNotifier {
-  final String value;
+  final String id;
 
-  ClientID(this.value);
+  ClientID(this.id);
 }
 
 class GifSection {
@@ -350,12 +350,12 @@ class GifFormSection extends StatelessWidget {
               sectionTitle: sectionTitle,
               itemRows: itemRows,
               rowSeparators: rowSeparators,
-              initialValues: repo.getAll(enumType, clientID.value),
+              initialValues: repo.getAll(enumType, clientID.id),
               initiallyExpanded: initiallyExpanded,
               explanations: Stream.value({}),
               //explanations: repo.explanations(enumType, clientID.value),
               onSave: (m) async {
-                await repo.updateAll(enumType, clientID.value, m);
+                await repo.updateAll(enumType, clientID.id, m);
               },
             ));
   }

@@ -11,6 +11,7 @@ enum ClientStatus { Prospective, Active, Inactive }
 class Client extends Indexable<Client> {
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String? id;
+  final String? uid;
   final int? num;
   final bool? active;
   final String firstName;
@@ -26,6 +27,7 @@ class Client extends Indexable<Client> {
     required this.lastName,
     required this.practitionerID,
     this.id,
+    this.uid,
     this.num,
     this.active,
     this.reproductiveCategoryHistory = const [],
@@ -35,6 +37,7 @@ class Client extends Indexable<Client> {
 
   Client copyWith({
     String? id,
+    String? uid,
     int? num,
     bool? active,
     String? firstName,
@@ -46,6 +49,7 @@ class Client extends Indexable<Client> {
   }) {
     return Client(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       num: num ?? this.num,
       active: active ?? this.active,
       firstName: firstName ?? this.firstName,
@@ -96,12 +100,12 @@ class Client extends Indexable<Client> {
   }
 
   ReproductiveCategoryEntry? currentReproductiveCategory() {
-    ReproductiveCategoryEntry? current = null;
-    reproductiveCategoryHistory.forEach((entry) {
-      if (current == null || current!.sinceDate.isBefore(entry.sinceDate)) {
+    ReproductiveCategoryEntry? current;
+    for (var entry in reproductiveCategoryHistory) {
+      if (current == null || current.sinceDate.isBefore(entry.sinceDate)) {
         current = entry;
       }
-    });
+    }
     return current;
   }
 

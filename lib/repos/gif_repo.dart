@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:lmlb/entities/client_general_info.dart';
 import 'package:lmlb/persistence/firebase/firestore_form_crud.dart';
 import 'package:lmlb/persistence/streaming_form_crud.dart';
+import 'package:lmlb/repos/clients.dart';
 
 class ItemConfig {
   final String formID;
@@ -13,7 +14,8 @@ class ItemConfig {
 }
 
 class GifRepo extends ChangeNotifier {
-  final StreamingFormCrud _persistence;
+  final Clients _clientRepo;
+  final StreamingFormCrudi _persistence;
   static const Map<Type, ItemConfig> _itemConfigs = {
     GeneralInfoItem: ItemConfig(
       formID: "GIF-GENERAL-INFO",
@@ -37,7 +39,7 @@ class GifRepo extends ChangeNotifier {
     ),
   };
 
-  GifRepo(this._persistence);
+  GifRepo(this._persistence, this._clientRepo);
 
   String _formID(Type enumType) {
     var config = _itemConfigs[enumType];
@@ -47,12 +49,19 @@ class GifRepo extends ChangeNotifier {
     return config.formID;
   }
 
-  FormKey _formKey(Type enumType, String clientID) {
-    return FormKey(formID: _formID(enumType), clientID: clientID);
+  Future<FormKey> _formKey(Type enumType, String clientID) async {
+    var client = await _clientRepo.stream(clientID).first;
+    if (client == null) {
+      throw Exception("No client found for $clientID");
+    }
+    if (client.uid == null) {
+      throw Exception("Client ${client.id} has no uid");
+    }
+    return FormKey(formID: _formID(enumType), clientID: client.uid!);
   }
 
-  Stream<String> get(Enum foo, String clieentID) async* {
-    var key = _formKey(foo.runtimeType, clieentID);
+  Stream<String> get(Enum foo, String clientID) async* {
+    var key = _formKey(foo.runtimeType, clientID);
     yield* _persistence.getValue(key, foo).map((fv) => fv.value);
   }
 
@@ -62,8 +71,9 @@ class GifRepo extends ChangeNotifier {
       throw Exception("Could not find ItemConfig for $enumType");
     }
     Map<String, GifItem> index = {};
-    itemConfig.items
-        .forEach((item) => index.putIfAbsent(item.name, () => item));
+    for (var item in itemConfig.items) {
+      index.putIfAbsent(item.name, () => item);
+    }
     var formKey = _formKey(enumType, clientID);
     yield* _persistence.getAllValues(formKey).map((m) {
       Map<GifItem, String> out = {};

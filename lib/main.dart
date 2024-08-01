@@ -49,7 +49,7 @@ Future<Widget> init(Widget app, bool isWeb) {
       collectionName: "reminders",
       fromJson: Reminder.fromJson,
       toJson: (r) => r.toJson()));
-  final gifRepo = GifRepo(FirestoreFormCrud());
+  final gifRepo = GifRepo(FirestoreFormCrud(clientsAsProfiles), clients);
   //final init = Future.wait<Object>([clients.init(), appointments.init(), invoices.init()]);
   final init = Future.value(null);
   final appointmentRepo = Appointments(FirestoreCrud(

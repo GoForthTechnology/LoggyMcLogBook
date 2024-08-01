@@ -10,6 +10,7 @@ Client _$ClientFromJson(Map<String, dynamic> json) => Client(
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
       practitionerID: json['practitionerID'] as String,
+      uid: json['uid'] as String?,
       num: (json['num'] as num?)?.toInt(),
       active: json['active'] as bool?,
       reproductiveCategoryHistory: (json['reproductiveCategoryHistory']
@@ -23,6 +24,7 @@ Client _$ClientFromJson(Map<String, dynamic> json) => Client(
     );
 
 Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
+      'uid': instance.uid,
       'num': instance.num,
       'active': instance.active,
       'firstName': instance.firstName,

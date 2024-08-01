@@ -19,11 +19,52 @@ class FormValue {
   FormValue({required this.value, this.comment = ""});
 }
 
-class FirestoreFormCrud<E> extends StreamingFormCrud {
+Future<CollectionReference<FormValue>> clientsUnderUsers(
+    FormKey key, Completer<User> userCompleter, FirebaseFirestore db) async {
+  var user = await userCompleter.future.timeout(const Duration(seconds: 10));
+  return db
+      .collection("users")
+      .doc(user.uid)
+      .collection("clients")
+      .doc(key.clientID)
+      .collection(key.formID)
+      .withConverter<FormValue>(
+        fromFirestore: (snapshot, _) {
+          var data = snapshot.data()!;
+          return FormValue(value: data["value"], comment: data["comment"]);
+        },
+        toFirestore: (value, _) => {
+          "value": value.value,
+          "comment": value.comment,
+        },
+      );
+}
+
+Future<CollectionReference<FormValue>> clientsAsProfiles(
+    FormKey key, Completer<User> _, FirebaseFirestore db) async {
+  return db
+      .collection("profiles")
+      .doc(key.clientID)
+      .collection(key.formID)
+      .withConverter<FormValue>(
+        fromFirestore: (snapshot, _) {
+          var data = snapshot.data()!;
+          return FormValue(value: data["value"], comment: data["comment"]);
+        },
+        toFirestore: (value, _) => {
+          "value": value.value,
+          "comment": value.comment,
+        },
+      );
+}
+
+class FirestoreFormCrud extends StreamingFormCrudi<FormKey> {
   final FirebaseFirestore db;
   final userCompleter = new Completer<User>();
+  final Future<CollectionReference<FormValue>> Function(
+      FormKey, Completer<User>, FirebaseFirestore) refFn;
 
-  FirestoreFormCrud() : db = FirebaseFirestore.instance {
+  FirestoreFormCrud(this.refFn) : db = FirebaseFirestore.instance {
     FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user != null && !userCompleter.isCompleted) {
         userCompleter.complete(user);
@@ -53,7 +94,7 @@ class FirestoreFormCrud<E> extends StreamingFormCrud {
 
   @override
   Stream<FormValue> getValue(FormKey key, Enum itemID) async* {
-    var ref = await _formReference(key);
+    var ref = await refFn(key, userCompleter, db);
     yield* ref
         .doc(itemID.name)
         .snapshots()
@@ -63,7 +104,7 @@ class FirestoreFormCrud<E> extends StreamingFormCrud {
 
   @override
   Stream<Map<String, FormValue>> getAllValues(FormKey key) async* {
-    var ref = await _formReference(key);
+    var ref = await refFn(key, userCompleter, db);
     yield* ref.snapshots().map((snapshot) {
       Map<String, FormValue> out = {};
       for (var doc in snapshot.docs) {
@@ -76,7 +117,7 @@ class FirestoreFormCrud<E> extends StreamingFormCrud {
   @override
   Future<void> updateAllValues(
       FormKey key, Map<String, FormValue> values) async {
-    var ref = await _formReference(key);
+    var ref = await refFn(key, userCompleter, db);
     var futures = <Future>[];
     values.forEach((key, value) {
       futures.add(ref
@@ -89,7 +130,7 @@ class FirestoreFormCrud<E> extends StreamingFormCrud {
 
   @override
   Future<void> updateValue(FormKey key, Enum itemID, FormValue value) async {
-    var ref = await _formReference(key);
+    var ref = await refFn(key, userCompleter, db);
     await ref.doc(itemID.name).set(value);
   }
 }
