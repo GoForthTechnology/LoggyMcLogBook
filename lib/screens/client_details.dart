@@ -73,9 +73,10 @@ class ClientDetailsScreen extends StatelessWidget {
                 ReproductiveHistoryPanel(
                   client: client,
                 ),
-                GifForm(
-                  clientID: clientId,
-                ),
+                if (client.uid != null)
+                  GifForm(
+                    clientID: clientId,
+                  ),
               ]),
             );
           }),

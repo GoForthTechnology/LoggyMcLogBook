@@ -61,7 +61,7 @@ class GifRepo extends ChangeNotifier {
   }
 
   Stream<String> get(Enum foo, String clientID) async* {
-    var key = _formKey(foo.runtimeType, clientID);
+    var key = await _formKey(foo.runtimeType, clientID);
     yield* _persistence.getValue(key, foo).map((fv) => fv.value);
   }
 
@@ -74,7 +74,7 @@ class GifRepo extends ChangeNotifier {
     for (var item in itemConfig.items) {
       index.putIfAbsent(item.name, () => item);
     }
-    var formKey = _formKey(enumType, clientID);
+    var formKey = await _formKey(enumType, clientID);
     yield* _persistence.getAllValues(formKey).map((m) {
       Map<GifItem, String> out = {};
       m.forEach((k, v) {
@@ -90,7 +90,7 @@ class GifRepo extends ChangeNotifier {
 
   Future<void> updateAll(
       Type enumType, String clientID, Map<String, String> entries) async {
-    var formKey = _formKey(enumType, clientID);
+    var formKey = await _formKey(enumType, clientID);
     var values = entries.map((k, v) => MapEntry(k, FormValue(value: v)));
     await _persistence.updateAllValues(formKey, values);
   }
